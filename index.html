@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduMusic - Juegos de Música</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h1>EduMusic</h1>
+  <p>Selecciona una actividad para empezar:</p>
+
+  <div style="max-width:900px;margin:24px auto;text-align:left;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+    <a href="game.html" style="text-decoration:none;color:inherit;">
+      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
+        <h2 style="margin-top:0;">Atrapa Notas: MI y SOL</h2>
+        <p style="margin-bottom:8px;">Pulsa las teclas del piano para atrapar las notas en el pentagrama.</p>
+        <small>Dificultad progresiva · Ranking online</small>
+      </div>
+    </a>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
+  </script>
+</body>
+</html>
