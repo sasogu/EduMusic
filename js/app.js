@@ -142,6 +142,17 @@
       'game.overlay.pause_sub': 'Pulsa Pausa para continuar',
       'game.rank.empty': 'Aún no hay puntuaciones. ¡Sé el primero!',
       'game.rank.pts': 'pts',
+
+      // Rhythm game
+      'rhythm.title': 'Ritmo: TA, SU (y TITI)',
+      'rhythm.instructions': 'Identifica patrones rítmicos de una negra (TA) y silencio (SU). A partir de 10 puntos se añade TITI (dos corcheas).',
+      'rhythm.play': 'Repetir',
+      'rhythm.play_hint': 'Vuelve a escuchar el patrón actual',
+      'rhythm.include_titi': 'Incluir TITI',
+      'rhythm.level': 'Nivel:',
+      'rhythm.level1': 'Nivel 1',
+      'rhythm.level2': 'Nivel 2',
+      'rhythm.level3': 'Nivel 3',
     },
     val: {
       // SW footer
@@ -190,6 +201,17 @@
       'game.overlay.pause_sub': 'Prem Pausa per a continuar',
       'game.rank.empty': 'Encara no hi ha puntuacions. Sigues el primer!',
       'game.rank.pts': 'pts',
+
+      // Rhythm game
+      'rhythm.title': 'Ritme: TA, SU (i TITI)',
+      'rhythm.instructions': 'Identifica patrons rítmics d’una negra (TA) i silenci (SU). A partir de 10 punts s’afegeix TITI (dos corxeres).',
+      'rhythm.play': 'Repetir',
+      'rhythm.play_hint': "Torna a escoltar el patró actual",
+      'rhythm.include_titi': 'Incloure TITI',
+      'rhythm.level': 'Nivell:',
+      'rhythm.level1': 'Nivell 1',
+      'rhythm.level2': 'Nivell 2',
+      'rhythm.level3': 'Nivell 3',
     }
   };
 

@@ -1,5 +1,7 @@
-const SW_VERSION = 'v0.0.13';
+const SW_VERSION = 'v0.0.20';
 const CACHE = 'edumusic-' + SW_VERSION;
+const META_CACHE = 'edumusic-meta';
+let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -12,6 +14,8 @@ self.addEventListener('install', event => {
         '/manifest.json',
         '/game.html',
         '/js/game.js',
+        '/rhythm.html',
+        '/js/rhythm.js',
         '/assets/icon-192.png',
         '/assets/icon-512.png'
       ]);
@@ -33,35 +37,61 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Network-first for HTML documents to avoid stale pages
+  // HTML: estrategia depende de si hay versión nueva
   const isDocument = request.mode === 'navigate'
     || request.destination === 'document'
     || ((request.headers.get('accept') || '').includes('text/html'));
   if (isDocument) {
-    event.respondWith(
-      fetch(request)
-        .then(resp => {
+    event.respondWith((async () => {
+      if (IS_FRESH_VERSION) {
+        // Network-first cuando hay nueva versión para evitar páginas obsoletas
+        try {
+          const resp = await fetch(request);
           const copy = resp.clone();
           caches.open(CACHE).then(c => c.put(request, copy));
           return resp;
-        })
-        .catch(() => caches.match(request))
-    );
+        } catch {
+          const cached = await caches.match(request);
+          return cached || fetch(request);
+        }
+      } else {
+        // Cache-first cuando la versión no ha cambiado
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        const resp = await fetch(request);
+        const copy = resp.clone();
+        caches.open(CACHE).then(c => c.put(request, copy));
+        return resp;
+      }
+    })());
     return;
   }
 
-  // Network-first for JS to avoid stale code
+  // JS: estrategia depende de si hay versión nueva
   const isScript = request.destination === 'script' || url.pathname.startsWith('/js/');
   if (isScript) {
-    event.respondWith(
-      fetch(request)
-        .then(resp => {
+    event.respondWith((async () => {
+      if (IS_FRESH_VERSION) {
+        // Network-first para evitar JS obsoleto tras actualizar
+        try {
+          const resp = await fetch(request);
           const copy = resp.clone();
           caches.open(CACHE).then(c => c.put(request, copy));
           return resp;
-        })
-        .catch(() => caches.match(request))
-    );
+        } catch {
+          const cached = await caches.match(request);
+          return cached || fetch(request);
+        }
+      } else {
+        // Cache-first si la versión no ha cambiado
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        const resp = await fetch(request);
+        const copy = resp.clone();
+        caches.open(CACHE).then(c => c.put(request, copy));
+        return resp;
+      }
+    })());
     return;
   }
 
@@ -75,9 +105,29 @@ self.addEventListener('fetch', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     (async () => {
+      // Detectar si la versión ha cambiado usando un meta-cache persistente
+      try {
+        const meta = await caches.open(META_CACHE);
+        const versionKey = new Request('/__sw_version__');
+        const prevResp = await meta.match(versionKey);
+        const prev = prevResp ? await prevResp.text() : null;
+        if (prev !== SW_VERSION) {
+          IS_FRESH_VERSION = true;
+          await meta.put(versionKey, new Response(SW_VERSION));
+        }
+      } catch (_) {
+        // Si algo falla, asumimos comportamiento por defecto (no fresh)
+        IS_FRESH_VERSION = false;
+      }
+
+      // Limpiar cachés antiguas pero conservar la meta
       const keys = await caches.keys();
-      await Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)));
-      // Start controlling clients without needing a reload
+      await Promise.all(
+        keys
+          .filter(k => k !== CACHE && k !== META_CACHE)
+          .map(k => caches.delete(k))
+      );
+      // Empezar a controlar clientes sin recarga
       await self.clients.claim();
     })()
   );
