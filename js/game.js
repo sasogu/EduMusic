@@ -539,11 +539,80 @@
     osc.start(now);
     osc.stop(now + durMs / 1000 + 0.02);
   }
+  // Piano-like tone: additive partials + short noise attack + lowpass envelope
+  function pianoTone(freq, durMs = 500, baseGain = 0.12) {
+    if (!audio.ctx) return;
+    const ctx = audio.ctx;
+    const now = ctx.currentTime;
+
+    // Output chain: partials -> lowpass -> destination
+    const out = ctx.createGain();
+    out.gain.setValueAtTime(1, now);
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    // Slightly brighter at onset, then mellow
+    lp.frequency.setValueAtTime(2600, now);
+    lp.Q.setValueAtTime(0.7, now);
+    lp.frequency.exponentialRampToValueAtTime(1100, now + Math.min(0.5, durMs / 1000));
+
+    out.connect(lp).connect(ctx.destination);
+
+    // Add a very short noise burst to emulate hammer attack
+    try {
+      const noiseDur = 0.03;
+      const len = Math.floor(ctx.sampleRate * noiseDur);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) {
+        // Slightly decaying white noise
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.6);
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+      const hp = ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.setValueAtTime(1800, now);
+      const ng = ctx.createGain();
+      ng.gain.setValueAtTime(baseGain * 0.14, now);
+      ng.gain.exponentialRampToValueAtTime(0.0001, now + noiseDur);
+      noise.connect(hp).connect(ng).connect(lp);
+      noise.start(now);
+      noise.stop(now + noiseDur);
+    } catch (_) { /* ignore if not supported */ }
+
+    // Partials: higher ones decay faster, small detune for richness
+    const partials = [
+      { mult: 1.0, type: 'triangle', weight: 0.85, detuneCents: 0, decay: 0.65 },
+      { mult: 1.0, type: 'sine',     weight: 0.18, detuneCents: +4, decay: 0.60 },
+      { mult: 2.0, type: 'sine',     weight: 0.40, detuneCents: 0,  decay: 0.45 },
+      { mult: 3.0, type: 'sine',     weight: 0.25, detuneCents: 0,  decay: 0.35 },
+      { mult: 4.0, type: 'sine',     weight: 0.16, detuneCents: 0,  decay: 0.28 },
+    ];
+
+    const sec = durMs / 1000;
+    for (const p of partials) {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = p.type;
+      osc.frequency.setValueAtTime(freq * p.mult, now);
+      if (osc.detune && p.detuneCents) osc.detune.setValueAtTime(p.detuneCents, now);
+      // Percussive envelope: very fast attack, exponential decay
+      const peak = baseGain * p.weight;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.001, peak), now + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.08, sec * p.decay));
+      osc.connect(g).connect(out);
+      osc.start(now);
+      osc.stop(now + sec + 0.05);
+    }
+  }
   function playPitch(pitch) {
     ensureAudio();
     // E4 ≈ 329.63 Hz, G4 ≈ 392.00 Hz
     const freq = pitch === 'mi' ? 329.63 : 392.0;
-    tone(freq, 160, 'sine', 0.09);
+    // Use a short piano-like sound instead of a bare sine tone
+    pianoTone(freq, 480, 0.12);
   }
   function playError() {
     ensureAudio();

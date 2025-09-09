@@ -1,6 +1,6 @@
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open('edumusic-v0.0.3').then(cache => {
+    caches.open('edumusic-v0.0.4').then(cache => {
       return cache.addAll([
         '/',
         '/index.html',
