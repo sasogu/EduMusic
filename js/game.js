@@ -169,8 +169,8 @@
     state.tPrev = performance.now();
     state.notes.length = 0;
     state.selectorPitch = 'sol';
-    hud.scoreEl.textContent = `Puntos: ${state.score}`;
-    hud.livesEl.textContent = `Vidas: ${state.lives}`;
+    if (hud.scoreEl) hud.scoreEl.textContent = (window.i18n ? window.i18n.t('hud.points', { n: state.score }) : `Puntos: ${state.score}`);
+    if (hud.livesEl) hud.livesEl.textContent = (window.i18n ? window.i18n.t('hud.lives', { n: state.lives }) : `Vidas: ${state.lives}`);
     draw();
   }
 
@@ -265,14 +265,15 @@
     hud.listEl.innerHTML = '';
     if (arr.length === 0) {
       const li = document.createElement('li');
-      li.textContent = 'Aún no hay puntuaciones. ¡Sé el primero!';
+      li.textContent = window.i18n ? window.i18n.t('game.rank.empty') : 'Aún no hay puntuaciones. ¡Sé el primero!';
       hud.listEl.appendChild(li);
       return;
     }
     for (const e of arr) {
       const li = document.createElement('li');
       const date = new Date(e.ts || Date.now());
-      li.textContent = `${e.name} — ${e.score} pts (${date.toLocaleDateString()})`;
+      const pts = window.i18n ? window.i18n.t('game.rank.pts') : 'pts';
+      li.textContent = `${e.name} — ${e.score} ${pts} (${date.toLocaleDateString()})`;
       hud.listEl.appendChild(li);
     }
   }
@@ -314,7 +315,7 @@
         addCross(nx, ny);
         playError();
         state.lives -= 1;
-        hud.livesEl.textContent = `Vidas: ${state.lives}`;
+        if (hud.livesEl) hud.livesEl.textContent = (window.i18n ? window.i18n.t('hud.lives', { n: state.lives }) : `Vidas: ${state.lives}`);
         if (state.lives <= 0) { endGame(); return; }
         continue;
       }
@@ -398,7 +399,8 @@
     ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText('Pulsa MI o SOL en el piano', 10, top + 8);
+    const hint = window.i18n ? window.i18n.t('game.piano_hint') : 'Pulsa MI o SOL en el piano';
+    ctx.fillText(hint, 10, top + 8);
     ctx.restore();
   }
 
@@ -438,9 +440,10 @@
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = 'bold 28px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-    ctx.fillText(state.over ? 'Juego terminado' : 'Pausa', w/2, h/2 - 10);
+    const title = state.over ? (window.i18n ? window.i18n.t('game.overlay.over') : 'Juego terminado') : (window.i18n ? window.i18n.t('game.overlay.pause') : 'Pausa');
+    ctx.fillText(title, w/2, h/2 - 10);
     ctx.font = '16px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-    const msg = state.over ? 'Pulsa Reiniciar para jugar de nuevo' : 'Pulsa Pausa para continuar';
+    const msg = state.over ? (window.i18n ? window.i18n.t('game.overlay.over_sub') : 'Pulsa Reiniciar para jugar de nuevo') : (window.i18n ? window.i18n.t('game.overlay.pause_sub') : 'Pulsa Pausa para continuar');
     ctx.fillText(msg, w/2, h/2 + 22);
     ctx.restore();
   }
@@ -489,13 +492,13 @@
       playPitch(lead.pitch);
       state.notes.splice(leadIndex, 1);
       state.score += 1;
-      hud.scoreEl.textContent = `Puntos: ${state.score}`;
+      if (hud.scoreEl) hud.scoreEl.textContent = (window.i18n ? window.i18n.t('hud.points', { n: state.score }) : `Puntos: ${state.score}`);
     } else {
       // Wrong: lose a life
       addCross(lead.x, lead.y);
       playError();
       state.lives -= 1;
-      hud.livesEl.textContent = `Vidas: ${state.lives}`;
+      if (hud.livesEl) hud.livesEl.textContent = (window.i18n ? window.i18n.t('hud.lives', { n: state.lives }) : `Vidas: ${state.lives}`);
       if (state.lives <= 0) { endGame(); return; }
     }
   }
@@ -707,4 +710,13 @@
   // Init
   resetGame();
   renderRank();
+  // Update texts when language changes
+  if (window.i18n && typeof window.i18n.onChange === 'function') {
+    window.i18n.onChange(() => {
+      if (hud.scoreEl) hud.scoreEl.textContent = window.i18n.t('hud.points', { n: state.score });
+      if (hud.livesEl) hud.livesEl.textContent = window.i18n.t('hud.lives', { n: state.lives });
+      draw();
+      renderRank();
+    });
+  }
 })();
