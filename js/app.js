@@ -9,6 +9,9 @@
     var i18n = window.i18n;
     if (swState.kind === 'version' && swState.version) {
       el.textContent = swState.version;
+    } else if (swState.kind === 'insecure') {
+      // Not a secure context: SW cannot register. Show helpful message.
+      el.textContent = (i18n && i18n.t('sw.status.insecure')) || 'requiere HTTPS o localhost';
     } else if (swState.kind === 'unsupported') {
       el.textContent = (i18n && i18n.t('sw.status.unsupported')) || 'no soportado';
     } else if (swState.kind === 'disabled') {
