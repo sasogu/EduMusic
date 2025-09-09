@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.0.10';
+const SW_VERSION = 'v0.0.13';
 const CACHE = 'edumusic-' + SW_VERSION;
 
 self.addEventListener('install', event => {
@@ -29,6 +29,23 @@ self.addEventListener('fetch', event => {
   if (url.pathname === '/favicon.ico') {
     event.respondWith(
       caches.match('/assets/icon-192.png').then(resp => resp || fetch('/assets/icon-192.png'))
+    );
+    return;
+  }
+
+  // Network-first for HTML documents to avoid stale pages
+  const isDocument = request.mode === 'navigate'
+    || request.destination === 'document'
+    || ((request.headers.get('accept') || '').includes('text/html'));
+  if (isDocument) {
+    event.respondWith(
+      fetch(request)
+        .then(resp => {
+          const copy = resp.clone();
+          caches.open(CACHE).then(c => c.put(request, copy));
+          return resp;
+        })
+        .catch(() => caches.match(request))
     );
     return;
   }

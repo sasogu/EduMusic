@@ -1,9 +1,27 @@
 
 // --- Service Worker helpers (moved from HTML) ---
 (function() {
-  function renderSWVersion(txt) {
+  // Keep a small state so i18n changes can re-render correctly
+  let swState = { kind: 'loading', version: null };
+  function renderSW() {
     var el = document.getElementById('swVersion');
-    if (el) el.textContent = txt || '';
+    if (!el) return;
+    var i18n = window.i18n;
+    if (swState.kind === 'version' && swState.version) {
+      el.textContent = swState.version;
+    } else if (swState.kind === 'unsupported') {
+      el.textContent = (i18n && i18n.t('sw.status.unsupported')) || 'no soportado';
+    } else if (swState.kind === 'disabled') {
+      el.textContent = (i18n && i18n.t('sw.status.disabled')) || 'sin SW';
+    } else if (swState.kind === 'unavailable') {
+      el.textContent = (i18n && i18n.t('sw.status.unavailable')) || 'no disponible';
+    } else {
+      el.textContent = (i18n && i18n.t('sw.loading')) || 'cargando…';
+    }
+  }
+  function setSWState(kind, version) {
+    swState = { kind, version: version || null };
+    renderSW();
   }
 
   async function getSWVersion(reg) {
@@ -25,8 +43,14 @@
   }
 
   function setupSW() {
+    // Initial placeholder
+    setSWState('loading');
+    if (!window.isSecureContext) {
+      setSWState('insecure');
+      return;
+    }
     if (!('serviceWorker' in navigator)) {
-      renderSWVersion((window.i18n && i18n.t('sw.status.unsupported')) || 'no soportado');
+      setSWState('unsupported');
       return;
     }
     const boot = async () => {
@@ -39,14 +63,15 @@
         if (!version && navigator.serviceWorker.controller) {
           version = await getSWVersion({ active: navigator.serviceWorker.controller });
         }
-        renderSWVersion(version || (window.i18n && i18n.t('sw.status.unavailable')) || 'no disponible');
+        if (version) setSWState('version', version);
+        else setSWState('unavailable');
         // Re-check when controller changes (e.g., after update)
         navigator.serviceWorker.addEventListener('controllerchange', async () => {
           const v2 = await getSWVersion(ready);
-          if (v2) renderSWVersion(v2);
+          if (v2) setSWState('version', v2);
         });
       } catch (e) {
-        renderSWVersion((window.i18n && i18n.t('sw.status.disabled')) || 'sin SW');
+        setSWState('disabled');
       }
     };
     // Register as soon as DOM is ready so footer exists
@@ -55,6 +80,14 @@
   }
 
   setupSW();
+  // Re-render on language change if available
+  (function waitI18n() {
+    if (window.i18n && typeof window.i18n.onChange === 'function') {
+      window.i18n.onChange(() => renderSW());
+    } else {
+      setTimeout(waitI18n, 100);
+    }
+  })();
 })();
 // --- Simple i18n engine (es + val) ---
 (function() {
@@ -64,6 +97,7 @@
       'sw.label': 'Service Worker:',
       'sw.loading': 'cargando…',
       'sw.status.unsupported': 'no soportado',
+      'sw.status.insecure': 'requiere HTTPS o localhost',
       'sw.status.unavailable': 'no disponible',
       'sw.status.disabled': 'sin SW',
       'lang.label': 'Idioma:',
@@ -111,6 +145,7 @@
       'sw.label': 'Service Worker:',
       'sw.loading': 'carregant…',
       'sw.status.unsupported': 'no compatible',
+      'sw.status.insecure': 'requereix HTTPS o localhost',
       'sw.status.unavailable': 'no disponible',
       'sw.status.disabled': 'sense SW',
       'lang.label': 'Idioma:',
