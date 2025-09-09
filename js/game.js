@@ -9,6 +9,7 @@
     startBtn: document.getElementById('startBtn'),
     pauseBtn: document.getElementById('pauseBtn'),
     restartBtn: document.getElementById('restartBtn'),
+    speedSel: document.getElementById('speedSelect'),
     // ranking elements
     rankSection: document.getElementById('ranking'),
     saveWrap: document.getElementById('saveScore'),
@@ -49,6 +50,7 @@
     lastSpawn: 0,
     speedBase: 120, // px/s horizontal
     speedIncrease: 0.02, // per second
+    speedMode: 'normal', // 'slow' | 'normal' | 'fast'
     tPrev: 0,
     notes: [],
     // selectorPitch: 'sol' | 'mi'
@@ -117,6 +119,23 @@
     }
   }
 
+  function applySpeed(mode) {
+    state.speedMode = mode;
+    if (mode === 'slow') {
+      state.spawnEveryMs = 1400;
+      state.speedBase = 90;
+      state.speedIncrease = 0.015;
+    } else if (mode === 'fast') {
+      state.spawnEveryMs = 800;
+      state.speedBase = 160;
+      state.speedIncrease = 0.025;
+    } else {
+      state.spawnEveryMs = 1100;
+      state.speedBase = 120;
+      state.speedIncrease = 0.02;
+    }
+  }
+
   window.addEventListener('resize', resize);
   resize();
 
@@ -144,7 +163,8 @@
     state.over = false;
     state.score = 0;
     state.lives = 3;
-    state.speedBase = 120;
+    // Preserve selected speed mode when resetting
+    applySpeed(state.speedMode || 'normal');
     state.lastSpawn = 0;
     state.tPrev = performance.now();
     state.notes.length = 0;
@@ -159,6 +179,8 @@
     state.over = false;
     state.paused = false;
     state.running = true;
+    // Ensure speed matches current selector before starting
+    if (hud.speedSel) applySpeed(hud.speedSel.value || 'normal');
     state.tPrev = performance.now();
     requestAnimationFrame(loop);
   }
@@ -611,8 +633,8 @@
     ensureAudio();
     // E4 ≈ 329.63 Hz, G4 ≈ 392.00 Hz
     const freq = pitch === 'mi' ? 329.63 : 392.0;
-    // Use a short piano-like sound instead of a bare sine tone
-    pianoTone(freq, 480, 0.12);
+    // Make the piano-like sound ring longer
+    pianoTone(freq, 1200, 0.12);
   }
   function playError() {
     ensureAudio();
@@ -654,6 +676,15 @@
   hud.startBtn.addEventListener('click', () => { if (state.over) resetGame(); startGame(); });
   hud.pauseBtn.addEventListener('click', pauseGame);
   hud.restartBtn.addEventListener('click', () => { resetGame(); startGame(); });
+
+  // Speed selector
+  if (hud.speedSel) {
+    hud.speedSel.addEventListener('change', () => {
+      applySpeed(hud.speedSel.value || 'normal');
+    });
+    // Initialize from UI default
+    applySpeed(hud.speedSel.value || 'normal');
+  }
 
   // Save score handlers
   if (hud.saveBtn) {
