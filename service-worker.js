@@ -1,6 +1,6 @@
 const SW_VERSION = 'v0.0.20';
-const CACHE = 'edumusic-' + SW_VERSION;
-const META_CACHE = 'edumusic-meta';
+const CACHE = 'EduMúsic-' + SW_VERSION;
+const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
 
 self.addEventListener('install', event => {

@@ -1,4 +1,4 @@
-# EduMusic PWA
+# EduMúsic PWA
 
 Esta es una Progressive Web App educativa para aprender música, con actividades interactivas en HTML5 y JavaScript.
 

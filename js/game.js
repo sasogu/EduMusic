@@ -204,7 +204,7 @@
   }
 
   // ---------- Ranking (localStorage) ----------
-  const RANK_KEY = 'edumusic_rank_v1';
+  const RANK_KEY = 'EduMúsic_rank_v1';
   async function loadRank() {
     if (remoteEnabled()) {
       try {
