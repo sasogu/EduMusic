@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="clef.title">Dibuja la Clave de Sol</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/icon-192.png" type="image/png">
+  <style>
+    .clef-controls { display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap: wrap; }
+    .clef-controls label { font-weight: 600; }
+    #clefCanvas { background:#fff;border-radius:12px;max-width:100%; box-shadow: 0 4px 16px rgba(0,0,0,0.08); touch-action: none; }
+    .clef-legend { color:#475569; font-size: 14px; margin: 8px 0; }
+  </style>
+  </head>
+<body>
+  <h1 data-i18n="clef.title">Dibuja la Clave de Sol</h1>
+  <div id="langCtrl" style="margin:8px 0;">
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect" style="margin-left:6px;">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+  </div>
+
+  <p class="clef-legend" data-i18n="clef.instructions">
+    Traza con el dedo o el ratón siguiendo los puntos guía para dibujar la clave de sol. Intenta rodear la 2ª línea (la línea de SOL). Pulsa Evaluar para comprobar tu dibujo.
+  </p>
+
+  <div class="clef-controls" style="margin-bottom:8px;">
+    <button id="resetBtn" data-i18n="clef.reset">Borrar</button>
+    <button id="evaluateBtn" data-i18n="clef.evaluate">Evaluar</button>
+    <label style="display:inline-flex;align-items:center;gap:6px;">
+      <input type="checkbox" id="showGuides" checked>
+      <span data-i18n="clef.show_guides">Mostrar guía</span>
+    </label>
+    <a href="index.html" style="margin-left:1em;" data-i18n="game.back">Volver al inicio</a>
+  </div>
+
+  <canvas id="clefCanvas"></canvas>
+
+  <div id="clefResult" class="clef-legend" style="min-height:1.4em;"></div>
+
+  <footer style="margin-top:24px;color:#64748b;font-size:12px;">
+    <span data-i18n="sw.label">Service Worker:</span>
+    <span id="swVersion">cargando…</span>
+  </footer>
+  <script src="js/clave_sol.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+

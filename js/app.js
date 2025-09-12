@@ -112,6 +112,9 @@
       'index.card.title': 'Atrapa Notas: MI y SOL',
       'index.card.desc': 'Pulsa las teclas del piano para atrapar las notas en el pentagrama.',
       'index.card.small': 'Dificultad progresiva · Ranking online',
+      // Clef card
+      'index.clef.title': 'Dibuja la Clave de Sol',
+      'index.clef.desc': 'Sigue los puntos y traza la clave, rodeando la línea de SOL.',
 
       // Game page static
       'game.title': 'Atrapa Notas: Sol y Mi',
@@ -153,6 +156,16 @@
       'rhythm.level1': 'Nivel 1',
       'rhythm.level2': 'Nivel 2',
       'rhythm.level3': 'Nivel 3',
+
+      // Clef page
+      'clef.title': 'Dibuja la Clave de Sol',
+      'clef.instructions': 'Traza con el dedo o el ratón siguiendo los puntos guía para dibujar la clave de sol. Intenta rodear la 2ª línea (la línea de SOL). Pulsa Evaluar para comprobar tu dibujo.',
+      'clef.reset': 'Borrar',
+      'clef.evaluate': 'Evaluar',
+      'clef.show_guides': 'Mostrar guía',
+      'clef.result.good': '¡Muy bien! Buena forma de clave de sol.',
+      'clef.result.near': 'Casi. Recorre mejor los puntos guía.',
+      'clef.result.try': 'Intenta de nuevo siguiendo la guía.',
     },
     val: {
       // SW footer
@@ -171,6 +184,9 @@
       'index.card.title': 'Atrapa Notes: MI i SOL',
       'index.card.desc': 'Prem les tecles del piano per a atrapar les notes en el pentagrama.',
       'index.card.small': 'Dificultat progressiva · Rànquing en línia',
+      // Clef card
+      'index.clef.title': 'Dibuixa la Clau de Sol',
+      'index.clef.desc': 'Segueix els punts i traça la clau, envoltant la línia de SOL.',
 
       // Game page static
       'game.title': 'Atrapa Notes: Sol i Mi',
@@ -212,6 +228,16 @@
       'rhythm.level1': 'Nivell 1',
       'rhythm.level2': 'Nivell 2',
       'rhythm.level3': 'Nivell 3',
+
+      // Clef page
+      'clef.title': 'Dibuixa la Clau de Sol',
+      'clef.instructions': "Traça amb el dit o el ratolí seguint els punts guia per a dibuixar la clau de sol. Intenta envoltar la 2a línia (la línia de SOL). Prem Avaluar per a comprovar el teu dibuix.",
+      'clef.reset': 'Esborrar',
+      'clef.evaluate': 'Avaluar',
+      'clef.show_guides': 'Mostrar guia',
+      'clef.result.good': 'Molt bé! Bona forma de clau de sol.',
+      'clef.result.near': 'Quasi. Recorre millor els punts guia.',
+      'clef.result.try': 'Intenta-ho de nou seguint la guia.',
     }
   };
 
