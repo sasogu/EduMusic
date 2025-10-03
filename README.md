@@ -8,14 +8,19 @@ Esta es una Progressive Web App educativa para aprender música, con actividades
 - Ejercicios interactivos para identificar y practicar las notas Sol y Mi.
 
 ## Estructura del proyecto
-- `index.html`: Página principal y primera actividad.
-- `game.html`: Juego piano de MI/SOL.
+- `index.html`: Página principal y listado de actividades.
+- `game.html`: Submenú "Atrapa Notas" con los distintos retos.
+- `solmi.html`: Juego "Atrapa Notas" centrado en las notas Sol y Mi.
+- `solmila.html`: Variante "Atrapa Notas" con las notas Sol, Mi y La.
+- `solmilado.html`: Variante "Atrapa Notas" con Sol, Mi, La y Do grave.
 - `css/`: estilos (`style.css`).
 - `js/`: scripts (`app.js`, `game.js`).
 - `manifest.json` y `service-worker.js`: configuración PWA y caché.
 
 ## Actividad 2: Juego "Atrapa Notas"
-- `game.html` y `game.js`: Juego tipo arcade para atrapar notas "Sol" y "Mi".
+- `solmi.html` y `game.js`: Juego tipo arcade para atrapar notas "Sol" y "Mi".
+- `solmila.html` reutiliza `game.js` con un modo que añade la nota "La".
+- `solmilado.html` reutiliza `game.js` añadiendo también la nota "Do" grave con líneas adicionales.
 - Controles: flechas izquierda/derecha o arrastrar en móvil.
 - Objetivo: atrapar la nota en la mitad correcta de la barra (izquierda = Sol, derecha = Mi). Vidas: 3.
 

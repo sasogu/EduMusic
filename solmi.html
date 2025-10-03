@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="game.solmi.title">Atrapa Notas: Sol y Mi</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/icon-192.png" type="image/png">
+</head>
+<body>
+  <h1 data-i18n="game.solmi.title">Atrapa Notas: Sol y Mi</h1>
+  <div id="langCtrl" style="margin:8px 0;">
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect" style="margin-left:6px;">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+  </div>
+  <p data-i18n="game.solmi.instructions">
+    Las notas (MI y SOL) avanzan de izquierda a derecha sobre su línea del pentagrama — SOL en 2ª línea y MI en 1ª (abajo). Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si te equivocas de nombre (respecto a la nota que va delante), pierdes una vida. A partir de 10 puntos, se oculta el nombre sobre la nota; a partir de 20, también se ocultan los nombres en el teclado. Teclado: S = Sol, M = Mi.
+  </p>
+
+  <div id="hud" style="margin: 1em 0;">
+    <span id="score">Puntos: 0</span>
+    <span style="margin: 0 1em;">|</span>
+    <span id="lives">Vidas: 3</span>
+  </div>
+
+  <div style="margin-bottom: 1em;">
+    <button id="startBtn" data-i18n="hud.start">Iniciar</button>
+    <button id="pauseBtn" data-i18n="hud.pause">Pausa</button>
+    <button id="restartBtn" data-i18n="hud.restart">Reiniciar</button>
+    <label for="speedSelect" style="margin-left:1em;" data-i18n="hud.speed">Velocidad:</label>
+    <select id="speedSelect" style="margin-left:6px;">
+      <option value="slow" data-i18n="hud.speed.slow">Lento</option>
+      <option value="normal" selected data-i18n="hud.speed.normal">Normal</option>
+      <option value="fast" data-i18n="hud.speed.fast">Rápido</option>
+    </select>
+    <a href="game.html" style="margin-left:1em;" data-i18n="game.solmi.back">Volver a Atrapa Notas</a>
+  </div>
+
+  <canvas id="game" style="background:#fff;border-radius:12px;max-width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,0.08);"></canvas>
+
+  <section id="ranking" style="max-width: 900px; margin: 16px auto; text-align: left;">
+    <h2 style="margin: 0.5em 0;" data-i18n="game.ranking">Ranking</h2>
+    <div id="saveScore" style="display:none; background:#f8fafc; padding: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+      <div style="margin-bottom:8px;"><span data-i18n="game.save.your_score">Tu puntuación:</span> <strong id="finalScore">0</strong></div>
+      <label for="playerName" data-i18n="game.save.your_name">Tu nombre:</label>
+      <input id="playerName" type="text" maxlength="24" data-i18n="game.save.placeholder" data-i18n-attr="placeholder" placeholder="Escribe tu nombre" style="margin:0 8px; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1;">
+      <button id="saveBtn" data-i18n="game.save.button">Guardar puntuación</button>
+    </div>
+    <ol id="scoreList" style="padding-left: 1.2em; margin-top: 12px;"></ol>
+  </section>
+
+  <script>
+    window.GAME_CONFIG = {
+      id: 'solmi',
+      rankKey: 'solmi',
+      hintKey: 'game.piano_hint.solmi',
+      pitches: ['mi', 'sol'],
+    };
+  </script>
+  <script src="js/game.js"></script>
+  <footer style="margin-top:24px;color:#64748b;font-size:12px;">
+    <span data-i18n="sw.label">Service Worker:</span>
+    <span id="swVersion">cargando…</span>
+  </footer>
+  <script src="js/app.js"></script>
+</body>
+</html>

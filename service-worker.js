@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.0.25';
+const SW_VERSION = 'v0.0.30';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -13,6 +13,9 @@ self.addEventListener('install', event => {
         '/js/app.js',
         '/manifest.json',
         '/game.html',
+        '/solmi.html',
+        '/solmila.html',
+        '/solmilado.html',
         '/js/game.js',
         '/rhythm.html',
         '/js/rhythm.js',

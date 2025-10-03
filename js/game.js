@@ -1,4 +1,84 @@
 (() => {
+  const CONFIG_INPUT = window.GAME_CONFIG || {};
+  const defaultPitches = ['mi', 'sol'];
+  let configured = Array.isArray(CONFIG_INPUT.pitches)
+    ? CONFIG_INPUT.pitches
+    : (Array.isArray(CONFIG_INPUT.notes) ? CONFIG_INPUT.notes : defaultPitches);
+  configured = configured.map(p => String(p).toLowerCase()).filter(Boolean);
+  const seenPitches = new Set();
+  configured = configured.filter(p => {
+    if (seenPitches.has(p)) return false;
+    seenPitches.add(p);
+    return true;
+  });
+  if (!configured.length) configured = defaultPitches;
+
+  const GAME_CONFIG = {
+    id: CONFIG_INPUT.id || null,
+    hintKey: CONFIG_INPUT.hintKey || null,
+    hintFallback: CONFIG_INPUT.hintFallback || null,
+    rankKey: CONFIG_INPUT.rankKey || null,
+    pitches: configured,
+  };
+  if (!GAME_CONFIG.id) GAME_CONFIG.id = configured.join('_') || 'solmi';
+  if (!GAME_CONFIG.rankKey) GAME_CONFIG.rankKey = GAME_CONFIG.id;
+  if (!GAME_CONFIG.hintKey && configured.length === 2 && configured.includes('mi') && configured.includes('sol')) {
+    GAME_CONFIG.hintKey = 'game.piano_hint.solmi';
+  }
+
+  const NOTE_META = {
+    mi: {
+      label: 'MI',
+      offsetSteps: 0,
+      pianoIndex: 2,
+      key: 'm',
+      color: '#c62828',
+      highlight: '#fde4e4',
+      activeHighlight: '#ffc9c9',
+      freq: 329.63,
+    },
+    sol: {
+      label: 'SOL',
+      offsetSteps: -2,
+      pianoIndex: 4,
+      key: 's',
+      color: '#2e7d32',
+      highlight: '#dcfce7',
+      activeHighlight: '#bbf7d0',
+      freq: 392.0,
+    },
+    la: {
+      label: 'LA',
+      offsetSteps: -3,
+      pianoIndex: 5,
+      key: 'l',
+      color: '#2563eb',
+      highlight: '#dbeafe',
+      activeHighlight: '#bfdbfe',
+      freq: 440.0,
+    },
+    do: {
+      label: 'DO',
+      offsetSteps: 2,
+      pianoIndex: 0,
+      key: 'd',
+      color: '#b45309',
+      highlight: '#fde68a',
+      activeHighlight: '#facc15',
+      freq: 261.63,
+    },
+  };
+
+  function getPitchMeta(pitch) {
+    return NOTE_META[pitch] || null;
+  }
+  function sanitizeKey(str) {
+    return (str || '').toString().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  }
+
+  const WHITE_KEY_TO_PITCH = {};
+  const KEYBOARD_MAP = {};
+
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
   const DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
@@ -38,6 +118,13 @@
     // Helpers to get musical lines referenced from bottom
     yBottomLine() { return this.lineYs[4]; }, // 1ª línea (Mi)
     ySecondLine() { return this.lineYs[3]; }, // 2ª línea (Sol)
+    yForPitch(pitch) {
+      const base = this.yBottomLine();
+      if (typeof base !== 'number') return 0;
+      const meta = getPitchMeta(pitch);
+      const offset = meta ? meta.offsetSteps || 0 : 0;
+      return base + offset * (this.spacing / 2);
+    },
   };
 
   const state = {
@@ -53,8 +140,6 @@
     speedMode: 'normal', // 'slow' | 'normal' | 'fast'
     tPrev: 0,
     notes: [],
-    // selectorPitch: 'sol' | 'mi'
-    selectorPitch: 'sol',
     fx: [], // visual effects
   };
 
@@ -64,7 +149,7 @@
     height: 120,
     whiteCount: 7, // DO RE MI FA SOL LA SI
     keyW: 0,
-    pressedAt: { mi: 0, sol: 0 },
+    pressedAt: {},
     blackDefs: [ // indices of white keys to the left of each black key
       { over: 0, name: 'C#' }, // between DO(0) and RE(1)
       { over: 1, name: 'D#' }, // between RE(1) and MI(2)
@@ -76,6 +161,17 @@
     blackRects: [], // computed on resize
     blackPressedAt: {},
   };
+
+  for (const pitch of GAME_CONFIG.pitches) {
+    const meta = getPitchMeta(pitch);
+    if (piano.pressedAt[pitch] == null) piano.pressedAt[pitch] = 0;
+    if (meta && Number.isInteger(meta.pianoIndex)) {
+      WHITE_KEY_TO_PITCH[meta.pianoIndex] = pitch;
+    }
+    if (meta && meta.key) {
+      KEYBOARD_MAP[meta.key] = pitch;
+    }
+  }
 
   function resize() {
     const maxW = Math.min(window.innerWidth - 32, 900);
@@ -139,14 +235,13 @@
   window.addEventListener('resize', resize);
   resize();
 
-  function rand(min, max) { return Math.random() * (max - min) + min; }
   function choice(arr) { return arr[(Math.random() * arr.length) | 0]; }
 
   function spawnNote(now) {
     state.lastSpawn = now;
     const radius = Math.max(14, Math.floor(staff.spacing * 0.7));
-    const pitch = choice(['sol', 'mi']);
-    const y = pitch === 'sol' ? staff.ySecondLine() : staff.yBottomLine();
+    const pitch = choice(GAME_CONFIG.pitches);
+    const y = staff.yForPitch(pitch);
     const note = {
       x: -radius - 10,
       y,
@@ -168,7 +263,6 @@
     state.lastSpawn = 0;
     state.tPrev = performance.now();
     state.notes.length = 0;
-    state.selectorPitch = 'sol';
     if (hud.scoreEl) hud.scoreEl.textContent = (window.i18n ? window.i18n.t('hud.points', { n: state.score }) : `Puntos: ${state.score}`);
     if (hud.livesEl) hud.livesEl.textContent = (window.i18n ? window.i18n.t('hud.lives', { n: state.lives }) : `Vidas: ${state.lives}`);
     draw();
@@ -204,7 +298,8 @@
   }
 
   // ---------- Ranking (localStorage) ----------
-  const RANK_KEY = 'EduMúsic_rank_v1';
+  const rankSlug = sanitizeKey(GAME_CONFIG.rankKey || GAME_CONFIG.id || 'default') || 'default';
+  const RANK_KEY = `EduMúsic_rank_${rankSlug}_v1`;
   async function loadRank() {
     if (remoteEnabled()) {
       try {
@@ -355,12 +450,43 @@
     ctx.restore();
   }
 
+  function drawLedgerLines(noteX, radius, offsetSteps) {
+    if (offsetSteps == null) return;
+    const halfStep = staff.spacing / 2;
+    const bottom = staff.yBottomLine();
+    const left = noteX - radius - 10;
+    const right = noteX + radius + 10;
+    const drawLineAt = (y) => {
+      ctx.beginPath();
+      ctx.moveTo(left, y);
+      ctx.lineTo(right, y);
+      ctx.stroke();
+    };
+    ctx.save();
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    if (offsetSteps > 1) {
+      for (let s = 2; s <= offsetSteps; s += 2) {
+        const y = bottom + s * halfStep;
+        drawLineAt(y);
+      }
+    }
+    if (offsetSteps <= -10) {
+      for (let s = -10; s >= offsetSteps; s -= 2) {
+        const y = bottom + s * halfStep;
+        drawLineAt(y);
+      }
+    }
+    ctx.restore();
+  }
+
   function drawPiano() {
     const w = canvas.clientWidth;
     const top = piano.top;
     const h = piano.height;
     const keyW = piano.keyW;
     const labels = ['DO','RE','MI','FA','SOL','LA','SI'];
+    const mono = state.score >= 30;
     ctx.save();
     // base
     ctx.fillStyle = '#f8fafc';
@@ -368,19 +494,25 @@
     // keys
     for (let i = 0; i < piano.whiteCount; i++) {
       const x = i * keyW;
-      const isMi = i === 2;
-      const isSol = i === 4;
-      const pressed = (isMi && performance.now() - piano.pressedAt.mi < 130) || (isSol && performance.now() - piano.pressedAt.sol < 130);
-      if (isMi || isSol) {
-        ctx.fillStyle = pressed ? '#c3e7ff' : '#e6f2ff';
-        ctx.fillRect(x+1, top+1, keyW-2, h-2);
+      const pitch = WHITE_KEY_TO_PITCH[i];
+      const meta = pitch ? getPitchMeta(pitch) : null;
+      const pressed = meta ? (performance.now() - (piano.pressedAt[pitch] || 0) < 130) : false;
+      if (meta) {
+        const baseColor = meta.highlight || '#e6f2ff';
+        const activeColor = meta.activeHighlight || meta.highlight || '#e6f2ff';
+        if (mono) {
+          ctx.fillStyle = pressed ? '#d1d5db' : '#e2e8f0';
+        } else {
+          ctx.fillStyle = pressed ? activeColor : baseColor;
+        }
+        ctx.fillRect(x + 1, top + 1, keyW - 2, h - 2);
       }
       ctx.strokeStyle = '#cbd5e1';
       ctx.strokeRect(x+0.5, top+0.5, keyW-1, h-1);
       // label (oculto desde 20 puntos)
       if (state.score < 20) {
-        ctx.fillStyle = (isMi||isSol) ? '#0f172a' : '#475569';
-        ctx.font = (isMi||isSol) ? 'bold 14px system-ui, -apple-system, Segoe UI, Roboto, Arial' : '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+        ctx.fillStyle = meta ? '#0f172a' : '#475569';
+        ctx.font = meta ? 'bold 14px system-ui, -apple-system, Segoe UI, Roboto, Arial' : '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         ctx.fillText(labels[i], x + keyW/2, top + h - 8);
@@ -399,7 +531,21 @@
     ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    const hint = window.i18n ? window.i18n.t('game.piano_hint') : 'Pulsa MI o SOL en el piano';
+    const hintKey = GAME_CONFIG.hintKey || 'game.piano_hint';
+    let hint = null;
+    if (window.i18n && typeof window.i18n.t === 'function') {
+      hint = window.i18n.t(hintKey);
+    }
+    if (!hint || hint === hintKey) {
+      hint = GAME_CONFIG.hintFallback;
+    }
+    if (!hint) {
+      const noteLabels = GAME_CONFIG.pitches.map(p => (getPitchMeta(p)?.label || p.toUpperCase()));
+      let readable = noteLabels[0] || '';
+      if (noteLabels.length === 2) readable = `${noteLabels[0]} o ${noteLabels[1]}`;
+      else if (noteLabels.length > 2) readable = `${noteLabels.slice(0, -1).join(', ')} o ${noteLabels.slice(-1)}`;
+      hint = readable ? `Pulsa ${readable} en el piano` : 'Pulsa las notas indicadas en el piano';
+    }
     ctx.fillText(hint, 10, top + 8);
     ctx.restore();
   }
@@ -410,8 +556,12 @@
     ctx.textBaseline = 'middle';
     for (const n of state.notes) {
       // note head
+      const meta = getPitchMeta(n.pitch);
+      const mono = state.score >= 30;
+      const noteColor = mono ? '#111' : ((meta && meta.color) ? meta.color : '#1d4ed8');
+      drawLedgerLines(n.x, n.r, meta ? meta.offsetSteps : 0);
       ctx.beginPath();
-      ctx.fillStyle = n.pitch === 'sol' ? '#2e7d32' : '#c62828';
+      ctx.fillStyle = noteColor;
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
       ctx.fill();
       // opcional: plica para parecer más notación (a la derecha)
@@ -424,7 +574,7 @@
       // Mostrar nombre solo hasta 10 puntos
       if (state.score < 10) {
         ctx.fillStyle = '#111';
-        ctx.fillText(n.pitch.toUpperCase(), n.x, n.y - Math.floor(staff.spacing * 2.4));
+        ctx.fillText((meta && meta.label) ? meta.label : n.pitch.toUpperCase(), n.x, n.y - Math.floor(staff.spacing * 2.4));
       }
     }
   }
@@ -472,8 +622,9 @@
 
   function handleHit(pitch) {
     // Visual feedback first
-    if (pitch === 'mi') piano.pressedAt.mi = performance.now();
-    else piano.pressedAt.sol = performance.now();
+    if (piano.pressedAt[pitch] != null) {
+      piano.pressedAt[pitch] = performance.now();
+    }
 
     // Choose the leading (most advanced to the right) note still on screen
     let leadIndex = -1;
@@ -488,7 +639,7 @@
     const lead = state.notes[leadIndex];
     if (lead.pitch === pitch) {
       // Correct: remove leading note and add score
-      addBurst(lead.x, lead.y);
+      addBurst(lead.x, lead.y, lead.pitch);
       playPitch(lead.pitch);
       state.notes.splice(leadIndex, 1);
       state.score += 1;
@@ -504,7 +655,7 @@
   }
 
   // ---------- Visual FX ----------
-  function addBurst(x, y) {
+  function addBurst(x, y, pitch) {
     const count = 12;
     const particles = [];
     for (let i = 0; i < count; i++) {
@@ -512,7 +663,7 @@
       const sp = 120 + Math.random() * 160;
       particles.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp });
     }
-    state.fx.push({ type: 'burst', ttl: 0.35, particles });
+    state.fx.push({ type: 'burst', ttl: 0.35, particles, pitch });
   }
   function addCross(x, y) {
     state.fx.push({ type: 'cross', ttl: 0.35, x, y });
@@ -521,13 +672,18 @@
     for (const e of state.fx) {
       const t = Math.max(0, Math.min(1, e.ttl / 0.35));
       if (e.type === 'burst') {
-        const alpha = 0.8 * t;
+        const meta = getPitchMeta(e.pitch);
+        const alpha = Math.max(0, Math.min(1, 0.8 * t));
+        const mono = state.score >= 30;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = mono ? '#111' : ((meta && meta.color) ? meta.color : '#22c55e');
         for (const p of e.particles) {
-          ctx.fillStyle = `rgba(34,197,94,${alpha})`; // green
           ctx.beginPath();
           ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
           ctx.fill();
         }
+        ctx.restore();
       } else if (e.type === 'cross') {
         const alpha = 0.85 * t;
         ctx.strokeStyle = `rgba(198,40,40,${alpha})`; // red
@@ -634,8 +790,8 @@
   }
   function playPitch(pitch) {
     ensureAudio();
-    // E4 ≈ 329.63 Hz, G4 ≈ 392.00 Hz
-    const freq = pitch === 'mi' ? 329.63 : 392.0;
+    const meta = getPitchMeta(pitch);
+    const freq = meta && meta.freq ? meta.freq : 392.0;
     // Make the piano-like sound ring longer
     pianoTone(freq, 1200, 0.12);
   }
@@ -649,9 +805,13 @@
   // Keyboard: S = Sol, M = Mi, P = pausa
   window.addEventListener('keydown', (e) => {
     const k = e.key.toLowerCase();
-    if (k === 's') { ensureAudio(); handleHit('sol'); }
-    else if (k === 'm') { ensureAudio(); handleHit('mi'); }
-    else if (k === 'p') { e.preventDefault(); pauseGame(); }
+    if (k === 'p') { e.preventDefault(); pauseGame(); return; }
+    const mappedPitch = KEYBOARD_MAP[k];
+    if (mappedPitch) {
+      ensureAudio();
+      handleHit(mappedPitch);
+      e.preventDefault();
+    }
   });
 
   // Pointer: tocar sobre el piano
@@ -670,8 +830,8 @@
       }
       // Si no tocó negra, evaluar blanca
       const i = Math.floor(x / piano.keyW);
-      if (i === 2) handleHit('mi');
-      else if (i === 4) handleHit('sol');
+      const pitch = WHITE_KEY_TO_PITCH[i];
+      if (pitch) handleHit(pitch);
     }
   });
 
