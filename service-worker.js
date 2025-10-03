@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.0.30';
+const SW_VERSION = 'v0.0.36';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -16,13 +16,21 @@ self.addEventListener('install', event => {
         '/solmi.html',
         '/solmila.html',
         '/solmilado.html',
+        '/memory.html',
         '/js/game.js',
+        '/js/memory.js',
         '/rhythm.html',
         '/js/rhythm.js',
         '/clave-sol.html',
         '/js/clave_sol.js',
         '/assets/icon-192.png',
-        '/assets/icon-512.png'
+        '/assets/icon-512.png',
+        '/assets/audio/piano.ogg',
+        '/assets/audio/violin.ogg',
+        '/assets/audio/trompeta.ogg',
+        '/assets/audio/flute.ogg',
+        '/assets/audio/guitar.ogg',
+        '/assets/audio/bongos.ogg'
       ]);
     })
   );
