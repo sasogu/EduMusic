@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="melody.title">Secuencia de Melodías</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/icon-192.png" type="image/png">
+  <style>
+    :root {
+      --melody-white-count: 8;
+      --melody-white-width: calc(100% / var(--melody-white-count));
+      --melody-black-width: calc(var(--melody-white-width) * 0.58);
+    }
+    .melody-wrapper {
+      max-width: 960px;
+      margin: 0 auto 32px;
+      display: grid;
+      gap: 20px;
+    }
+    .melody-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+      padding: 16px 20px;
+    }
+    .melody-controls button {
+      margin: 0;
+      padding: 10px 18px;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      transition: background 0.2s ease;
+      cursor: pointer;
+    }
+    .melody-controls button.secondary {
+      background: #475569;
+    }
+    .melody-controls button.secondary:hover {
+      background: #334155;
+    }
+    .melody-controls button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .melody-hud {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      color: #1f2937;
+      font-weight: 600;
+    }
+    .melody-hud span.value {
+      color: #2563eb;
+      margin-left: 4px;
+    }
+    #staffCanvas {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      display: block;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    }
+    #pianoCanvas {
+      width: 100%;
+      max-width: 720px;
+      height: 200px;
+      margin: 0 auto;
+      display: block;
+      background: #f8fafc;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+      border: 1px solid #cbd5e1;
+    }
+    #melodyStatus {
+      min-height: 34px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-align: center;
+      color: #0f172a;
+    }
+    #melodyStatus.success {
+      color: #0f766e;
+    }
+    #melodyStatus.error {
+      color: #dc2626;
+    }
+    #melodyStatus.info {
+      color: #2563eb;
+    }
+    @media (max-width: 640px) {
+      .melody-controls {
+        justify-content: stretch;
+      }
+      .melody-controls button {
+        flex: 1 1 auto;
+      }
+      #pianoCanvas {
+        height: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 data-i18n="melody.title">Secuencia de Melodías</h1>
+  <div id="langCtrl" style="margin:8px 0;">
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect" style="margin-left:6px;">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+  </div>
+  <p data-i18n="melody.instructions">
+    Escucha la secuencia de notas en el pentagrama y repítela en el teclado virtual. Cada ronda añade una nota nueva. Teclado: M = Mi, F = Fa, S = Sol, L = La, B = Si.
+  </p>
+
+  <div class="melody-wrapper">
+    <div class="melody-controls">
+      <button id="startMelodyBtn" data-i18n="melody.controls.start">Iniciar</button>
+      <button id="repeatMelodyBtn" class="secondary" data-i18n="melody.controls.repeat">Repetir secuencia</button>
+      <button id="resetMelodyBtn" class="secondary" data-i18n="melody.controls.reset">Reiniciar</button>
+    </div>
+
+    <div class="melody-hud">
+      <div><span data-i18n="melody.round">Ronda:</span><span id="melodyRound" class="value">0</span></div>
+      <div><span data-i18n="melody.best">Mejor racha:</span><span id="melodyBest" class="value">0</span></div>
+    </div>
+
+    <canvas id="staffCanvas"></canvas>
+
+    <canvas id="pianoCanvas" aria-label="Teclado virtual"></canvas>
+
+    <div id="melodyStatus"></div>
+  </div>
+
+  <a href="index.html" style="display:inline-block;margin:16px auto 0;color:#2563eb;text-decoration:none;" data-i18n="melody.back">Volver al inicio</a>
+
+  <footer style="margin-top:24px;color:#64748b;font-size:12px;">
+    <span data-i18n="sw.label">Service Worker:</span>
+    <span id="swVersion">cargando…</span>
+  </footer>
+  <script src="js/melody.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
