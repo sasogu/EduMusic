@@ -13,12 +13,16 @@
   });
   if (!configured.length) configured = defaultPitches;
 
+  const rawMonoThreshold = Number(CONFIG_INPUT.monoAtScore);
   const GAME_CONFIG = {
     id: CONFIG_INPUT.id || null,
     hintKey: CONFIG_INPUT.hintKey || null,
     hintFallback: CONFIG_INPUT.hintFallback || null,
     rankKey: CONFIG_INPUT.rankKey || null,
     pitches: configured,
+    monoAtScore: Number.isFinite(rawMonoThreshold) ? Math.max(0, rawMonoThreshold) : 30,
+    forceMono: CONFIG_INPUT.forceMono === true || CONFIG_INPUT.forceMono === 'true',
+    level: CONFIG_INPUT.level || null,
   };
   if (!GAME_CONFIG.id) GAME_CONFIG.id = configured.join('_') || 'solmi';
   if (!GAME_CONFIG.rankKey) GAME_CONFIG.rankKey = GAME_CONFIG.id;
@@ -78,6 +82,11 @@
 
   const WHITE_KEY_TO_PITCH = {};
   const KEYBOARD_MAP = {};
+
+  function shouldUseMonoPalette() {
+    const threshold = Number.isFinite(GAME_CONFIG.monoAtScore) ? GAME_CONFIG.monoAtScore : 30;
+    return Boolean(GAME_CONFIG.forceMono) || state.score >= threshold;
+  }
 
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -486,7 +495,7 @@
     const h = piano.height;
     const keyW = piano.keyW;
     const labels = ['DO','RE','MI','FA','SOL','LA','SI'];
-    const mono = state.score >= 30;
+    const mono = shouldUseMonoPalette();
     ctx.save();
     // base
     ctx.fillStyle = '#f8fafc';
@@ -554,10 +563,10 @@
     ctx.font = 'bold 12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    const mono = shouldUseMonoPalette();
     for (const n of state.notes) {
       // note head
       const meta = getPitchMeta(n.pitch);
-      const mono = state.score >= 30;
       const noteColor = mono ? '#111' : ((meta && meta.color) ? meta.color : '#1d4ed8');
       drawLedgerLines(n.x, n.r, meta ? meta.offsetSteps : 0);
       ctx.beginPath();
@@ -674,7 +683,7 @@
       if (e.type === 'burst') {
         const meta = getPitchMeta(e.pitch);
         const alpha = Math.max(0, Math.min(1, 0.8 * t));
-        const mono = state.score >= 30;
+        const mono = shouldUseMonoPalette();
         ctx.save();
         ctx.globalAlpha = alpha;
         ctx.fillStyle = mono ? '#111' : ((meta && meta.color) ? meta.color : '#22c55e');
@@ -793,7 +802,7 @@
     const meta = getPitchMeta(pitch);
     const freq = meta && meta.freq ? meta.freq : 392.0;
     // Make the piano-like sound ring longer
-    pianoTone(freq, 1200, 0.12);
+    pianoTone(freq, 2400, 0.12);
   }
   function playError() {
     ensureAudio();

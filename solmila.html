@@ -31,6 +31,11 @@
     <button id="startBtn" data-i18n="hud.start">Iniciar</button>
     <button id="pauseBtn" data-i18n="hud.pause">Pausa</button>
     <button id="restartBtn" data-i18n="hud.restart">Reiniciar</button>
+    <label for="levelSelect" style="margin-left:1em;" data-i18n="game.solmila.level.label">Nivel:</label>
+    <select id="levelSelect" style="margin-left:6px;">
+      <option value="color" data-i18n="game.solmila.level.basic">Nivel 1 · Colores</option>
+      <option value="mono" data-i18n="game.solmila.level.advanced">Nivel 2 · Notas negras</option>
+    </select>
     <label for="speedSelect" style="margin-left:1em;" data-i18n="hud.speed">Velocidad:</label>
     <select id="speedSelect" style="margin-left:6px;">
       <option value="slow" data-i18n="hud.speed.slow">Lento</option>
@@ -54,11 +59,35 @@
   </section>
 
   <script>
+    (function() {
+      const url = new URL(window.location.href);
+      const level = url.searchParams.get('level') === 'mono' ? 'mono' : 'color';
+      window.SOLMILA_LEVEL = level;
+      document.addEventListener('DOMContentLoaded', () => {
+        const sel = document.getElementById('levelSelect');
+        if (!sel) return;
+        sel.value = level;
+        sel.addEventListener('change', () => {
+          const nextUrl = new URL(window.location.href);
+          if (sel.value === 'color') {
+            nextUrl.searchParams.delete('level');
+          } else {
+            nextUrl.searchParams.set('level', sel.value);
+          }
+          window.location.href = nextUrl.pathname + (nextUrl.searchParams.toString() ? `?${nextUrl.searchParams.toString()}` : '') + nextUrl.hash;
+        });
+      });
+    })();
+  </script>
+  <script>
     window.GAME_CONFIG = {
       id: 'solmila',
       rankKey: 'solmila',
       hintKey: 'game.piano_hint.solmila',
       pitches: ['mi', 'sol', 'la'],
+      monoAtScore: 30,
+      forceMono: window.SOLMILA_LEVEL === 'mono',
+      level: window.SOLMILA_LEVEL,
     };
   </script>
   <script src="js/game.js"></script>

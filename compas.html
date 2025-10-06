@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="compas.title">Puzzle de Compases</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/icon-192.png" type="image/png">
+  <style>
+    .compas-wrapper {
+      max-width: 960px;
+      margin: 0 auto 32px;
+      display: grid;
+      gap: 20px;
+    }
+    .compas-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+      padding: 16px 20px;
+    }
+    .compas-controls button {
+      margin: 0;
+      padding: 10px 18px;
+      font-size: 1rem;
+      border-radius: 10px;
+      background: #2563eb;
+      transition: background 0.2s ease;
+    }
+    .compas-controls button.secondary {
+      background: #475569;
+    }
+    .compas-controls button.secondary:hover {
+      background: #334155;
+    }
+    .compas-controls button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .compas-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .compas-panel {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+      padding: 18px 20px;
+      display: grid;
+      gap: 14px;
+    }
+    .panel-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0;
+    }
+    .panel-subtitle {
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+    .tile-dropzone {
+      min-height: 120px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-content: flex-start;
+      background: #f8fafc;
+      transition: border 0.2s ease, background 0.2s ease;
+    }
+    .tile-dropzone.over {
+      border-color: #2563eb;
+      background: #e2e8f0;
+    }
+    .tile-card {
+      background: #1d4ed8;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      min-width: 84px;
+      text-align: center;
+      font-weight: 600;
+      cursor: grab;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.18);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tile-card[data-duration="0.5"] {
+      background: #10b981;
+    }
+    .tile-card[data-duration="0.25"] {
+      background: #f59e0b;
+    }
+    .tile-card[data-duration="1.5"] {
+      background: #9333ea;
+    }
+    .tile-card:active {
+      cursor: grabbing;
+    }
+    .tile-card.dragging {
+      opacity: 0.8;
+    }
+    .tile-card .tile-figure {
+      display: block;
+      font-size: 2.6rem;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .tile-card .tile-label {
+      display: block;
+      font-size: 0.95rem;
+      line-height: 1.2;
+    }
+    .tile-card .tile-duration {
+      display: block;
+      font-size: 0.8rem;
+      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .tile-card.difficulty-2 .tile-duration {
+      display: none;
+    }
+    .tile-card.difficulty-3 .tile-duration,
+    .tile-card.difficulty-3 .tile-label {
+      display: none;
+    }
+    .summary {
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .summary.hidden {
+      display: none;
+    }
+    #statusMessage {
+      min-height: 32px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #0f172a;
+      text-align: center;
+    }
+    #statusMessage.success {
+      color: #0f766e;
+    }
+    #statusMessage.error {
+      color: #dc2626;
+    }
+    .tile-dropzone.completed {
+      border-color: #0f766e;
+      background: #ecfdf5;
+    }
+    .metrics {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      color: #475569;
+      font-size: 0.95rem;
+    }
+    @media (max-width: 640px) {
+      .compas-controls {
+        justify-content: stretch;
+      }
+      .compas-controls button {
+        flex: 1 1 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 data-i18n="compas.title">Puzzle de Compases</h1>
+  <div id="langCtrl" style="margin:8px 0;">
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect" style="margin-left:6px;">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+  </div>
+  <p data-i18n="compas.instructions">
+    Arrastra las fichas rítmicas al compás objetivo hasta completar el número de tiempos indicado. Puedes devolver fichas al área inicial si te equivocas.
+  </p>
+
+  <div class="compas-wrapper">
+    <div class="compas-controls">
+      <button id="newPuzzleBtn" data-i18n="compas.controls.new">Nuevo puzzle</button>
+      <button id="checkBtn" class="secondary" data-i18n="compas.controls.check">Comprobar</button>
+      <button id="resetBtn" class="secondary" data-i18n="compas.controls.reset">Reiniciar</button>
+    </div>
+
+    <div class="compas-board">
+      <section class="compas-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="compas.available.title">Fichas disponibles</h2>
+          <span class="panel-subtitle" data-i18n="compas.available.hint">Arrastra hacia el compás</span>
+        </div>
+        <div id="tilePool" class="tile-dropzone" data-zone="pool" aria-live="polite"></div>
+      </section>
+
+      <section class="compas-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="compas.target.title">Compás objetivo</h2>
+          <span id="targetInfo" class="panel-subtitle"></span>
+        </div>
+        <div id="measureZone" class="tile-dropzone" data-zone="measure" aria-live="polite"></div>
+        <div id="measureSummary" class="summary">
+          <span data-i18n="compas.target.progress">Tiempos utilizados:</span>
+          <span id="usedBeats">0</span>/<span id="totalBeats">0</span>
+        </div>
+      </section>
+    </div>
+
+    <div id="statusMessage"></div>
+    <div class="metrics">
+      <div><span data-i18n="compas.metrics.solved">Resueltos:</span> <span id="solvedCount">0</span></div>
+      <div><span data-i18n="compas.metrics.streak">Racha actual:</span> <span id="currentStreak">0</span></div>
+    </div>
+  </div>
+
+  <a href="index.html" style="display:inline-block;margin:16px auto 0;color:#2563eb;text-decoration:none;" data-i18n="compas.back">Volver al inicio</a>
+
+  <footer style="margin-top:24px;color:#64748b;font-size:12px;">
+    <span data-i18n="sw.label">Service Worker:</span>
+    <span id="swVersion">cargando…</span>
+  </footer>
+  <script src="js/compas.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
