@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="game.solmilado.title">Atrapa Notas: Sol, Mi, La y Do grave</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="assets/icon-192.png" type="image/png">
+  <title data-i18n="game.solmila.title">Atrapa Notas: Sol, Mi y La</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/assets/icon-192.png" type="image/png">
 </head>
 <body>
-  <h1 data-i18n="game.solmilado.title">Atrapa Notas: Sol, Mi, La y Do grave</h1>
+  <script src="/js/game.js" defer></script>
   <div id="langCtrl" style="margin:8px 0;">
     <label for="langSelect" data-i18n="lang.label">Idioma:</label>
     <select id="langSelect" style="margin-left:6px;">
@@ -17,8 +17,8 @@
       <option value="val" data-i18n="lang.val">Valencià</option>
     </select>
   </div>
-  <p data-i18n="game.solmilado.instructions">
-    Las notas (DO grave, MI, SOL y LA) avanzan de izquierda a derecha respetando sus posiciones en el pentagrama. Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si fallas, pierdes una vida. A partir de 10 puntos se ocultan los nombres sobre las notas y a partir de 20 también los del teclado. Teclado: D = Do, M = Mi, S = Sol, L = La.
+  <p data-i18n="game.solmila.instructions">
+    Las notas (MI, SOL y LA) avanzan de izquierda a derecha sobre sus posiciones en el pentagrama. Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si fallas, pierdes una vida. A partir de 10 puntos se ocultan los nombres sobre las notas y a partir de 20 también los del teclado. Teclado: S = Sol, M = Mi, L = La.
   </p>
 
   <div id="hud" style="margin: 1em 0;">
@@ -27,22 +27,30 @@
     <span id="lives">Vidas: 3</span>
   </div>
 
-  <div style="margin-bottom: 1em;">
-    <button id="startBtn" data-i18n="hud.start">Iniciar</button>
-    <button id="pauseBtn" data-i18n="hud.pause">Pausa</button>
-    <button id="restartBtn" data-i18n="hud.restart">Reiniciar</button>
-    <label for="levelSelect" style="margin-left:1em;" data-i18n="game.solmilado.level.label">Nivel:</label>
-    <select id="levelSelect" style="margin-left:6px;">
-      <option value="color" data-i18n="game.solmilado.level.basic">Nivel 1 · Colores</option>
-      <option value="mono" data-i18n="game.solmilado.level.advanced">Nivel 2 · Notas negras</option>
-    </select>
-    <label for="speedSelect" style="margin-left:1em;" data-i18n="hud.speed">Velocidad:</label>
-    <select id="speedSelect" style="margin-left:6px;">
-      <option value="slow" data-i18n="hud.speed.slow">Lento</option>
-      <option value="normal" selected data-i18n="hud.speed.normal">Normal</option>
-      <option value="fast" data-i18n="hud.speed.fast">Rápido</option>
-    </select>
-    <a href="game.html" style="margin-left:1em;" data-i18n="game.solmi.back">Volver a Atrapa Notas</a>
+  <div class="game-controls">
+    <div class="game-controls__buttons">
+      <button id="startBtn" class="game-btn" data-i18n="hud.start">Iniciar</button>
+      <button id="pauseBtn" class="game-btn" data-i18n="hud.pause">Pausa</button>
+      <button id="restartBtn" class="game-btn" data-i18n="hud.restart">Reiniciar</button>
+    </div>
+    <div class="game-controls__settings">
+      <div>
+        <label for="levelSelect" data-i18n="game.solmila.level.label">Nivel:</label>
+        <select id="levelSelect">
+          <option value="color" data-i18n="game.solmila.level.basic">Nivel 1 · Colores</option>
+          <option value="mono" data-i18n="game.solmila.level.advanced">Nivel 2 · Notas negras</option>
+        </select>
+      </div>
+      <div>
+        <label for="speedSelect" data-i18n="hud.speed">Velocidad:</label>
+        <select id="speedSelect">
+          <option value="slow" data-i18n="hud.speed.slow">Lento</option>
+          <option value="normal" selected data-i18n="hud.speed.normal">Normal</option>
+          <option value="fast" data-i18n="hud.speed.fast">Rápido</option>
+        </select>
+      </div>
+      <a href="/html/game.html" class="btn-secondary" data-i18n="game.solmi.back">Volver a Atrapa Notas</a>
+    </div>
   </div>
 
   <canvas id="game" style="background:#fff;border-radius:12px;max-width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,0.08);"></canvas>
@@ -62,7 +70,7 @@
     (function() {
       const url = new URL(window.location.href);
       const level = url.searchParams.get('level') === 'mono' ? 'mono' : 'color';
-      window.SOLMILADO_LEVEL = level;
+      window.SOLMILA_LEVEL = level;
       document.addEventListener('DOMContentLoaded', () => {
         const sel = document.getElementById('levelSelect');
         if (!sel) return;
@@ -81,20 +89,20 @@
   </script>
   <script>
     window.GAME_CONFIG = {
-      id: 'solmilado',
-      rankKey: 'solmilado',
-      hintKey: 'game.piano_hint.solmilado',
-      pitches: ['do', 'mi', 'sol', 'la'],
+      id: 'solmila',
+      rankKey: 'solmila',
+      hintKey: 'game.piano_hint.solmila',
+      pitches: ['mi', 'sol', 'la'],
       monoAtScore: 30,
-      forceMono: window.SOLMILADO_LEVEL === 'mono',
-      level: window.SOLMILADO_LEVEL,
+      forceMono: window.SOLMILA_LEVEL === 'mono',
+      level: window.SOLMILA_LEVEL,
     };
   </script>
-  <script src="js/game.js"></script>
+  <script src="/js/game.js" defer></script>
   <footer style="margin-top:24px;color:#64748b;font-size:12px;">
     <span data-i18n="sw.label">Service Worker:</span>
     <span id="swVersion">cargando…</span>
   </footer>
-  <script src="js/app.js"></script>
+  <script src="/js/app.js" defer></script>
 </body>
 </html>

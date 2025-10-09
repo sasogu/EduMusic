@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.0.56';
+const SW_VERSION = 'v0.0.70';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -8,24 +8,25 @@ self.addEventListener('install', event => {
     caches.open(CACHE).then(cache => {
       return cache.addAll([
         '/',
-        '/index.html',
+  '/index.html',
+  '/offline.html',
         '/css/style.css',
         '/js/app.js',
         '/manifest.json',
-        '/game.html',
-        '/solmi.html',
-        '/solmila.html',
-        '/solmilado.html',
-        '/memory.html',
-        '/compas.html',
-        '/melody.html',
+  '/html/game.html',
+  '/html/solmi.html',
+  '/html/solmila.html',
+  '/html/solmilado.html',
+  '/html/memory.html',
+  '/html/compas.html',
+  '/html/melody.html',
         '/js/game.js',
         '/js/memory.js',
         '/js/compas.js',
         '/js/melody.js',
-        '/rhythm.html',
+  '/html/rhythm.html',
         '/js/rhythm.js',
-        '/clave-sol.html',
+  '/html/clave-sol.html',
         '/js/clave_sol.js',
         '/assets/icon-192.png',
         '/assets/icon-512.png',
@@ -45,6 +46,8 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
+
+  
 
   // Serve a favicon even if /favicon.ico isn't present on disk
   if (url.pathname === '/favicon.ico') {
@@ -162,5 +165,14 @@ self.addEventListener('message', (event) => {
         event.source.postMessage(payload);
       }
     } catch (e) { /* no-op */ }
+    return;
+  }
+
+  if (data && data.type === 'SKIP_WAITING') {
+    // Allow clients to request immediate activation
+    try {
+      self.skipWaiting();
+    } catch (e) { /* ignore */ }
+    return;
   }
 });

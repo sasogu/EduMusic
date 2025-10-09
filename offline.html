@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EduMúsic — Sin conexión / Sense connexió</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body{font-family:system-ui,Arial,Helvetica,sans-serif;background:#f7fafc;color:#0f172a}
+    main{max-width:720px;margin:3rem auto;text-align:center;padding:1rem}
+    .lang-switch{margin-top:1rem}
+    a.button{display:inline-block;margin:6px;padding:8px 12px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none}
+  </style>
+</head>
+<body>
+  <main>
+    <h1 id="title">Sin conexión</h1>
+    <p id="message">Parece que no tienes conexión a la red. Puedes seguir usando las actividades que ya estén almacenadas en la aplicación.</p>
+
+    <div class="lang-switch" aria-hidden="false">
+      <label for="langSelect">Idioma:</label>
+      <select id="langSelect" aria-label="Seleccionar idioma">
+        <option value="es">Español</option>
+        <option value="val">Valencià</option>
+      </select>
+    </div>
+
+    <p style="margin-top:18px;">
+      <a href="/index.html" class="button" id="homeBtn">Volver al inicio</a>
+      <a href="#" class="button" id="retryBtn">Reintentar</a>
+    </p>
+    <small style="display:block;margin-top:12px;color:#64748b" id="hint">La aplicación funcionará sin conexión para las páginas y audios guardados.</small>
+  </main>
+
+  <script>
+    (function(){
+      const texts = {
+        es: {
+          title: 'Sin conexión',
+          message: 'Parece que no tienes conexión a la red. Puedes seguir usando las actividades que ya estén almacenadas en la aplicación.',
+          home: 'Volver al inicio',
+          retry: 'Reintentar',
+          hint: 'La aplicación funcionará sin conexión para las páginas y audios guardados.'
+        },
+        val: {
+          title: 'Sense connexió',
+          message: 'Sembla que no tens connexió a la xarxa. Pots continuar utilitzant les activitats que ja estiguen en caché.',
+          home: "Tornar a l'inici",
+          retry: 'Tornar-ho a provar',
+          hint: "L'aplicació funcionarà sense connexió per a les pàgines i àudios emmagatzemats."
+        }
+      };
+
+      const stored = (localStorage.getItem('lang') || '').toLowerCase();
+      const nav = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
+      const lang = stored || (nav.startsWith('ca') || nav.startsWith('val') ? 'val' : 'es');
+
+      const elTitle = document.getElementById('title');
+      const elMsg = document.getElementById('message');
+      const elHome = document.getElementById('homeBtn');
+      const elRetry = document.getElementById('retryBtn');
+      const elHint = document.getElementById('hint');
+      const sel = document.getElementById('langSelect');
+
+      function apply(l){
+        const t = texts[l] || texts.es;
+        elTitle.textContent = t.title;
+        elMsg.textContent = t.message;
+        elHome.textContent = t.home;
+        elRetry.textContent = t.retry;
+        elHint.textContent = t.hint;
+        sel.value = l;
+        document.documentElement.lang = (l === 'val') ? 'va' : 'es';
+      }
+
+      sel.addEventListener('change', ()=> {
+        const v = sel.value;
+        localStorage.setItem('lang', v);
+        apply(v);
+      });
+
+      elRetry.addEventListener('click', (e)=>{
+        e.preventDefault();
+        location.reload();
+      });
+
+      apply(lang);
+    })();
+  </script>
+</body>
+</html>

@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="rhythm.title">Ritmo: TA, SU y TITI</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="assets/icon-192.png" type="image/png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/assets/icon-192.png" type="image/png">
   <style>
     .controls {
       margin: 1em 0;
@@ -92,9 +92,9 @@
       <option value="2" data-i18n="rhythm.level2">Nivel 2</option>
       <option value="3" data-i18n="rhythm.level3">Nivel 3</option>
     </select>
-    <button id="startBtn" data-i18n="hud.start">Iniciar</button>
+    <button id="startBtn" class="game-btn" data-i18n="hud.start">Iniciar</button>
     <button id="playBtn" data-i18n="rhythm.play">Reproducir</button>
-    <a href="index.html" style="margin-left:1em;" data-i18n="game.back">Volver al inicio</a>
+  <a href="/index.html" style="margin-left:1em;" data-i18n="game.back">Volver al inicio</a>
   </div>
 
   <div class="answer-btns">
@@ -110,7 +110,7 @@
     <span id="swVersion">cargando…</span>
   </footer>
 
-  <script src="js/rhythm.js"></script>
-  <script src="js/app.js"></script>
+  <script src="/js/rhythm.js" defer></script>
+  <script src="/js/app.js" defer></script>
 </body>
 </html>

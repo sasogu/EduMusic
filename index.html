@@ -20,28 +20,28 @@
   <p data-i18n="index.choose">Selecciona una actividad para empezar:</p>
 
   <div style="max-width:900px;margin:24px auto;text-align:left;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
-    <a href="game.html" style="text-decoration:none;color:inherit;">
+  <a href="html/game.html" style="text-decoration:none;color:inherit;">
       <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
         <h2 style="margin-top:0;" data-i18n="index.card.title">Atrapa Notas</h2>
         <p style="margin-bottom:8px;" data-i18n="index.card.desc">Elige un reto para atrapar notas en el pentagrama.</p>
         <small data-i18n="index.card.small">Disponibles: Sol &amp; Mi · Sol, Mi y La · Sol, Mi, La y Do</small>
       </div>
     </a>
-    <a href="memory.html" style="text-decoration:none;color:inherit;">
+  <a href="html/memory.html" style="text-decoration:none;color:inherit;">
       <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
         <h2 style="margin-top:0;" data-i18n="index.memory.title">Memorias de Instrumentos</h2>
         <p style="margin-bottom:8px;" data-i18n="index.memory.desc">Encuentra las parejas de instrumentos reconociendo su timbre y su imagen.</p>
         <small data-i18n="index.memory.small">Modos base y orquesta · Juegos auditivos + visuales</small>
       </div>
     </a>
-    <a href="compas.html" style="text-decoration:none;color:inherit;">
+  <a href="html/compas.html" style="text-decoration:none;color:inherit;">
       <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
         <h2 style="margin-top:0;" data-i18n="index.compas.title">Puzzle de Compases</h2>
         <p style="margin-bottom:8px;" data-i18n="index.compas.desc">Completa compases arrastrando fichas rítmicas.</p>
         <small data-i18n="index.compas.small">2/4, 3/4 y 4/4 · Duraciones básicas</small>
       </div>
     </a>
-    <a href="melody.html" style="text-decoration:none;color:inherit;">
+  <a href="html/melody.html" style="text-decoration:none;color:inherit;">
       <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
         <h2 style="margin-top:0;" data-i18n="index.melody.title">Secuencia de Melodías</h2>
         <p style="margin-bottom:8px;" data-i18n="index.melody.desc">Escucha, memoriza y repite las notas en el teclado virtual.</p>
@@ -49,7 +49,7 @@
       </div>
     </a>
     <!--
-    <a href="clave-sol.html" style="text-decoration:none;color:inherit;">
+    <a href="html/clave-sol.html" style="text-decoration:none;color:inherit;">
       <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
         <h2 style="margin-top:0;" data-i18n="index.clef.title">Dibuja la Clave de Sol</h2>
         <p style="margin-bottom:8px;" data-i18n="index.clef.desc">Sigue los puntos y traza la clave, rodeando la línea de SOL.</p>
@@ -57,7 +57,7 @@
       </div>
     </a>
     -->
-    <a href="rhythm.html" style="text-decoration:none;color:inherit;">
+  <a href="html/rhythm.html" style="text-decoration:none;color:inherit;">
       <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
         <h2 style="margin-top:0;">Ritmo: TA, SU (y TITI)</h2>
         <p style="margin-bottom:8px;">Identifica patrones rítmicos: negra (TA), silencio (SU) y dos corcheas (TITI).</p>
@@ -68,6 +68,7 @@
   <footer style="margin-top:24px;color:#64748b;font-size:12px;">
     <span data-i18n="sw.label">Service Worker:</span>
     <span id="swVersion">cargando…</span>
+    <button id="swUpdateBtn" style="margin-left:12px;display:none;padding:4px 8px;font-size:12px;">Actualizar</button>
   </footer>
   <script src="js/app.js"></script>
 </body>

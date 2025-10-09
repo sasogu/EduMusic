@@ -73,6 +73,31 @@
           const v2 = await getSWVersion(ready);
           if (v2) setSWState('version', v2);
         });
+
+        // Listen messages that may indicate update available
+        navigator.serviceWorker.addEventListener('message', (ev) => {
+          const d = ev.data || {};
+          if (d && d.type === 'VERSION' && d.version) {
+            // If version differs from current displayed, show update button
+            const btn = document.getElementById('swUpdateBtn');
+            const verEl = document.getElementById('swVersion');
+            const cur = verEl ? verEl.textContent : null;
+            if (btn && cur && cur !== d.version) {
+              btn.style.display = '';
+              btn.textContent = 'Actualizar';
+              btn.onclick = function() {
+                try {
+                  // Ask SW to skipWaiting
+                  if (navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                } catch (e) {}
+                // reload to let the new SW take control when activated
+                setTimeout(() => { window.location.reload(); }, 800);
+              };
+            }
+          }
+        });
       } catch (e) {
         setSWState('disabled');
       }

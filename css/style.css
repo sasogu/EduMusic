@@ -1,26 +1,163 @@
+/* Optimizaciones para tablets */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   font-family: Arial, sans-serif;
   background: #f0f4fa;
   color: #222;
   text-align: center;
   margin: 0;
-  padding: 2em;
+  padding: 0.5em;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
-button {
-  margin: 1em;
-  padding: 1em 2em;
-  font-size: 1.2em;
+
+/* Layout optimizado para visibilidad del juego */
+.game-header {
+  flex-shrink: 0;
+  padding: 0.5em;
+}
+
+.game-header h1 {
+  margin: 0 0 0.3em;
+  font-size: 1.5rem;
+}
+
+.game-header p {
+  margin: 0.5em 0;
+  font-size: 0.95rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Layout de controles del juego */
+.game-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+  align-items: center;
+  margin: 0.5em auto;
+  max-width: 1200px;
+  flex-shrink: 0;
+}
+
+.game-controls__buttons {
+  display: flex;
+  gap: 1em;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.game-controls__settings {
+  display: flex;
+  gap: 1.5em;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 1em;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Mejorar aspecto de selects para tablets */
+select {
+  font-size: 1.1rem;
+  padding: 0.5em 1em;
   border-radius: 8px;
-  border: none;
-  background: #4a90e2;
-  color: #fff;
+  border: 1px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  min-width: 120px;
+} para tablets y dispositivos táctiles */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f4fa;
+  color: #222;
+  text-align: center;
+  margin: 0;
+  padding: 1em;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Botones globales básicos (otros botones no relacionados seguirán estilos neutros) */
+button {
+  margin: 0.6em;
+  padding: 0.8em 1.2em;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: #e6eefc;
+  color: #0f172a;
   cursor: pointer;
 }
-button:hover {
-  background: #357abd;
+
+/* Estilo consistente para botones de juego optimizado para tablets */
+.game-btn {
+  color: #ffffff;
+  padding: 1.4em 2.8em; /* tamaño optimizado para touch */
+  font-size: 1.4rem; /* texto más legible en tablets */
+  border-radius: 16px;
+  border: none;
+  margin: 0.8em;
+  min-width: 160px; /* asegurar área táctil mínima */
+  min-height: 60px; /* altura mínima para mejor toque */
+  transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform; /* optimizar animaciones */
 }
+
+/* Start = verde */
+#startBtn {
+  background: #22c55e;
+  box-shadow: 0 6px 14px rgba(34,197,94,0.14);
+}
+#startBtn:hover { background: #16a34a; box-shadow: 0 8px 18px rgba(22,163,74,0.14); transform: translateY(-1px); }
+#startBtn:active { transform: translateY(1px) scale(0.995); }
+#startBtn:focus { outline: 3px solid rgba(34,197,94,0.18); outline-offset: 2px; }
+
+/* Pause = ámbar */
+#pauseBtn {
+  background: #f59e0b;
+  box-shadow: 0 6px 14px rgba(245,158,11,0.12);
+}
+#pauseBtn:hover { background: #d97706; box-shadow: 0 8px 18px rgba(217,119,6,0.12); transform: translateY(-1px); }
+#pauseBtn:active { transform: translateY(1px) scale(0.995); }
+#pauseBtn:focus { outline: 3px solid rgba(245,158,11,0.16); outline-offset: 2px; }
+
+/* Restart = rojo */
+#restartBtn {
+  background: #ef4444;
+  box-shadow: 0 6px 14px rgba(239,68,68,0.12);
+}
+#restartBtn:hover { background: #dc2626; box-shadow: 0 8px 18px rgba(220,38,38,0.12); transform: translateY(-1px); }
+#restartBtn:active { transform: translateY(1px) scale(0.995); }
+#restartBtn:focus { outline: 3px solid rgba(239,68,68,0.14); outline-offset: 2px; }
+
 #resultado {
   margin-top: 2em;
   font-size: 1.3em;
   font-weight: bold;
+}
+
+/* Utilidad para botones secundarios si se necesita */
+.btn-secondary {
+  background: #475569;
+  color: #fff;
 }
