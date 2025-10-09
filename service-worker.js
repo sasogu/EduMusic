@@ -20,7 +20,7 @@ self.addEventListener('install', event => {
   '/html/memory.html',
   '/html/compas.html',
   '/html/melody.html',
-        '/js/game.js',
+        '../js/game.js',
         '/js/memory.js',
         '../js/compas.js',
         '/js/melody.js',
