@@ -8,11 +8,11 @@ self.addEventListener('install', event => {
     caches.open(CACHE).then(cache => {
       return cache.addAll([
         '/',
-  '/index.html',
+  '../index.html',
   '/offline.html',
-        '/../css/style.css',
+        '../css/style.css',
         '../js/app.js',
-        '/manifest.json',
+        '../manifest.json',
   '/html/game.html',
   '/html/solmi.html',
   '/html/solmila.html',
@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
   '/html/melody.html',
         '/js/game.js',
         '/js/memory.js',
-        '/js/compas.js',
+        '../js/compas.js',
         '/js/melody.js',
   '/html/rhythm.html',
         '/js/rhythm.js',
