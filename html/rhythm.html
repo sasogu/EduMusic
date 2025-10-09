@@ -67,13 +67,7 @@
   </head>
 <body>
   <h1 data-i18n="rhythm.title">Ritmo: TA, SU (y TITI)</h1>
-  <div id="langCtrl" style="margin:8px 0;">
-    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
-    <select id="langSelect" style="margin-left:6px;">
-      <option value="es" data-i18n="lang.es">Español</option>
-      <option value="val" data-i18n="lang.val">Valencià</option>
-    </select>
-  </div>
+ 
 
   <p data-i18n="rhythm.instructions">
     Identifica patrones rítmicos de una negra (TA) y silencio (SU). Más tarde puedes incluir dos corcheas (TITI).
@@ -94,7 +88,7 @@
     </select>
     <button id="startBtn" class="game-btn" data-i18n="hud.start">Iniciar</button>
     <button id="playBtn" data-i18n="rhythm.play">Reproducir</button>
-  <a href="../index.html" style="margin-left:1em;" data-i18n="game.back">Volver al inicio</a>
+  
   </div>
 
   <div class="answer-btns">
@@ -108,8 +102,16 @@
   <footer style="margin-top:24px;color:#64748b;font-size:12px;">
     <span data-i18n="sw.label">Service Worker:</span>
     <span id="swVersion">cargando…</span>
-  </footer>
 
+     <div id="langCtrl" style="margin:8px 0;">
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect" style="margin-left:6px;">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+  </div>
+  </footer>
+<a href="../index.html" style="margin-left:1em;" data-i18n="game.back">Volver al inicio</a>
   <script src="../js/rhythm.js" defer></script>
   <script src="../js/app.js" defer></script>
 </body>

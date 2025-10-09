@@ -198,13 +198,7 @@
 </head>
 <body>
   <h1 data-i18n="memory.title">Memorias de Instrumentos</h1>
-  <div id="langCtrl" style="margin:8px 0;">
-    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
-    <select id="langSelect" style="margin-left:6px;">
-      <option value="es" data-i18n="lang.es">Español</option>
-      <option value="val" data-i18n="lang.val">Valencià</option>
-    </select>
-  </div>
+ 
 
   <p data-i18n="memory.subtitle">Boceto interactivo: gira las cartas para descubrir instrumentos y empareja cada timbre con su imagen.</p>
 
@@ -252,10 +246,18 @@
       <div class="memory-grid" id="memoryGrid"></div>
     </div>
   </section>
+   <div id="langCtrl" style="margin:8px 0;">
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect" style="margin-left:6px;">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+  </div>
 
   <a href="../index.html" style="display:inline-block;margin-top:8px;color:#2563eb;text-decoration:none;" data-i18n="gamehub.back">Volver al inicio</a>
 
   <footer style="margin-top:24px;color:#64748b;font-size:12px;">
+    
     <span data-i18n="sw.label">Service Worker:</span>
     <span id="swVersion">cargando…</span>
   </footer>

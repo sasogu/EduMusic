@@ -115,13 +115,7 @@
 </head>
 <body>
   <h1 data-i18n="melody.title">Secuencia de Melodías</h1>
-  <div id="langCtrl" style="margin:8px 0;">
-    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
-    <select id="langSelect" style="margin-left:6px;">
-      <option value="es" data-i18n="lang.es">Español</option>
-      <option value="val" data-i18n="lang.val">Valencià</option>
-    </select>
-  </div>
+  
   <p data-i18n="melody.instructions">
     Escucha la secuencia de notas en el pentagrama y repítela en el teclado virtual. Cada ronda añade una nota nueva. Teclado: M = Mi, F = Fa, S = Sol, L = La, B = Si.
   </p>
@@ -144,7 +138,13 @@
 
     <div id="melodyStatus"></div>
   </div>
-
+<div id="langCtrl" style="margin:8px 0;">
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect" style="margin-left:6px;">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+  </div>
   <a href="../index.html" style="display:inline-block;margin:16px auto 0;color:#2563eb;text-decoration:none;" data-i18n="melody.back">Volver al inicio</a>
 
   <footer style="margin-top:24px;color:#64748b;font-size:12px;">

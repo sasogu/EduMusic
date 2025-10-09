@@ -9,30 +9,10 @@
   <link rel="icon" href="../assets/icon-192.png" type="image/png">
 </head>
 <body>
-  <h1 data-i18n="game.solmi.title">Atrapa Notas: Sol y Mi</h1>
-  <div id="langCtrl" style="margin:8px 0;">
-    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
-    <select id="langSelect" style="margin-left:6px;">
-      <option value="es" data-i18n="lang.es">Español</option>
-      <option value="val" data-i18n="lang.val">Valencià</option>
-    </select>
-  </div>
-  <p data-i18n="game.solmi.instructions">
-    Las notas (MI y SOL) avanzan de izquierda a derecha sobre su línea del pentagrama — SOL en 2ª línea y MI en 1ª (abajo). Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si te equivocas de nombre (respecto a la nota que va delante), pierdes una vida. A partir de 10 puntos, se oculta el nombre sobre la nota; a partir de 20, también se ocultan los nombres en el teclado. Teclado: S = Sol, M = Mi.
-  </p>
+ <!-- <h1 data-i18n="game.solmi.title">Atrapa Notas: Sol y Mi</h1>-->
+ 
 
-  <div id="hud" style="margin: 1em 0;">
-    <span id="score">Puntos: 0</span>
-    <span style="margin: 0 1em;">|</span>
-    <span id="lives">Vidas: 3</span>
-  </div>
 
-  <div class="game-controls">
-    <div class="game-controls__buttons">
-      <button id="startBtn" class="game-btn" data-i18n="hud.start">Iniciar</button>
-      <button id="pauseBtn" class="game-btn" data-i18n="hud.pause">Pausa</button>
-      <button id="restartBtn" class="game-btn" data-i18n="hud.restart">Reiniciar</button>
-    </div>
     <div class="game-controls__settings">
       <div>
         <label for="levelSelect" data-i18n="game.solmi.level.label">Nivel:</label>
@@ -49,13 +29,26 @@
           <option value="fast" data-i18n="hud.speed.fast">Rápido</option>
         </select>
       </div>
-      <a href="../html/game.html" class="btn-secondary" data-i18n="game.solmi.back">Volver a Atrapa Notas</a>
+     
     </div>
   </div>
-
+  <div id="hud" style="margin: 1em 0;">
+    <span id="score">Puntos: 0</span>
+    <span style="margin: 0 1em;">|</span>
+    <span id="lives">Vidas: 3</span>
+  </div>
   <canvas id="game" style="background:#fff;border-radius:12px;max-width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,0.08);"></canvas>
+   <div class="game-controls">
+    <div class="game-controls__buttons">
+      <button id="startBtn" class="game-btn" data-i18n="hud.start">Iniciar</button>
+      <button id="pauseBtn" class="game-btn" data-i18n="hud.pause">Pausa</button>
+      <button id="restartBtn" class="game-btn" data-i18n="hud.restart">Reiniciar</button>
+    </div>
 
   <section id="ranking" style="max-width: 900px; margin: 16px auto; text-align: left;">
+    <p data-i18n="game.solmi.instructions">
+    Las notas (MI y SOL) avanzan de izquierda a derecha sobre su línea del pentagrama — SOL en 2ª línea y MI en 1ª (abajo). Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si te equivocas de nombre (respecto a la nota que va delante), pierdes una vida. A partir de 10 puntos, se oculta el nombre sobre la nota; a partir de 20, también se ocultan los nombres en el teclado. Teclado: S = Sol, M = Mi.
+  </p>
     <h2 style="margin: 0.5em 0;" data-i18n="game.ranking">Ranking</h2>
     <div id="saveScore" style="display:none; background:#f8fafc; padding: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
       <div style="margin-bottom:8px;"><span data-i18n="game.save.your_score">Tu puntuación:</span> <strong id="finalScore">0</strong></div>
@@ -65,7 +58,15 @@
     </div>
     <ol id="scoreList" style="padding-left: 1.2em; margin-top: 12px;"></ol>
   </section>
-
+   <div id="langCtrl" style="margin:8px 0;">
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect" style="margin-left:6px;">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+   
+  </div>
+    <a href="../html/game.html" class="btn-secondary" data-i18n="game.solmi.back">Volver a Atrapa Notas</a>
   <script>
     (function() {
       const url = new URL(window.location.href);

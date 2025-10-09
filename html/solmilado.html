@@ -9,30 +9,8 @@
   <link rel="icon" href="../assets/icon-192.png" type="image/png">
 </head>
 <body>
-  <h1 data-i18n="game.solmilado.title">Atrapa Notas: Sol, Mi, La y Do grave</h1>
-  <div id="langCtrl" style="margin:8px 0;">
-    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
-    <select id="langSelect" style="margin-left:6px;">
-      <option value="es" data-i18n="lang.es">Español</option>
-      <option value="val" data-i18n="lang.val">Valencià</option>
-    </select>
-  </div>
-  <p data-i18n="game.solmilado.instructions">
-    Las notas (DO grave, MI, SOL y LA) avanzan de izquierda a derecha respetando sus posiciones en el pentagrama. Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si fallas, pierdes una vida. A partir de 10 puntos se ocultan los nombres sobre las notas y a partir de 20 también los del teclado. Teclado: D = Do, M = Mi, S = Sol, L = La.
-  </p>
-
-  <div id="hud" style="margin: 1em 0;">
-    <span id="score">Puntos: 0</span>
-    <span style="margin: 0 1em;">|</span>
-    <span id="lives">Vidas: 3</span>
-  </div>
-
-  <div class="game-controls">
-    <div class="game-controls__buttons">
-      <button id="startBtn" class="game-btn" data-i18n="hud.start">Iniciar</button>
-      <button id="pauseBtn" class="game-btn" data-i18n="hud.pause">Pausa</button>
-      <button id="restartBtn" class="game-btn" data-i18n="hud.restart">Reiniciar</button>
-    </div>
+  <!--<h1 data-i18n="game.solmilado.title">Atrapa Notas: Sol, Mi, La y Do grave</h1>-->
+  
     <div class="game-controls__settings">
       <div>
         <label for="levelSelect" data-i18n="game.solmilado.level.label">Nivel:</label>
@@ -49,11 +27,28 @@
           <option value="fast" data-i18n="hud.speed.fast">Rápido</option>
         </select>
       </div>
-      <a href="../html/game.html" class="btn-secondary" data-i18n="game.solmi.back">Volver a Atrapa Notas</a>
+      
     </div>
   </div>
 
+    <div id="hud" style="margin: 1em 0;">
+    <span id="score">Puntos: 0</span>
+    <span style="margin: 0 1em;">|</span>
+    <span id="lives">Vidas: 3</span>
+  </div>
+
   <canvas id="game" style="background:#fff;border-radius:12px;max-width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,0.08);"></canvas>
+
+ <div class="game-controls">
+    <div class="game-controls__buttons">
+      <button id="startBtn" class="game-btn" data-i18n="hud.start">Iniciar</button>
+      <button id="pauseBtn" class="game-btn" data-i18n="hud.pause">Pausa</button>
+      <button id="restartBtn" class="game-btn" data-i18n="hud.restart">Reiniciar</button>
+    </div>
+
+    <p data-i18n="game.solmilado.instructions">
+    Las notas (DO grave, MI, SOL y LA) avanzan de izquierda a derecha respetando sus posiciones en el pentagrama. Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si fallas, pierdes una vida. A partir de 10 puntos se ocultan los nombres sobre las notas y a partir de 20 también los del teclado. Teclado: D = Do, M = Mi, S = Sol, L = La.
+  </p>
 
   <section id="ranking" style="max-width: 900px; margin: 16px auto; text-align: left;">
     <h2 style="margin: 0.5em 0;" data-i18n="game.ranking">Ranking</h2>
@@ -64,8 +59,16 @@
       <button id="saveBtn" data-i18n="game.save.button">Guardar puntuación</button>
     </div>
     <ol id="scoreList" style="padding-left: 1.2em; margin-top: 12px;"></ol>
+    
   </section>
-
+  <div id="langCtrl" style="margin:8px 0;">
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect" style="margin-left:6px;">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+  </div>
+<a href="../html/game.html" class="btn-secondary" data-i18n="game.solmi.back">Volver a Atrapa Notas</a>
   <script>
     (function() {
       const url = new URL(window.location.href);
