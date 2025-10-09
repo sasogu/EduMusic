@@ -10,43 +10,20 @@ body {
   color: #222;
   text-align: center;
   margin: 0;
-  padding: 0.5em;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  padding: 1em;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
-}
-
-/* Layout optimizado para visibilidad del juego */
-.game-header {
-  flex-shrink: 0;
-  padding: 0.5em;
-}
-
-.game-header h1 {
-  margin: 0 0 0.3em;
-  font-size: 1.5rem;
-}
-
-.game-header p {
-  margin: 0.5em 0;
-  font-size: 0.95rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* Layout de controles del juego */
 .game-controls {
   display: flex;
   flex-direction: column;
-  gap: 0.8em;
+  gap: 1.2em;
   align-items: center;
-  margin: 0.5em auto;
+  margin: 1em auto;
   max-width: 1200px;
-  flex-shrink: 0;
 }
 
 .game-controls__buttons {
