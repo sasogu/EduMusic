@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.0.80';
+const SW_VERSION = 'v0.0.81';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -8,11 +8,11 @@ self.addEventListener('install', event => {
     caches.open(CACHE).then(cache => {
       return cache.addAll([
         '/',
-  '../index.html',
+  '/index.html',
   '/offline.html',
-        '../css/style.css',
-        '../js/app.js',
-        '../manifest.json',
+        '/css/style.css',
+        '/js/app.js',
+        '/manifest.json',
   '/html/game.html',
   '/html/solmi.html',
   '/html/solmila.html',

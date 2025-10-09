@@ -22,7 +22,7 @@
       color: '#2563eb',
       label: { es: 'Piano', val: 'Piano' },
       family: { es: 'Cuerda percutida', val: 'Corda percudida' },
-      audio: { sample: '/assets/audio/piano.ogg' }
+      audio: { sample: '../assets/audio/piano.ogg' }
     },
     {
       id: 'violin',
@@ -31,7 +31,7 @@
       color: '#9333ea',
       label: { es: 'Violín', val: 'Violí' },
       family: { es: 'Cuerda frotada', val: 'Corda fregada' },
-      audio: { sample: '/assets/audio/violin.ogg' }
+      audio: { sample: '../assets/audio/violin.ogg' }
     },
     {
       id: 'trumpet',
@@ -40,7 +40,7 @@
       color: '#f59e0b',
       label: { es: 'Trompeta', val: 'Trompeta' },
       family: { es: 'Viento metal', val: 'Vent metall' },
-      audio: { sample: '/assets/audio/trompeta.ogg' }
+      audio: { sample: '../assets/audio/trompeta.ogg' }
     },
     {
       id: 'flute',
@@ -49,7 +49,7 @@
       color: '#0ea5e9',
       label: { es: 'Flauta', val: 'Flauta' },
       family: { es: 'Viento madera', val: 'Vent-fusta' },
-      audio: { sample: '/assets/audio/flute.ogg' }
+      audio: { sample: '../assets/audio/flute.ogg' }
     },
     {
       id: 'guitar',
@@ -58,7 +58,7 @@
       color: '#f97316',
       label: { es: 'Guitarra', val: 'Guitarra' },
       family: { es: 'Cuerda pulsada', val: 'Corda polsada' },
-      audio: { sample: '/assets/audio/guitar.ogg' }
+      audio: { sample: '../assets/audio/guitar.ogg' }
     },
     {
       id: 'cajon',
@@ -67,7 +67,7 @@
       color: '#22c55e',
       label: { es: 'Cajón', val: 'Caixó' },
       family: { es: 'Percusión', val: 'Percussió' },
-      audio: { sample: '/assets/audio/bongos.ogg' }
+      audio: { sample: '../assets/audio/bongos.ogg' }
     },
     {
       id: 'clarinet',
