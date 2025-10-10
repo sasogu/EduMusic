@@ -21,56 +21,49 @@
   </div>
   <p data-i18n="index.choose">Selecciona una actividad para empezar:</p>
 
-  <div style="max-width:900px;margin:24px auto;text-align:left;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
-  <a href="html/game.html" style="text-decoration:none;color:inherit;">
-      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
-        <h2 style="margin-top:0;" data-i18n="index.card.title">Atrapa Notas</h2>
-        <p style="margin-bottom:8px;" data-i18n="index.card.desc">Elige un reto para atrapar notas en el pentagrama.</p>
-        <small data-i18n="index.card.small">Disponibles: Sol &amp; Mi · Sol, Mi y La · Sol, Mi, La y Do</small>
-      </div>
+  <div class="activity-grid">
+    <a href="html/game.html" class="activity-card">
+      <h2 data-i18n="index.card.title">Atrapa Notas</h2>
+      <p data-i18n="index.card.desc">Elige un reto para atrapar notas en el pentagrama.</p>
+      <small data-i18n="index.card.small">Disponibles: Sol &amp; Mi · Sol, Mi y La · Sol, Mi, La y Do</small>
     </a>
-  <a href="html/memory.html" style="text-decoration:none;color:inherit;">
-      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
-        <h2 style="margin-top:0;" data-i18n="index.memory.title">Memorias de Instrumentos</h2>
-        <p style="margin-bottom:8px;" data-i18n="index.memory.desc">Encuentra las parejas de instrumentos reconociendo su timbre y su imagen.</p>
-        <small data-i18n="index.memory.small">Modos base y orquesta · Juegos auditivos + visuales</small>
-      </div>
+    <a href="html/memory.html" class="activity-card">
+      <h2 data-i18n="index.memory.title">Memorias de Instrumentos</h2>
+      <p data-i18n="index.memory.desc">Encuentra las parejas de instrumentos reconociendo su timbre y su imagen.</p>
+      <small data-i18n="index.memory.small">Modos base y orquesta · Juegos auditivos + visuales</small>
     </a>
-  <a href="html/compas.html" style="text-decoration:none;color:inherit;">
-      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
-        <h2 style="margin-top:0;" data-i18n="index.compas.title">Puzzle de Compases</h2>
-        <p style="margin-bottom:8px;" data-i18n="index.compas.desc">Completa compases arrastrando fichas rítmicas.</p>
-        <small data-i18n="index.compas.small">2/4, 3/4 y 4/4 · Duraciones básicas</small>
-      </div>
+    <a href="html/compas.html" class="activity-card">
+      <h2 data-i18n="index.compas.title">Puzzle de Compases</h2>
+      <p data-i18n="index.compas.desc">Completa compases arrastrando fichas rítmicas.</p>
+      <small data-i18n="index.compas.small">2/4, 3/4 y 4/4 · Duraciones básicas</small>
     </a>
-  <a href="html/melody.html" style="text-decoration:none;color:inherit;">
-      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
-        <h2 style="margin-top:0;" data-i18n="index.melody.title">Secuencia de Melodías</h2>
-        <p style="margin-bottom:8px;" data-i18n="index.melody.desc">Escucha, memoriza y repite las notas en el teclado virtual.</p>
-        <small data-i18n="index.melody.small">Estilo “Simon dice” · Teclado interactivo · Pentagrama</small>
-      </div>
+    <a href="html/melody.html" class="activity-card">
+      <h2 data-i18n="index.melody.title">Secuencia de Melodías</h2>
+      <p data-i18n="index.melody.desc">Escucha, memoriza y repite las notas en el teclado virtual.</p>
+      <small data-i18n="index.melody.small">Estilo “Simon dice” · Teclado interactivo · Pentagrama</small>
     </a>
     <!--
-    <a href="html/clave-sol.html" style="text-decoration:none;color:inherit;">
-      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
-        <h2 style="margin-top:0;" data-i18n="index.clef.title">Dibuja la Clave de Sol</h2>
-        <p style="margin-bottom:8px;" data-i18n="index.clef.desc">Sigue los puntos y traza la clave, rodeando la línea de SOL.</p>
-        <small>Práctica guiada · Ratón o táctil</small>
-      </div>
+    <a href="html/clave-sol.html" class="activity-card">
+      <h2 data-i18n="index.clef.title">Dibuja la Clave de Sol</h2>
+      <p data-i18n="index.clef.desc">Sigue los puntos y traza la clave, rodeando la línea de SOL.</p>
+      <small>Práctica guiada · Ratón o táctil</small>
     </a>
     -->
-  <a href="html/rhythm.html" style="text-decoration:none;color:inherit;">
-      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
-        <h2 style="margin-top:0;" data-i18n="index.rhythm.title">Ritmo: TA, SU (y TITI)</h2>
-        <p style="margin-bottom:8px;" data-i18n="index.rhythm.desc">Identifica patrones rítmicos: negra (TA), silencio (SU) y dos corcheas (TITI).</p>
-        <small data-i18n="index.rhythm.small">Modo básico: TA y SU · Activable TITI</small>
-      </div>
+    <div class="activity-card activity-card--placeholder">
+      <h2 data-i18n="gamehub.coming.title">Próximamente</h2>
+      <p data-i18n="gamehub.coming.desc">Más niveles de atrapar notas se añadirán aquí.</p>
+      <small data-i18n="gamehub.coming.small">Sugerencias bienvenidas</small>
+    </div>
+    <a href="html/rhythm.html" class="activity-card">
+      <h2 data-i18n="index.rhythm.title">Ritmo: TA, SU (y TITI)</h2>
+      <p data-i18n="index.rhythm.desc">Identifica patrones rítmicos: negra (TA), silencio (SU) y dos corcheas (TITI).</p>
+      <small data-i18n="index.rhythm.small">Modo básico: TA y SU · Activable TITI</small>
     </a>
   </div>
-  <footer style="margin-top:24px;color:#64748b;font-size:12px;">
+  <footer class="page-footer">
     <span data-i18n="sw.label">Service Worker: 80</span>
     <span id="swVersion">cargando…</span>
-    <button id="swUpdateBtn" style="margin-left:12px;display:none;padding:4px 8px;font-size:12px;">Actualizar</button>
+    <button id="swUpdateBtn" class="sw-update-btn">Actualizar</button>
   </footer>
   <script src="js/app.js" defer></script>
   <script src="js/i18n/index.js" defer></script>
