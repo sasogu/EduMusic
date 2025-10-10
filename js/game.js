@@ -73,7 +73,7 @@
     },
     re: {
       label: 'RE',
-      offsetSteps: 1,
+      offsetSteps: 1.2,
       pianoIndex: 1,
       key: 'r',
       color: '#9333ea',
@@ -242,8 +242,9 @@
     // Staff lines y positions (top->bottom) within area above piano
     const topPad = 28;
     const available = Math.max(140, piano.top - topPad);
-    // Espaciado para 5 líneas (~4*spacing de alto) + algo de aire
-    staff.spacing = Math.max(24, Math.min(36, Math.floor(available / 6)));
+    // Espaciado para 5 líneas (~4*spacing de alto) con un poco más de aire entre espacios
+    const spacingGuess = Math.floor(available / 5.5);
+    staff.spacing = Math.max(28, Math.min(42, spacingGuess));
     // Centrar en el espacio disponible
     const staffBlockH = 4 * staff.spacing;
     const extra = available - staffBlockH;
@@ -282,7 +283,7 @@
 
   function spawnNote(now) {
     state.lastSpawn = now;
-    const radius = Math.max(14, Math.floor(staff.spacing * 0.7));
+    const radius = Math.max(14, Math.floor(staff.spacing * 0.52));
     const pitch = choice(GAME_CONFIG.pitches);
     const y = staff.yForPitch(pitch);
     const note = {
@@ -847,6 +848,16 @@
 
   // Keyboard: S = Sol, M = Mi, P = pausa
   window.addEventListener('keydown', (e) => {
+    const target = e.target;
+    const active = document.activeElement;
+    const isTypingTarget = (el) => {
+      if (!el) return false;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return true;
+      return Boolean(el.isContentEditable);
+    };
+    if (isTypingTarget(target) || isTypingTarget(active)) {
+      return;
+    }
     const k = e.key.toLowerCase();
     if (k === 'p') { e.preventDefault(); pauseGame(); return; }
     const mappedPitch = KEYBOARD_MAP[k];
