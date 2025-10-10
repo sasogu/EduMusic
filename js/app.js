@@ -199,7 +199,7 @@ function ensureSwFooter() {
     return str.replace(/\{(\w+)\}/g, (_, k) => (params[k] != null ? String(params[k]) : ''));
   }
 
-  let current = (typeof localStorage !== 'undefined' && (localStorage.getItem('lang') || 'es')) || 'es';
+  let current = (typeof localStorage !== 'undefined' && (localStorage.getItem('lang') || 'val')) || 'val';
 
   function queueApply() {
     if (applyQueued) return;
@@ -216,8 +216,8 @@ function ensureSwFooter() {
   }
 
   function t(key, params) {
-    const d = dict[current] || dict.es;
-    const raw = d[key] || (dict.es[key] || key);
+    const d = dict[current] || dict.val || dict.es;
+    const raw = d[key] || (dict.val && dict.val[key]) || (dict.es && dict.es[key]) || key;
     return format(raw, params);
   }
 
