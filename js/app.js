@@ -295,6 +295,7 @@
       'rhythm.level1': 'Nivel 1',
       'rhythm.level2': 'Nivel 2',
       'rhythm.level3': 'Nivel 3',
+      'index.rhythm.small': 'Identifica patrones rítmicos · Ta, Su y Titi',
 
       // Clef page
       'clef.title': 'Dibuja la Clave de Sol',
@@ -480,6 +481,7 @@
       'rhythm.level1': 'Nivell 1',
       'rhythm.level2': 'Nivell 2',
       'rhythm.level3': 'Nivell 3',
+      'index.rhythm.small': 'Modo bàsic: TA i SU · Activable TITI',
 
       // Clef page
       'clef.title': 'Dibuixa la Clau de Sol',
