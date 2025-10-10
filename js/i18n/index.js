@@ -17,6 +17,9 @@
       'index.melody.small': 'Estilo “Simon dice” · Teclado interactivo · Pentagrama',
       'index.clef.title': 'Dibuja la Clave de Sol',
       'index.clef.desc': 'Sigue los puntos y traza la clave, rodeando la línea de SOL.',
+      'index.coming.title': 'Próximamente',
+      'index.coming.desc': 'Más niveles de atrapar notas se añadirán aquí.',
+      'index.coming.small': 'Sugerencias bienvenidas',
       'index.rhythm.title': 'Ritmo: TA, SU (y TITI)',
       'index.rhythm.desc': 'Identifica patrones rítmicos: negra (TA), silencio (SU) y dos corcheas (TITI).',
       'index.rhythm.small': 'Modo básico: TA y SU · Activable TITI'
@@ -37,6 +40,9 @@
       'index.melody.small': 'Estil “Simon says” · Teclat interactiu · Pentagrama',
       'index.clef.title': 'Dibuixa la Clau de Sol',
       'index.clef.desc': 'Segueix els punts i traça la clau, envoltant la línia de SOL.',
+      'index.coming.title': 'Pròximament',
+      'index.coming.desc': 'Ací s\'afegiran nous nivells d\'Atrapa Notes.',
+      'index.coming.small': 'Idees benvingudes',
       'index.rhythm.title': 'Ritme: TA, SU (i TITI)',
       'index.rhythm.desc': 'Identifica patrons rítmics: negra (TA), silenci (SU) i dos corxeres (TITI).',
       'index.rhythm.small': 'Mode bàsic: TA i SU · Activable TITI'
