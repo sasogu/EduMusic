@@ -14,51 +14,36 @@
 
   <p data-i18n="gamehub.intro">Elige un reto para atrapar notas en el pentagrama.</p>
 
-  <div style="max-width:900px;margin:24px auto;text-align:left;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
-  <a href="solmi.html" style="text-decoration:none;color:inherit;">
-      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
-        <h2 style="margin-top:0;" data-i18n="gamehub.solmi.title">Sol &amp; Mi</h2>
-        <p style="margin-bottom:8px;" data-i18n="gamehub.solmi.desc">Pulsa las teclas correspondientes para atrapar las notas SOL y MI.</p>
-        <small data-i18n="gamehub.solmi.small">Dificultad progresiva · Ranking online</small>
-      </div>
+  <div class="activity-grid">
+    <a href="solmi.html" class="activity-card">
+      <h2 data-i18n="gamehub.solmi.title">Sol &amp; Mi</h2>
+      <p data-i18n="gamehub.solmi.desc">Pulsa las teclas correspondientes para atrapar las notas SOL y MI.</p>
+      <small data-i18n="gamehub.solmi.small">Dificultad progresiva · Ranking online</small>
     </a>
-  <a href="solmila.html" style="text-decoration:none;color:inherit;">
-      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
-        <h2 style="margin-top:0;" data-i18n="gamehub.solmila.title">Sol, Mi y La</h2>
-        <p style="margin-bottom:8px;" data-i18n="gamehub.solmila.desc">Añade la nota LA al reto y mantén la precisión en el pentagrama.</p>
-        <small data-i18n="gamehub.solmila.small">Tres notas · Misma dinámica de juego</small>
-      </div>
+    <a href="solmila.html" class="activity-card">
+      <h2 data-i18n="gamehub.solmila.title">Sol, Mi y La</h2>
+      <p data-i18n="gamehub.solmila.desc">Añade la nota LA al reto y mantén la precisión en el pentagrama.</p>
+      <small data-i18n="gamehub.solmila.small">Tres notas · Misma dinámica de juego</small>
     </a>
-  <a href="solmilado.html" style="text-decoration:none;color:inherit;">
-      <div style="background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:16px;">
-        <h2 style="margin-top:0;" data-i18n="gamehub.solmilado.title">Sol, Mi, La &amp; Do</h2>
-        <p style="margin-bottom:8px;" data-i18n="gamehub.solmilado.desc">Incluye el DO grave y trabaja con líneas adicionales del pentagrama.</p>
-        <small data-i18n="gamehub.solmilado.small">Cuatro notas · Lectura con líneas adicionales</small>
-      </div>
+    <a href="solmilado.html" class="activity-card">
+      <h2 data-i18n="gamehub.solmilado.title">Sol, Mi, La &amp; Do</h2>
+      <p data-i18n="gamehub.solmilado.desc">Incluye el DO grave y trabaja con líneas adicionales del pentagrama.</p>
+      <small data-i18n="gamehub.solmilado.small">Cuatro notas · Lectura con líneas adicionales</small>
     </a>
-    <div style="background:#f1f5f9;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(148,163,184,0.4);padding:16px;opacity:0.7;">
-      <h2 style="margin-top:0;" data-i18n="gamehub.coming.title">Próximamente</h2>
-      <p style="margin-bottom:8px;" data-i18n="gamehub.coming.desc">Más niveles de atrapar notas se añadirán aquí.</p>
+    <div class="activity-card activity-card--placeholder">
+      <h2 data-i18n="gamehub.coming.title">Próximamente</h2>
+      <p data-i18n="gamehub.coming.desc">Más niveles de atrapar notas se añadirán aquí.</p>
       <small data-i18n="gamehub.coming.small">Sugerencias bienvenidas</small>
     </div>
   </div>
-  <div id="langCtrl" style="margin:8px 0;">
-    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
-    <select id="langSelect" style="margin-left:6px;">
-      <option value="es" data-i18n="lang.es">Español</option>
-      <option value="val" data-i18n="lang.val">Valencià</option>
-    </select>
-  </div>
+  <div data-lang-switch></div>
 
-  <a href="../index.html" class="home-link" style="display:inline-flex;margin:16px auto 0;color:#2563eb;text-decoration:none;">
+  <a href="../index.html" class="home-link" style="margin:16px auto 0;">
     <span class="home-icon" aria-hidden="true">⌂</span>
     <span data-i18n="gamehub.back">Volver al inicio</span>
   </a>
 
-  <footer style="margin-top:24px;color:#64748b;font-size:12px;">
-    <span data-i18n="sw.label">Service Worker:</span>
-    <span id="swVersion">cargando…</span>
-  </footer>
+  <footer class="page-footer" data-sw-status></footer>
 
   <script src="../js/app.js" defer></script>
   <script src="../js/i18n/gamehub.js" defer></script>

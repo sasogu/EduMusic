@@ -1,7 +1,52 @@
-const SW_VERSION = 'v0.2.3';
+const SW_VERSION = 'v0.2.8';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
+
+const ASSETS = [
+  './',
+  'index.html',
+  'offline.html',
+  'css/style.css',
+  'js/app.js',
+  'js/i18n/index.js',
+  'js/i18n/gamehub.js',
+  'js/i18n/memory.js',
+  'js/i18n/hud.js',
+  'js/i18n/game.js',
+  'js/i18n/compas.js',
+  'js/i18n/melody.js',
+  'js/i18n/rhythm.js',
+  'js/i18n/clef.js',
+  'manifest.json',
+  'html/game.html',
+  'html/solmi.html',
+  'html/solmila.html',
+  'html/solmilado.html',
+  'html/memory.html',
+  'html/compas.html',
+  'html/melody.html',
+  'html/rhythm.html',
+  'html/clave-sol.html',
+  'js/game.js',
+  'js/memory.js',
+  'js/compas.js',
+  'js/melody.js',
+  'js/rhythm.js',
+  'js/clave_sol.js',
+  'assets/icon-192.png',
+  'assets/icon-512.png',
+  'assets/audio/piano.ogg',
+  'assets/audio/violin.ogg',
+  'assets/audio/trompeta.ogg',
+  'assets/audio/flute.ogg',
+  'assets/audio/guitar.ogg',
+  'assets/audio/bongos.ogg'
+];
+
+function toScopeUrl(path) {
+  return new URL(path, self.registration.scope).toString();
+}
 
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(CACHE);
@@ -16,7 +61,7 @@ async function staleWhileRevalidate(request) {
     .catch(() => null);
 
   if (cached) {
-    networkPromise.catch(() => {});
+    networkPromise && networkPromise.catch(() => {});
     return cached;
   }
 
@@ -32,46 +77,8 @@ async function staleWhileRevalidate(request) {
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE).then(cache => {
-      return cache.addAll([
-        '/',
-  '/index.html',
-  '/offline.html',
-        '/css/style.css',
-        '/js/app.js',
-        '/js/i18n/index.js',
-        '/js/i18n/gamehub.js',
-        '/js/i18n/memory.js',
-        '/js/i18n/hud.js',
-        '/js/i18n/game.js',
-        '/js/i18n/compas.js',
-        '/js/i18n/melody.js',
-        '/js/i18n/rhythm.js',
-        '/js/i18n/clef.js',
-        '/manifest.json',
-  '/html/game.html',
-  '/html/solmi.html',
-  '/html/solmila.html',
-  '/html/solmilado.html',
-  '/html/memory.html',
-  '/html/compas.html',
-  '/html/melody.html',
-        '/js/game.js',
-        '/js/memory.js',
-        '/js/compas.js',
-        '/js/melody.js',
-  '/html/rhythm.html',
-        '/js/rhythm.js',
-  '/html/clave-sol.html',
-        '/js/clave_sol.js',
-        '/assets/icon-192.png',
-        '/assets/icon-512.png',
-        '/assets/audio/piano.ogg',
-        '/assets/audio/violin.ogg',
-        '/assets/audio/trompeta.ogg',
-        '/assets/audio/flute.ogg',
-        '/assets/audio/guitar.ogg',
-        '/assets/audio/bongos.ogg'
-      ]);
+      const scopedAssets = ASSETS.map(toScopeUrl);
+      return cache.addAll(scopedAssets);
     })
   );
   // Activate new SW immediately
@@ -85,9 +92,10 @@ self.addEventListener('fetch', event => {
   
 
   // Serve a favicon even if /favicon.ico isn't present on disk
-  if (url.pathname === '/favicon.ico') {
+  if (url.pathname.endsWith('/favicon.ico')) {
+    const iconUrl = toScopeUrl('assets/icon-192.png');
     event.respondWith(
-      caches.match('/assets/icon-192.png').then(resp => resp || fetch('/assets/icon-192.png'))
+      caches.match(iconUrl).then(resp => resp || fetch(iconUrl))
     );
     return;
   }
@@ -116,7 +124,9 @@ self.addEventListener('fetch', event => {
   }
 
   // JS: estrategia depende de si hay versión nueva
-  const isScript = request.destination === 'script' || url.pathname.startsWith('/js/');
+  const isScript = request.destination === 'script'
+    || url.pathname.endsWith('.js')
+    || url.pathname.includes('/js/');
   if (isScript) {
     event.respondWith((async () => {
       if (IS_FRESH_VERSION) {
@@ -149,7 +159,8 @@ self.addEventListener('activate', event => {
       // Detectar si la versión ha cambiado usando un meta-cache persistente
       try {
         const meta = await caches.open(META_CACHE);
-        const versionKey = new Request('/__sw_version__');
+        const versionKeyUrl = toScopeUrl('__sw_version__');
+        const versionKey = new Request(versionKeyUrl);
         const prevResp = await meta.match(versionKey);
         const prev = prevResp ? await prevResp.text() : null;
         if (prev !== SW_VERSION) {

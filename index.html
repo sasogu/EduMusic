@@ -12,13 +12,7 @@
   <img src="assets/icon-512.png" alt="Logo EduMúsic" style="display:block;width:96px;height:96px;margin:0 auto 16px;">
 
   <h1>EduMúsic</h1>
-  <div id="langCtrl" style="margin:8px 0;">
-    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
-    <select id="langSelect" style="margin-left:6px;">
-      <option value="es" data-i18n="lang.es">Español</option>
-      <option value="val" data-i18n="lang.val">Valencià</option>
-    </select>
-  </div>
+  <div data-lang-switch></div>
   <p data-i18n="index.choose">Selecciona una actividad para empezar:</p>
 
   <div class="activity-grid">
@@ -50,9 +44,9 @@
     </a>
     -->
     <div class="activity-card activity-card--placeholder">
-      <h2 data-i18n="gamehub.coming.title">Próximamente</h2>
-      <p data-i18n="gamehub.coming.desc">Más niveles de atrapar notas se añadirán aquí.</p>
-      <small data-i18n="gamehub.coming.small">Sugerencias bienvenidas</small>
+      <h2 data-i18n="index.coming.title">Próximamente</h2>
+      <p data-i18n="index.coming.desc">Más niveles de atrapar notas se añadirán aquí.</p>
+      <small data-i18n="index.coming.small">Sugerencias bienvenidas</small>
     </div>
     <a href="html/rhythm.html" class="activity-card">
       <h2 data-i18n="index.rhythm.title">Ritmo: TA, SU (y TITI)</h2>
@@ -60,11 +54,7 @@
       <small data-i18n="index.rhythm.small">Modo básico: TA y SU · Activable TITI</small>
     </a>
   </div>
-  <footer class="page-footer">
-    <span data-i18n="sw.label">Service Worker: 80</span>
-    <span id="swVersion">cargando…</span>
-    <button id="swUpdateBtn" class="sw-update-btn">Actualizar</button>
-  </footer>
+  <footer class="page-footer" data-sw-status></footer>
   <script src="js/app.js" defer></script>
   <script src="js/i18n/index.js" defer></script>
 </body>

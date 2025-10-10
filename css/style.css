@@ -206,13 +206,37 @@ button {
   outline-color: transparent;
 }
 
+.lang-switch {
+  margin: 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.lang-switch select {
+  margin-left: 2px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.lang-switch select:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
+
 .home-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: #2563eb;
+  background: #8c8c8e;
   color: #fff;
   font-weight: 600;
   text-decoration: none;
@@ -221,8 +245,8 @@ button {
 
 .home-link:hover,
 .home-link:focus-visible {
-  background: #1d4ed8;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  background: #757677;
+  box-shadow: 0 0 0 3px rgba(145, 145, 146, 0.25);
 }
 
 .home-link:focus-visible {
@@ -230,7 +254,7 @@ button {
 }
 
 .home-icon {
-  font-size: 0.95em;
+  font-size: 1.95em;
   opacity: 0.8;
 }
 

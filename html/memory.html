@@ -60,24 +60,14 @@
       <div class="memory-grid" id="memoryGrid"></div>
     </div>
   </section>
-   <div id="langCtrl" style="margin:8px 0;">
-    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
-    <select id="langSelect" style="margin-left:6px;">
-      <option value="es" data-i18n="lang.es">Español</option>
-      <option value="val" data-i18n="lang.val">Valencià</option>
-    </select>
-  </div>
+  <div data-lang-switch></div>
 
-  <a href="../index.html" class="home-link" style="display:inline-flex;margin-top:8px;color:#2563eb;text-decoration:none;">
+  <a href="../index.html" class="home-link" style="margin-top:8px;">
     <span class="home-icon" aria-hidden="true">⌂</span>
     <span data-i18n="gamehub.back">Volver al inicio</span>
   </a>
 
-  <footer style="margin-top:24px;color:#64748b;font-size:12px;">
-    
-    <span data-i18n="sw.label">Service Worker:</span>
-    <span id="swVersion">cargando…</span>
-  </footer>
+  <footer class="page-footer" data-sw-status></footer>
 
   <script src="../js/app.js" defer></script>
   <script src="../js/i18n/memory.js" defer></script>

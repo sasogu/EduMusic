@@ -1,9 +1,39 @@
 
+function ensureLangSwitcher() {
+  if (document.getElementById('langSelect')) return document.getElementById('langSelect');
+  const host = document.querySelector('[data-lang-switch]');
+  if (!host) return null;
+  host.id = host.id || 'langCtrl';
+  host.classList.add('lang-switch');
+  host.innerHTML = `
+    <label for="langSelect" data-i18n="lang.label">Idioma:</label>
+    <select id="langSelect">
+      <option value="es" data-i18n="lang.es">Español</option>
+      <option value="val" data-i18n="lang.val">Valencià</option>
+    </select>
+  `;
+  return host.querySelector('#langSelect');
+}
+
+function ensureSwFooter() {
+  if (document.getElementById('swVersion')) return document.getElementById('swVersion');
+  const host = document.querySelector('[data-sw-status]');
+  if (!host) return null;
+  host.classList.add('page-footer');
+  host.innerHTML = `
+    <span data-i18n="sw.label">Service Worker:</span>
+    <span id="swVersion">cargando…</span>
+    <button id="swUpdateBtn" class="sw-update-btn" style="display:none;">Actualizar</button>
+  `;
+  return host.querySelector('#swVersion');
+}
+
 // --- Service Worker helpers (moved from HTML) ---
 (function() {
   // Keep a small state so i18n changes can re-render correctly
   let swState = { kind: 'loading', version: null };
   function renderSW() {
+    ensureSwFooter();
     var el = document.getElementById('swVersion');
     if (!el) return;
     var i18n = window.i18n;
@@ -236,9 +266,10 @@
   }
 
   function init() {
+    const sel = ensureLangSwitcher();
+    ensureSwFooter();
     document.documentElement.lang = current === 'val' ? 'ca' : 'es';
     apply();
-    const sel = document.getElementById('langSelect');
     if (sel) sel.addEventListener('change', () => setLang(sel.value));
   }
 
