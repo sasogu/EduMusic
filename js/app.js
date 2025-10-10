@@ -88,7 +88,9 @@ function ensureSwFooter() {
     }
     const boot = async () => {
       try {
-        const swUrl = new URL('service-worker.js', window.location.href);
+        const manifestLink = document.querySelector('link[rel="manifest"]');
+        const baseHref = manifestLink ? manifestLink.href : window.location.href;
+        const swUrl = new URL('service-worker.js', baseHref);
         const reg = await navigator.serviceWorker.register(swUrl.href);
         // Wait until the SW is active and ready
         const ready = await navigator.serviceWorker.ready;
