@@ -22,7 +22,10 @@
       'index.coming.small': 'Sugerencias bienvenidas',
       'index.rhythm.title': 'Ritmo: TA, SU (y TITI)',
       'index.rhythm.desc': 'Identifica patrones rítmicos: negra (TA), silencio (SU) y dos corcheas (TITI).',
-      'index.rhythm.small': 'Modo básico: TA y SU · Activable TITI'
+      'index.rhythm.small': 'Modo básico: TA y SU · Activable TITI',
+      'index.resources.title': 'Recursos de Juegos Musicales',
+      'index.resources.desc': 'Explora enlaces a actividades musicales externas seleccionadas.',
+      'index.resources.small': 'Incluye aprendomusica.com y otras propuestas educativas'
     },
     val: {
       'index.choose': 'Tria una activitat per a començar:',
@@ -45,7 +48,10 @@
       'index.coming.small': 'Idees benvingudes',
       'index.rhythm.title': 'Ritme: TA, SU (i TITI)',
       'index.rhythm.desc': 'Identifica patrons rítmics: negra (TA), silenci (SU) i dos corxeres (TITI).',
-      'index.rhythm.small': 'Mode bàsic: TA i SU · Activable TITI'
+      'index.rhythm.small': 'Mode bàsic: TA i SU · Activable TITI',
+      'index.resources.title': 'Recursos de Jocs Musicals',
+      'index.resources.desc': 'Explora enllaços a activitats musicals externes seleccionades.',
+      'index.resources.small': 'Inclou aprendomusica.com i altres propostes educatives'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

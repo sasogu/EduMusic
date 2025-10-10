@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.3.2';
+const SW_VERSION = 'v0.3.4';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -18,6 +18,8 @@ const ASSETS = [
   'js/i18n/melody.js',
   'js/i18n/rhythm.js',
   'js/i18n/clef.js',
+  'js/i18n/recursos.js',
+  'js/i18n/offline.js',
   'manifest.json',
   'html/game.html',
   'html/solmi.html',
@@ -31,6 +33,7 @@ const ASSETS = [
   'html/melody.html',
   'html/rhythm.html',
   'html/clave-sol.html',
+  'html/recursos.html',
   'js/game.js',
   'js/memory.js',
   'js/compas.js',
