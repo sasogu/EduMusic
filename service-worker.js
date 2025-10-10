@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.2.9';
+const SW_VERSION = 'v0.3.2';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -23,6 +23,9 @@ const ASSETS = [
   'html/solmi.html',
   'html/solmila.html',
   'html/solmilado.html',
+  'html/solmiladore.html',
+  'html/solmiladorefa.html',
+  'html/todas.html',
   'html/memory.html',
   'html/compas.html',
   'html/melody.html',

@@ -71,6 +71,36 @@
       activeHighlight: '#facc15',
       freq: 261.63,
     },
+    re: {
+      label: 'RE',
+      offsetSteps: 1,
+      pianoIndex: 1,
+      key: 'r',
+      color: '#9333ea',
+      highlight: '#ede9fe',
+      activeHighlight: '#ddd6fe',
+      freq: 293.66,
+    },
+    fa: {
+      label: 'FA',
+      offsetSteps: -1,
+      pianoIndex: 3,
+      key: 'f',
+      color: '#0ea5e9',
+      highlight: '#cff4ff',
+      activeHighlight: '#bae6fd',
+      freq: 349.23,
+    },
+    si: {
+      label: 'SI',
+      offsetSteps: -4,
+      pianoIndex: 6,
+      key: 'b',
+      color: '#f59e0b',
+      highlight: '#fef3c7',
+      activeHighlight: '#fde68a',
+      freq: 493.88,
+    },
   };
 
   function getPitchMeta(pitch) {
@@ -226,18 +256,22 @@
 
   function applySpeed(mode) {
     state.speedMode = mode;
+    const baseSpawn = 1600; // más lento en modo normal
+    const baseSpeed = 90;
+    const baseIncrease = 0.012;
+
     if (mode === 'slow') {
-      state.spawnEveryMs = 1400;
-      state.speedBase = 90;
-      state.speedIncrease = 0.015;
+      state.spawnEveryMs = Math.floor(baseSpawn * 1.25); // ~2000ms
+      state.speedBase = baseSpeed * 0.85;
+      state.speedIncrease = baseIncrease * 0.9;
     } else if (mode === 'fast') {
-      state.spawnEveryMs = 800;
-      state.speedBase = 160;
-      state.speedIncrease = 0.025;
+      state.spawnEveryMs = Math.floor(baseSpawn * 0.65); // ~1040ms
+      state.speedBase = baseSpeed * 1.35;
+      state.speedIncrease = baseIncrease * 1.2;
     } else {
-      state.spawnEveryMs = 1100;
-      state.speedBase = 120;
-      state.speedIncrease = 0.02;
+      state.spawnEveryMs = baseSpawn;
+      state.speedBase = baseSpeed;
+      state.speedIncrease = baseIncrease;
     }
   }
 
