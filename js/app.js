@@ -88,8 +88,8 @@ function ensureSwFooter() {
     }
     const boot = async () => {
       try {
-        const swUrl = new URL('service-worker.js', window.location.origin);
-        const reg = await navigator.serviceWorker.register(swUrl.pathname + swUrl.search);
+        const swUrl = new URL('service-worker.js', window.location.href);
+        const reg = await navigator.serviceWorker.register(swUrl.href);
         // Wait until the SW is active and ready
         const ready = await navigator.serviceWorker.ready;
         // Try to ask the active controller first (after claim), then the ready registration
