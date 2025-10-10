@@ -138,3 +138,14 @@ button {
   background: #475569;
   color: #fff;
 }
+
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.home-icon {
+  font-size: 0.95em;
+  opacity: 0.75;
+}
