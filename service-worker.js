@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.3.4';
+const SW_VERSION = 'v0.3.8';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -8,6 +8,7 @@ const ASSETS = [
   'index.html',
   'offline.html',
   'css/style.css',
+  'css/piano.css',
   'js/app.js',
   'js/i18n/index.js',
   'js/i18n/gamehub.js',
@@ -20,6 +21,7 @@ const ASSETS = [
   'js/i18n/clef.js',
   'js/i18n/recursos.js',
   'js/i18n/offline.js',
+  'js/i18n/piano.js',
   'manifest.json',
   'html/game.html',
   'html/solmi.html',
@@ -33,6 +35,7 @@ const ASSETS = [
   'html/melody.html',
   'html/rhythm.html',
   'html/clave-sol.html',
+  'html/piano.html',
   'html/recursos.html',
   'js/game.js',
   'js/memory.js',
@@ -40,6 +43,7 @@ const ASSETS = [
   'js/melody.js',
   'js/rhythm.js',
   'js/clave_sol.js',
+  'js/piano.js',
   'assets/icon-192.png',
   'assets/icon-512.png',
   'assets/audio/piano.ogg',
@@ -47,7 +51,31 @@ const ASSETS = [
   'assets/audio/trompeta.ogg',
   'assets/audio/flute.ogg',
   'assets/audio/guitar.ogg',
-  'assets/audio/bongos.ogg'
+  'assets/audio/bongos.ogg',
+  'assets/piano/key01.ogg',
+  'assets/piano/key02.ogg',
+  'assets/piano/key03.ogg',
+  'assets/piano/key04.ogg',
+  'assets/piano/key05.ogg',
+  'assets/piano/key06.ogg',
+  'assets/piano/key07.ogg',
+  'assets/piano/key08.ogg',
+  'assets/piano/key09.ogg',
+  'assets/piano/key10.ogg',
+  'assets/piano/key11.ogg',
+  'assets/piano/key12.ogg',
+  'assets/piano/key13.ogg',
+  'assets/piano/key14.ogg',
+  'assets/piano/key15.ogg',
+  'assets/piano/key16.ogg',
+  'assets/piano/key17.ogg',
+  'assets/piano/key18.ogg',
+  'assets/piano/key19.ogg',
+  'assets/piano/key20.ogg',
+  'assets/piano/key21.ogg',
+  'assets/piano/key22.ogg',
+  'assets/piano/key23.ogg',
+  'assets/piano/key24.ogg'
 ];
 
 function toScopeUrl(path) {

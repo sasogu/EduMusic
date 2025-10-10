@@ -23,6 +23,9 @@
       'index.rhythm.title': 'Ritmo: TA, SU (y TITI)',
       'index.rhythm.desc': 'Identifica patrones rítmicos: negra (TA), silencio (SU) y dos corcheas (TITI).',
       'index.rhythm.small': 'Modo básico: TA y SU · Activable TITI',
+      'index.piano.title': 'Teclado y Partituras',
+      'index.piano.desc': 'Explora un teclado de dos octavas y visualiza partituras seleccionables.',
+      'index.piano.small': 'Selector de partituras · Piano interactivo',
       'index.resources.title': 'Recursos de Juegos Musicales',
       'index.resources.desc': 'Explora enlaces a actividades musicales externas seleccionadas.',
       'index.resources.small': 'Incluye aprendomusica.com y otras propuestas educativas'
@@ -49,6 +52,9 @@
       'index.rhythm.title': 'Ritme: TA, SU (i TITI)',
       'index.rhythm.desc': 'Identifica patrons rítmics: negra (TA), silenci (SU) i dos corxeres (TITI).',
       'index.rhythm.small': 'Mode bàsic: TA i SU · Activable TITI',
+      'index.piano.title': 'Teclat i Partitures',
+      'index.piano.desc': 'Explora un teclat de dues octaves i visualitza partitures seleccionables.',
+      'index.piano.small': 'Selector de partitures · Piano interactiu',
       'index.resources.title': 'Recursos de Jocs Musicals',
       'index.resources.desc': 'Explora enllaços a activitats musicals externes seleccionades.',
       'index.resources.small': 'Inclou aprendomusica.com i altres propostes educatives'
