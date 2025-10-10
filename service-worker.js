@@ -1,7 +1,33 @@
-const SW_VERSION = 'v0.2.0';
+const SW_VERSION = 'v0.2.1';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(CACHE);
+  const cached = await cache.match(request);
+  const networkPromise = fetch(request)
+    .then((response) => {
+      if (response && response.ok) {
+        cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(() => null);
+
+  if (cached) {
+    networkPromise.catch(() => {});
+    return cached;
+  }
+
+  const fromNetwork = await networkPromise;
+  if (fromNetwork) return fromNetwork;
+
+  const fallback = await cache.match(request);
+  if (fallback) return fallback;
+
+  return Response.error();
+}
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -83,15 +109,8 @@ self.addEventListener('fetch', event => {
           const cached = await caches.match(request);
           return cached || fetch(request);
         }
-      } else {
-        // Cache-first cuando la versión no ha cambiado
-        const cached = await caches.match(request);
-        if (cached) return cached;
-        const resp = await fetch(request);
-        const copy = resp.clone();
-        caches.open(CACHE).then(c => c.put(request, copy));
-        return resp;
       }
+      return staleWhileRevalidate(request);
     })());
     return;
   }
@@ -111,15 +130,8 @@ self.addEventListener('fetch', event => {
           const cached = await caches.match(request);
           return cached || fetch(request);
         }
-      } else {
-        // Cache-first si la versión no ha cambiado
-        const cached = await caches.match(request);
-        if (cached) return cached;
-        const resp = await fetch(request);
-        const copy = resp.clone();
-        caches.open(CACHE).then(c => c.put(request, copy));
-        return resp;
       }
+      return staleWhileRevalidate(request);
     })());
     return;
   }
