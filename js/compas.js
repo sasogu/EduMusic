@@ -71,6 +71,18 @@
   const registry = new Map();
   let currentLang = 'es';
 
+  const SCOREBOARD_ID = 'compas';
+  function showScoreboardPrompt(score) {
+    if (window.ScoreService && score > 0) {
+      window.ScoreService.showSave(SCOREBOARD_ID, score);
+    }
+  }
+  function hideScoreboardPrompt() {
+    if (window.ScoreService) {
+      window.ScoreService.hideSave(SCOREBOARD_ID);
+    }
+  }
+
   function translate(key, params, fallback) {
     if (window.i18n && typeof window.i18n.t === 'function') {
       const res = window.i18n.t(key, params);
@@ -247,6 +259,7 @@
     state.puzzle = puzzle;
     state.hasSolved = false;
     dom.btnCheck.disabled = false;
+    hideScoreboardPrompt();
     dom.measureZone.classList.remove('completed');
     clearStatus();
     state.lastStatus = null;
@@ -301,6 +314,7 @@
       applyDifficultyToBoard();
       updateMetrics();
       updateSummaryVisibility();
+      showScoreboardPrompt(state.solvedCount);
       return;
     }
 

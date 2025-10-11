@@ -46,17 +46,7 @@
       Las notas (DO grave, MI, SOL, LA y RE agudo) avanzan de izquierda a derecha respetando sus posiciones en el pentagrama. Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si fallas, pierdes una vida. A partir de 10 puntos se ocultan los nombres sobre las notas y a partir de 20 también los del teclado. Teclado: D = Do, R = Re, M = Mi, S = Sol, L = La.
     </p>
   </div>
-
-  <section id="ranking" style="max-width: 900px; margin: 16px auto; text-align: left;">
-    <h2 style="margin: 0.5em 0;" data-i18n="game.ranking">Ranking</h2>
-    <div id="saveScore" style="display:none; background:#f8fafc; padding: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-      <div style="margin-bottom:8px;"><span data-i18n="game.save.your_score">Tu puntuación:</span> <strong id="finalScore">0</strong></div>
-      <label for="playerName" data-i18n="game.save.your_name">Tu nombre:</label>
-      <input id="playerName" type="text" maxlength="24" data-i18n="game.save.placeholder" data-i18n-attr="placeholder" placeholder="Escribe tu nombre" style="margin:0 8px; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1;">
-      <button id="saveBtn" data-i18n="game.save.button">Guardar puntuación</button>
-    </div>
-    <ol id="scoreList" style="padding-left: 1.2em; margin-top: 12px;"></ol>
-  </section>
+  <section data-scoreboard data-game="solmiladore" style="max-width: 900px; margin: 16px auto; text-align: left;"></section>
 
   <a href="../html/game.html" class="btn-secondary home-link">
     <span class="home-icon" aria-hidden="true">⌂</span>
@@ -99,6 +89,7 @@
   <script src="../js/app.js" defer></script>
   <script src="../js/i18n/hud.js" defer></script>
   <script src="../js/i18n/game.js" defer></script>
+  <script src="../js/score-service.js" defer></script>
   <script src="../js/game.js" defer></script>
 </body>
 </html>

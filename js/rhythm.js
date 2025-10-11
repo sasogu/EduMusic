@@ -26,6 +26,18 @@
     lastFeedback: null, // 'ok' | 'error' | null
   };
 
+  const SCOREBOARD_ID = 'rhythm';
+  function showScoreboardPrompt() {
+    if (window.ScoreService) {
+      window.ScoreService.showSave(SCOREBOARD_ID, state.score);
+    }
+  }
+  function hideScoreboardPrompt() {
+    if (window.ScoreService) {
+      window.ScoreService.hideSave(SCOREBOARD_ID);
+    }
+  }
+
   // Layout
   function resize() {
     const maxW = Math.min(window.innerWidth - 32, 900);
@@ -106,6 +118,7 @@
   }
 
   function startGame() {
+    hideScoreboardPrompt();
     state.running = true;
     state.score = 0;
     state.lives = 3;
@@ -168,6 +181,7 @@
       draw();
       if (state.lives <= 0) {
         state.running = false;
+        showScoreboardPrompt();
       }
     }
   }

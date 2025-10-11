@@ -129,25 +129,7 @@
     pauseBtn: document.getElementById('pauseBtn'),
     restartBtn: document.getElementById('restartBtn'),
     speedSel: document.getElementById('speedSelect'),
-    // ranking elements
-    rankSection: document.getElementById('ranking'),
-    saveWrap: document.getElementById('saveScore'),
-    finalScoreEl: document.getElementById('finalScore'),
-    nameInput: document.getElementById('playerName'),
-    saveBtn: document.getElementById('saveBtn'),
-    listEl: document.getElementById('scoreList'),
   };
-
-  // Optional remote ranking via Supabase REST
-  // To enable, set your project URL and anon key below
-  const REMOTE = {
-    // Configuración Supabase (completa con tu anon key)
-    supabaseUrl: 'https://nbgnppkklyoubxazkfvw.supabase.co',
-    supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iZ25wcGtrbHlvdWJ4YXprZnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczNjYwNDEsImV4cCI6MjA3Mjk0MjA0MX0.3agAyUPaeyHT3CCf_DmmQgVyL70dAKGikkGpdZ165Vs',
-  };
-  function remoteEnabled() {
-    return Boolean(REMOTE.supabaseUrl && REMOTE.supabaseAnonKey);
-  }
 
   // Staff metrics (computed on resize)
   const staff = {
@@ -297,6 +279,7 @@
   }
 
   function resetGame() {
+    hideScoreboardPrompt();
     state.running = false;
     state.paused = false;
     state.over = false;
@@ -338,94 +321,20 @@
     state.over = true;
     state.running = false;
     draw();
-    showSaveScore();
+    showScoreboardPrompt();
   }
 
-  // ---------- Ranking (localStorage) ----------
-  const rankSlug = sanitizeKey(GAME_CONFIG.rankKey || GAME_CONFIG.id || 'default') || 'default';
-  const RANK_KEY = `EduMúsic_rank_${rankSlug}_v1`;
-  async function loadRank() {
-    if (remoteEnabled()) {
-      try {
-        const url = `${REMOTE.supabaseUrl}/rest/v1/scores?select=name,score,ts&order=score.desc&limit=10`;
-        const res = await fetch(url, {
-          headers: {
-            apikey: REMOTE.supabaseAnonKey,
-            Authorization: `Bearer ${REMOTE.supabaseAnonKey}`,
-          },
-          cache: 'no-store',
-        });
-        if (res.ok) return await res.json();
-      } catch {}
-    }
-    // local fallback
-    try {
-      const raw = localStorage.getItem(RANK_KEY);
-      if (!raw) return [];
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : [];
-    } catch { return []; }
-  }
-  function saveRank(arr) {
-    try { localStorage.setItem(RANK_KEY, JSON.stringify(arr)); } catch {}
-  }
-  async function addRankEntry(name, score) {
-    const entry = { name: name || 'Anónimo', score, ts: new Date().toISOString() };
-    if (remoteEnabled()) {
-      try {
-        const url = `${REMOTE.supabaseUrl}/rest/v1/scores`;
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: {
-            apikey: REMOTE.supabaseAnonKey,
-            Authorization: `Bearer ${REMOTE.supabaseAnonKey}`,
-            'Content-Type': 'application/json',
-            Prefer: 'return=representation',
-          },
-          body: JSON.stringify(entry),
-        });
-        if (!res.ok) throw new Error('remote insert failed');
-        return await loadRank();
-      } catch {
-        // fallthrough to local
-      }
-    }
-    const arr = await loadRank();
-    const localArr = Array.isArray(arr) ? [...arr] : [];
-    localArr.push(entry);
-    localArr.sort((a,b) => b.score - a.score || new Date(a.ts) - new Date(b.ts));
-    const top = localArr.slice(0, 10);
-    saveRank(top);
-    return top;
-  }
-  async function renderRank() {
-    const arr = await loadRank();
-    if (!hud.listEl) return;
-    hud.listEl.innerHTML = '';
-    if (arr.length === 0) {
-      const li = document.createElement('li');
-      li.textContent = window.i18n ? window.i18n.t('game.rank.empty') : 'Aún no hay puntuaciones. ¡Sé el primero!';
-      hud.listEl.appendChild(li);
-      return;
-    }
-    for (const e of arr) {
-      const li = document.createElement('li');
-      const date = new Date(e.ts || Date.now());
-      const pts = window.i18n ? window.i18n.t('game.rank.pts') : 'pts';
-      li.textContent = `${e.name} — ${e.score} ${pts} (${date.toLocaleDateString()})`;
-      hud.listEl.appendChild(li);
+  // ---------- Scoreboard integration ----------
+  const rankKey = GAME_CONFIG.rankKey || GAME_CONFIG.id || 'default';
+  function showScoreboardPrompt() {
+    if (window.ScoreService) {
+      window.ScoreService.showSave(rankKey, state.score);
     }
   }
-  function showSaveScore() {
-    if (!hud.saveWrap) return;
-    if (state.score <= 0) { hud.saveWrap.style.display = 'none'; return; }
-    hud.finalScoreEl.textContent = String(state.score);
-    hud.saveWrap.style.display = '';
-    hud.nameInput.value = '';
-    hud.nameInput.focus();
-  }
-  function hideSaveScore() {
-    if (hud.saveWrap) hud.saveWrap.style.display = 'none';
+  function hideScoreboardPrompt() {
+    if (window.ScoreService) {
+      window.ScoreService.hideSave(rankKey);
+    }
   }
 
   function update(dt) {
@@ -903,34 +812,14 @@
     applySpeed(hud.speedSel.value || 'normal');
   }
 
-  // Save score handlers
-  if (hud.saveBtn) {
-    hud.saveBtn.addEventListener('click', async () => {
-      const name = (hud.nameInput.value || '').trim() || 'Anónimo';
-      await addRankEntry(name, state.score);
-      hideSaveScore();
-      renderRank();
-    });
-  }
-  if (hud.nameInput) {
-    hud.nameInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        hud.saveBtn.click();
-      }
-    });
-  }
-
   // Init
   resetGame();
-  renderRank();
   // Update texts when language changes
   if (window.i18n && typeof window.i18n.onChange === 'function') {
     window.i18n.onChange(() => {
       if (hud.scoreEl) hud.scoreEl.textContent = window.i18n.t('hud.points', { n: state.score });
       if (hud.livesEl) hud.livesEl.textContent = window.i18n.t('hud.lives', { n: state.lives });
       draw();
-      renderRank();
     });
   }
 })();

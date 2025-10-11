@@ -28,6 +28,18 @@
     includeRest: false
   };
 
+  const SCOREBOARD_ID = 'rhythm-dictation';
+  function showScoreboardPrompt(score) {
+    if (window.ScoreService && score > 0) {
+      window.ScoreService.showSave(SCOREBOARD_ID, score);
+    }
+  }
+  function hideScoreboardPrompt() {
+    if (window.ScoreService) {
+      window.ScoreService.hideSave(SCOREBOARD_ID);
+    }
+  }
+
   const FEEDBACK_FALLBACK = {
     welcome: 'Pulsa Iniciar para comenzar un nuevo dictado.',
     listen: 'Escucha el patrón y elige la opción correcta.',
@@ -298,12 +310,14 @@
         state.locked = true;
         updateFeedback();
         updateControls();
+        showScoreboardPrompt(state.score);
       }
     }
   }
 
   function startGame() {
     ensureAudio();
+    hideScoreboardPrompt();
     state.running = true;
     state.locked = false;
     state.score = 0;

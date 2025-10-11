@@ -114,6 +114,18 @@
     storedBest = 0;
   }
 
+  const SCOREBOARD_ID = 'melody';
+  function showScoreboardPrompt(score) {
+    if (window.ScoreService && score > 0) {
+      window.ScoreService.showSave(SCOREBOARD_ID, score);
+    }
+  }
+  function hideScoreboardPrompt() {
+    if (window.ScoreService) {
+      window.ScoreService.hideSave(SCOREBOARD_ID);
+    }
+  }
+
   const state = {
     sequence: [],
     availableNotes: ['sol', 'mi', 'la', 'do'],
@@ -475,6 +487,7 @@
   }
 
   async function startGame() {
+    hideScoreboardPrompt();
     state.sequence = [];
     state.round = 0;
     state.userIndex = 0;
@@ -518,6 +531,7 @@
   }
 
   function handleGameOver() {
+    const finalScore = state.round;
     state.accepting = false;
     state.playing = false;
     state.sequence = [];
@@ -527,6 +541,9 @@
     updateHud();
     setStatus('error', 'melody.status.fail', 'Se rompió la secuencia. Pulsa Iniciar para intentarlo de nuevo.');
     updateControls();
+    if (finalScore > 0) {
+      showScoreboardPrompt(finalScore);
+    }
   }
 
   function handleUserInput(noteId, source) {
@@ -563,6 +580,7 @@
   }
 
   function resetGame() {
+    hideScoreboardPrompt();
     state.sequence = [];
     state.round = 0;
     state.userIndex = 0;
@@ -620,7 +638,19 @@
     resizeAll();
   });
 
+  function isTypingTarget(el) {
+    if (!el) return false;
+    const tag = el.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return true;
+    return Boolean(el.isContentEditable);
+  }
+
   window.addEventListener('keydown', (ev) => {
+    const target = ev.target;
+    const active = document.activeElement;
+    if (isTypingTarget(target) || isTypingTarget(active)) {
+      return;
+    }
     const key = ev.key.toLowerCase();
     if (key === ' ') {
       if (!state.playing && !state.accepting) {
