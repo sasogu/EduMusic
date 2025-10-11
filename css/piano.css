@@ -203,9 +203,9 @@
 }
 
 .piano-board[data-layout="compact"] .piano-key--black {
-  left: 73%;
-  width: 50%;
-  height: 55%;
+  left: 76%;
+  width: 42%;
+  height: 52%;
 }
 
 @media (max-width: 768px) {

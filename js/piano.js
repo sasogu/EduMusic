@@ -12,7 +12,7 @@
     },
     compact: {
       start: { octave: 4, index: 0 }, // C4
-      end: { octave: 5, index: NOTE_NAMES.indexOf('C') } // C5
+      end: { octave: 4, index: NOTE_NAMES.indexOf('B') } // B4
     }
   };
   const COMPACT_MEDIA_QUERY = '(max-width: 768px)';
