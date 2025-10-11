@@ -5,8 +5,17 @@
   ];
   const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
   const SHARP_NOTES = new Set(['C#','D#','F#','G#','A#']);
-  const START_NOTE = { octave: 4, index: 0 }; // C4
-  const END_NOTE = { octave: 5, index: NOTE_NAMES.indexOf('F') }; // F5
+  const KEYBOARD_RANGES = {
+    full: {
+      start: { octave: 4, index: 0 }, // C4
+      end: { octave: 5, index: NOTE_NAMES.indexOf('F') } // F5
+    },
+    compact: {
+      start: { octave: 4, index: 0 }, // C4
+      end: { octave: 5, index: NOTE_NAMES.indexOf('C') } // C5
+    }
+  };
+  const COMPACT_MEDIA_QUERY = '(max-width: 768px)';
   const DEFAULT_AUDIO_START = 7; // key07.ogg -> Do4 con las muestras actuales
   const AUDIO_START_INDEX = (function() {
     if (typeof window === 'undefined') return DEFAULT_AUDIO_START;
@@ -38,6 +47,8 @@
   let audioSupportWarned = false;
   let triggerIndex = 0;
   let noteSequence = [];
+  let mediaQueryList = null;
+  let compactLayoutCache = null;
 
   function t(key, params, fallback) {
     if (window.i18n && typeof window.i18n.t === 'function') {
@@ -58,6 +69,24 @@
 
   function padIndex(num) {
     return String(num).padStart(2, '0');
+  }
+
+  function ensureMediaQuery() {
+    if (mediaQueryList || typeof window === 'undefined') return mediaQueryList;
+    if (typeof window.matchMedia !== 'function') return null;
+    mediaQueryList = window.matchMedia(COMPACT_MEDIA_QUERY);
+    return mediaQueryList;
+  }
+
+  function matchesCompactLayout() {
+    const mql = ensureMediaQuery();
+    if (mql) return mql.matches;
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 768;
+  }
+
+  function getActiveRange() {
+    return matchesCompactLayout() ? KEYBOARD_RANGES.compact : KEYBOARD_RANGES.full;
   }
 
   function ensureAudioContext() {
@@ -210,11 +239,14 @@
     }
   }
 
-  function buildNoteSequence() {
+  function buildNoteSequence(range) {
+    const selectedRange = range || KEYBOARD_RANGES.full;
+    const { start, end } = selectedRange;
+    if (!start || !end) return [];
     const notes = [];
-    let octave = START_NOTE.octave;
-    let index = START_NOTE.index;
-    while (octave < END_NOTE.octave || (octave === END_NOTE.octave && index <= END_NOTE.index)) {
+    let octave = start.octave;
+    let index = start.index;
+    while (octave < end.octave || (octave === end.octave && index <= end.index)) {
       const name = NOTE_NAMES[index];
       const noteId = `${name}${octave}`;
       notes.push({
@@ -236,10 +268,12 @@
   function renderKeyboard() {
     const host = document.getElementById('pianoKeyboard');
     if (!host) return;
+    const range = getActiveRange();
     host.innerHTML = '';
     keyBindings.clear();
+    pressedKeys.clear();
     triggerIndex = 0;
-    noteSequence = buildNoteSequence();
+    noteSequence = buildNoteSequence(range);
     initAudioEntries();
 
     let lastWhite = null;
@@ -294,6 +328,30 @@
       ev.preventDefault();
       setKeyActive(keyBindings.get(key), false);
     });
+  }
+
+  function setupResponsiveKeyboard() {
+    const updateLayout = () => {
+      const compact = matchesCompactLayout();
+      if (compactLayoutCache === compact) return;
+      compactLayoutCache = compact;
+      renderKeyboard();
+    };
+
+    compactLayoutCache = matchesCompactLayout();
+    renderKeyboard();
+
+    const mql = ensureMediaQuery();
+    const mediaListener = () => updateLayout();
+    if (mql) {
+      if (typeof mql.addEventListener === 'function') {
+        mql.addEventListener('change', mediaListener);
+      } else if (typeof mql.addListener === 'function') {
+        mql.addListener(mediaListener);
+      }
+    }
+
+    window.addEventListener('resize', updateLayout, { passive: true });
   }
 
   function updateDisplay(text) {
@@ -401,7 +459,7 @@
   }
 
   function init() {
-    renderKeyboard();
+    setupResponsiveKeyboard();
     setupKeyboardListeners();
     setupScoreSelector();
     updateDisplay('');

@@ -3,7 +3,7 @@
   const payload = {
     es: {
       'piano.title': 'Teclado y Partituras',
-      'piano.intro': 'Selecciona una partitura y acompáñala con el teclado (Do4-Fa5).',
+      'piano.intro': 'Selecciona una partitura y acompáñala con el teclado. El rango se adapta a tu dispositivo.',
       'piano.selector.label': 'Elige una partitura:',
       'piano.selector.none': 'Selecciona una partitura',
       'piano.scores.enriqueta': 'En la tienda de Enriqueta',
@@ -22,7 +22,7 @@
     },
     val: {
       'piano.title': 'Teclat i Partitures',
-      'piano.intro': 'Selecciona una partitura i acompanya-la amb el teclat (Do4-Fa5).',
+      'piano.intro': 'Selecciona una partitura i acompanya-la amb el teclat. El rang s’adapta al teu dispositiu.',
       'piano.selector.label': 'Tria una partitura:',
       'piano.selector.none': 'Selecciona una partitura',
       'piano.scores.enriqueta': "En la tienda de Enriqueta",
