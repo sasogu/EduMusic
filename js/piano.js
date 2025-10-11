@@ -269,6 +269,8 @@
     const host = document.getElementById('pianoKeyboard');
     if (!host) return;
     const range = getActiveRange();
+    const isCompact = matchesCompactLayout();
+    host.dataset.layout = isCompact ? 'compact' : 'full';
     host.innerHTML = '';
     keyBindings.clear();
     pressedKeys.clear();
@@ -276,7 +278,7 @@
     noteSequence = buildNoteSequence(range);
     initAudioEntries();
 
-    let lastWhite = null;
+    let lastWhiteWrapper = null;
 
     noteSequence.forEach((entry, idx) => {
       const note = entry.noteId;
@@ -287,6 +289,8 @@
         : display;
 
       if (entry.type === 'white') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'piano-key-wrapper';
         const whiteKey = createKeyElement({
           note,
           display,
@@ -295,9 +299,10 @@
           type: 'white',
           offset: idx
         });
-        host.appendChild(whiteKey);
-        lastWhite = whiteKey;
-      } else if (lastWhite) {
+        wrapper.appendChild(whiteKey);
+        host.appendChild(wrapper);
+        lastWhiteWrapper = wrapper;
+      } else if (lastWhiteWrapper) {
         const blackKey = createKeyElement({
           note,
           display,
@@ -306,7 +311,7 @@
           type: 'black',
           offset: idx
         });
-        lastWhite.appendChild(blackKey);
+        lastWhiteWrapper.appendChild(blackKey);
       }
     });
   }
