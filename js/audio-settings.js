@@ -6,6 +6,63 @@
     muted: false,
     collapsed: true,
   };
+  const I18N_BUNDLE_NAME = 'audio-settings';
+  const I18N_PAYLOAD = {
+    es: {
+      'sfx.panel.title': 'Volumen',
+      'sfx.toggle.hide': 'Ocultar controles de sonido',
+      'sfx.toggle.show': 'Mostrar controles de sonido',
+      'sfx.volume.game': 'Juego',
+      'sfx.volume.effects': 'Efectos',
+      'sfx.mute': 'Silenciar',
+    },
+    val: {
+      'sfx.panel.title': 'Volum',
+      'sfx.toggle.hide': 'Amaga els controls de so',
+      'sfx.toggle.show': 'Mostra els controls de so',
+      'sfx.volume.game': 'Joc',
+      'sfx.volume.effects': 'Efectes',
+      'sfx.mute': 'Silencia',
+    },
+  };
+  const TEXT_KEYS = {
+    panelTitle: 'sfx.panel.title',
+    toggleHide: 'sfx.toggle.hide',
+    toggleShow: 'sfx.toggle.show',
+    volumeGame: 'sfx.volume.game',
+    volumeEffects: 'sfx.volume.effects',
+    mute: 'sfx.mute',
+  };
+  const FALLBACK_TEXT = {
+    'sfx.panel.title': 'Volumen',
+    'sfx.toggle.hide': 'Ocultar controles de sonido',
+    'sfx.toggle.show': 'Mostrar controles de sonido',
+    'sfx.volume.game': 'Juego',
+    'sfx.volume.effects': 'Efectos',
+    'sfx.mute': 'Silenciar',
+  };
+  let i18nBundleRegistered = false;
+  let i18nListenerRegistered = false;
+
+  function ensureI18nBundle() {
+    if (i18nBundleRegistered) return;
+    i18nBundleRegistered = true;
+    if (window.i18n && typeof window.i18n.registerBundle === 'function') {
+      window.i18n.registerBundle(I18N_BUNDLE_NAME, I18N_PAYLOAD);
+    } else {
+      window.__i18nPendingBundles = window.__i18nPendingBundles || [];
+      window.__i18nPendingBundles.push({ name: I18N_BUNDLE_NAME, payload: I18N_PAYLOAD });
+    }
+  }
+
+  function translate(key) {
+    if (window.i18n && typeof window.i18n.t === 'function') {
+      return window.i18n.t(key);
+    }
+    return FALLBACK_TEXT[key] || key;
+  }
+
+  ensureI18nBundle();
 
   function resolveBaseUrl() {
     try {
@@ -147,12 +204,12 @@
 
     const title = document.createElement('span');
     title.className = 'sfx-controls__title';
-    title.textContent = 'Sonidos';
+    title.setAttribute('data-i18n', TEXT_KEYS.panelTitle);
+    title.textContent = translate(TEXT_KEYS.panelTitle);
 
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'sfx-controls__toggle';
-    toggle.setAttribute('aria-label', 'Ocultar controles de sonido');
 
     header.appendChild(title);
     header.appendChild(toggle);
@@ -169,7 +226,8 @@
       const volumeGameWrapper = document.createElement('label');
       volumeGameWrapper.className = 'sfx-controls__row';
       const volGameText = document.createElement('span');
-      volGameText.textContent = 'Volumen juego';
+      volGameText.setAttribute('data-i18n', TEXT_KEYS.volumeGame);
+      volGameText.textContent = translate(TEXT_KEYS.volumeGame);
       const volumeGame = document.createElement('input');
       volumeGame.type = 'range';
       volumeGame.min = '0';
@@ -191,7 +249,8 @@
       const volumeSfxWrapper = document.createElement('label');
       volumeSfxWrapper.className = 'sfx-controls__row';
       const volSfxText = document.createElement('span');
-      volSfxText.textContent = 'Volumen efectos';
+      volSfxText.setAttribute('data-i18n', TEXT_KEYS.volumeEffects);
+      volSfxText.textContent = translate(TEXT_KEYS.volumeEffects);
       const volumeSfx = document.createElement('input');
       volumeSfx.type = 'range';
       volumeSfx.min = '0';
@@ -233,7 +292,8 @@
       }
     });
     const muteText = document.createElement('span');
-    muteText.textContent = 'Silenciar';
+    muteText.setAttribute('data-i18n', TEXT_KEYS.mute);
+    muteText.textContent = translate(TEXT_KEYS.mute);
     muteWrapper.appendChild(mute);
     muteWrapper.appendChild(muteText);
     content.appendChild(muteWrapper);
@@ -242,18 +302,22 @@
 
     const applyCollapsed = () => {
       const collapsed = Boolean(state.collapsed);
+      const showLabel = translate(TEXT_KEYS.toggleShow);
+      const hideLabel = translate(TEXT_KEYS.toggleHide);
       if (collapsed) {
         content.style.display = 'none';
         panel.classList.add('is-collapsed');
         toggle.textContent = '+';
         toggle.setAttribute('aria-expanded', 'false');
-        toggle.setAttribute('title', 'Mostrar controles de sonido');
+        toggle.setAttribute('title', showLabel);
+        toggle.setAttribute('aria-label', showLabel);
       } else {
         content.style.display = '';
         panel.classList.remove('is-collapsed');
         toggle.textContent = '-';
         toggle.setAttribute('aria-expanded', 'true');
-        toggle.setAttribute('title', 'Ocultar controles de sonido');
+        toggle.setAttribute('title', hideLabel);
+        toggle.setAttribute('aria-label', hideLabel);
       }
     };
 
@@ -264,6 +328,23 @@
     });
 
     applyCollapsed();
+    if (window.i18n && typeof window.i18n.apply === 'function') {
+      window.i18n.apply(panel);
+    }
+
+    if (!i18nListenerRegistered) {
+      i18nListenerRegistered = true;
+      (function waitForI18n() {
+        if (window.i18n && typeof window.i18n.onChange === 'function') {
+          window.i18n.onChange(() => {
+            if (!panel.isConnected) return;
+            applyCollapsed();
+          });
+        } else {
+          setTimeout(waitForI18n, 200);
+        }
+      })();
+    }
 
     document.body.appendChild(panel);
   }
