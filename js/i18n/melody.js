@@ -9,6 +9,7 @@
       'melody.controls.reset': 'Reiniciar',
       'melody.round': 'Ronda:',
       'melody.best': 'Mejor racha:',
+      'melody.errors': 'Errores:',
       'melody.back': 'Volver al inicio',
       'melody.status.ready': 'Pulsa Iniciar para escuchar la secuencia.',
       'melody.status.listening': 'Escucha la secuencia…',
@@ -16,6 +17,7 @@
       'melody.status.keep_going': '¡Bien! Sigue con la secuencia.',
       'melody.status.round_complete': '¡Genial! Se añade una nota más.',
       'melody.status.unlock': '¡Nueva nota desbloqueada: {note}!',
+      'melody.status.mistake': 'Casi... Escucha de nuevo la secuencia. Errores: {errors}/{max}.',
       'melody.status.fail': 'Se rompió la secuencia. Pulsa Iniciar para intentarlo de nuevo.'
     },
     val: {
@@ -26,6 +28,7 @@
       'melody.controls.reset': 'Reinicia',
       'melody.round': 'Ronda:',
       'melody.best': 'Millor ratxa:',
+      'melody.errors': 'Errades:',
       'melody.back': 'Torna a l\'inici',
       'melody.status.ready': 'Prem Inicia per a escoltar la seqüència.',
       'melody.status.listening': 'Escolta la seqüència…',
@@ -33,6 +36,7 @@
       'melody.status.keep_going': 'Molt bé! Continua amb la seqüència.',
       'melody.status.round_complete': 'Genial! Afegim una nota més.',
       'melody.status.unlock': 'Nova nota desbloquejada: {note}!',
+      'melody.status.mistake': 'Quasi... Escolta de nou la seqüència. Errades: {errors}/{max}.',
       'melody.status.fail': 'La seqüència s\'ha trencat. Prem Inicia per a tornar-ho a provar.'
     }
   };

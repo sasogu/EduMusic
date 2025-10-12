@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.5.8';
+const SW_VERSION = 'v0.7.10';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -11,7 +11,9 @@ const ASSETS = [
   'css/piano.css',
   'css/rhythm-dictation.css',
   'css/melody-dictation.css',
+  'css/melo-rhythm-dictation.css',
   'js/app.js',
+  'js/audio-settings.js',
   'js/i18n/index.js',
   'js/i18n/gamehub.js',
   'js/i18n/memory.js',
@@ -26,6 +28,7 @@ const ASSETS = [
   'js/i18n/offline.js',
   'js/i18n/piano.js',
   'js/i18n/melody-dictation.js',
+  'js/i18n/melo-rhythm-dictation.js',
   'manifest.json',
   'html/game.html',
   'html/solmi.html',
@@ -40,6 +43,7 @@ const ASSETS = [
   'html/rhythm.html',
   'html/rhythm-dictation.html',
   'html/melody-dictation.html',
+  'html/melo-rhythm-dictation.html',
   'html/clave-sol.html',
   'html/piano.html',
   'html/recursos.html',
@@ -50,6 +54,7 @@ const ASSETS = [
   'js/rhythm.js',
   'js/rhythm-dictation.js',
   'js/melody-dictation.js',
+  'js/melo-rhythm-dictation.js',
   'js/clave_sol.js',
   'js/piano.js',
   'assets/icon-192.png',
@@ -60,6 +65,9 @@ const ASSETS = [
   'assets/audio/flute.ogg',
   'assets/audio/guitar.ogg',
   'assets/audio/bongos.ogg',
+  'assets/audio/error.mp3',
+  'assets/audio/winner.mp3',
+  'assets/audio/caja.mp3',
   'assets/piano/key01.ogg',
   'assets/piano/key02.ogg',
   'assets/piano/key03.ogg',

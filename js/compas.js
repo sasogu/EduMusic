@@ -68,6 +68,18 @@
     lastStatus: null,
   };
 
+  function playSuccess() {
+    if (window.Sfx && typeof window.Sfx.success === 'function') {
+      window.Sfx.success();
+    }
+  }
+
+  function playError() {
+    if (window.Sfx && typeof window.Sfx.error === 'function') {
+      window.Sfx.error();
+    }
+  }
+
   const registry = new Map();
   let currentLang = 'es';
 
@@ -315,6 +327,7 @@
       updateMetrics();
       updateSummaryVisibility();
       showScoreboardPrompt(state.solvedCount);
+      playSuccess();
       return;
     }
 
@@ -323,6 +336,7 @@
     } else {
       setStatus('error', 'compas.feedback.missing', 'Todavía faltan tiempos por completar.');
     }
+    playError();
     state.streak = 0;
     dom.measureZone.classList.remove('completed');
     updateMetrics();

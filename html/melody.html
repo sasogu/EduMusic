@@ -27,13 +27,14 @@
     <div class="melody-hud">
       <div><span data-i18n="melody.round">Ronda:</span><span id="melodyRound" class="value">0</span></div>
       <div><span data-i18n="melody.best">Mejor racha:</span><span id="melodyBest" class="value">0</span></div>
+      <div><span data-i18n="melody.errors">Errores:</span><span id="melodyErrors" class="value">0/3</span></div>
     </div>
 
     <canvas id="staffCanvas"></canvas>
 
     <canvas id="pianoCanvas" aria-label="Teclado virtual"></canvas>
 
-    <div id="melodyStatus"></div>
+    <div id="melodyStatus" role="status" aria-live="polite"></div>
   </div>
   <section data-scoreboard data-game="melody" style="max-width: 900px; margin: 20px auto; text-align: left;"></section>
   <a href="../index.html" class="home-link" style="margin:16px auto 0;">
@@ -43,6 +44,7 @@
 
   <footer class="page-footer" data-sw-status></footer>
   <script src="../js/app.js" defer></script>
+  <script src="../js/audio-settings.js" defer></script>
   <script src="../js/i18n/melody.js" defer></script>
   <script src="../js/score-service.js" defer></script>
   <script src="../js/melody.js" defer></script>

@@ -32,6 +32,30 @@
     includeSi: false,
   };
 
+  const clamp01 = (v) => {
+    const num = Number(v);
+    if (!Number.isFinite(num)) return 0;
+    return Math.min(1, Math.max(0, num));
+  };
+
+  function currentGameVolume() {
+    if (window.Sfx) {
+      if (typeof window.Sfx.getGameVolume === 'function') {
+        const val = window.Sfx.getGameVolume();
+        if (Number.isFinite(val)) return clamp01(val);
+      }
+      if (typeof window.Sfx.getState === 'function') {
+        const s = window.Sfx.getState();
+        if (s) {
+          if (s.muted) return 0;
+          if (s.volumeGame != null) return clamp01(s.volumeGame);
+          if (s.volumeSfx != null) return clamp01(s.volumeSfx);
+        }
+      }
+    }
+    return 1;
+  }
+
   const SCOREBOARD_ID = 'melody-dictation';
   function showScoreboardPrompt(score) {
     if (window.ScoreService && score > 0) {
@@ -209,7 +233,10 @@
       const source = ctx.createBufferSource();
       source.buffer = buffer;
       source.playbackRate.value = SAMPLE_PLAYBACK_RATE;
-      source.connect(ctx.destination);
+      const mixVolume = currentGameVolume();
+      const gain = ctx.createGain();
+      gain.gain.value = mixVolume;
+      source.connect(gain).connect(ctx.destination);
       source.start();
       return true;
     } catch (err) {
@@ -238,11 +265,26 @@
       const osc = ctx.createOscillator();
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(freq, now);
-      osc.connect(ctx.destination);
+      const gain = ctx.createGain();
+      const mix = currentGameVolume();
+      gain.gain.setValueAtTime(Math.max(mix, 0.0001), now);
+      osc.connect(gain).connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.6);
     }
     await wait(BEAT_MS);
+  }
+
+  function playSuccess() {
+    if (window.Sfx && typeof window.Sfx.success === 'function') {
+      window.Sfx.success();
+    }
+  }
+
+  function playError() {
+    if (window.Sfx && typeof window.Sfx.error === 'function') {
+      window.Sfx.error();
+    }
   }
 
   async function playPattern(sequence) {
@@ -441,6 +483,7 @@
       state.score += 1;
       state.feedback = 'correct';
       state.locked = true;
+      playSuccess();
       if (!state.includeLa && state.score >= 5) {
         state.includeLa = true;
         loadSample(EXTRA_LA).catch(() => {});
@@ -473,6 +516,7 @@
       state.lives -= 1;
       state.feedback = 'wrong';
       state.disabledOptions.add(key);
+      playError();
       updateHud();
       updateFeedback();
       updateControls();

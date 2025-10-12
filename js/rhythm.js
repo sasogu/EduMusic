@@ -15,6 +15,18 @@
     ansTiti: document.getElementById('ansTiti'),
   };
 
+  function playSuccess() {
+    if (window.Sfx && typeof window.Sfx.success === 'function') {
+      window.Sfx.success();
+    }
+  }
+
+  function playError() {
+    if (window.Sfx && typeof window.Sfx.error === 'function') {
+      window.Sfx.error();
+    }
+  }
+
   const state = {
     running: false,
     score: 0,
@@ -61,6 +73,28 @@
       if (AC) audio.ctx = new AC();
     }
   }
+  const clamp01 = (v) => {
+    const num = Number(v);
+    if (!Number.isFinite(num)) return 0;
+    return Math.min(1, Math.max(0, num));
+  };
+  function currentGameVolume() {
+    if (window.Sfx) {
+      if (typeof window.Sfx.getGameVolume === 'function') {
+        const val = window.Sfx.getGameVolume();
+        if (Number.isFinite(val)) return clamp01(val);
+      }
+      if (typeof window.Sfx.getState === 'function') {
+        const s = window.Sfx.getState();
+        if (s) {
+          if (s.muted) return 0;
+          if (s.volumeGame != null) return clamp01(s.volumeGame);
+          if (s.volumeSfx != null) return clamp01(s.volumeSfx);
+        }
+      }
+    }
+    return 1;
+  }
   function clickSound(gain = 0.15, freq = 880, dur = 0.08) {
     if (!audio.ctx) return;
     const now = audio.ctx.currentTime;
@@ -69,7 +103,7 @@
     osc.type = 'square';
     osc.frequency.setValueAtTime(freq, now);
     g.gain.setValueAtTime(0, now);
-    g.gain.linearRampToValueAtTime(gain, now + 0.005);
+    g.gain.linearRampToValueAtTime(gain * currentGameVolume(), now + 0.005);
     g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
     osc.connect(g).connect(audio.ctx.destination);
     osc.start(now);
@@ -165,6 +199,7 @@
           state.includeTiti = true;
         }
         state.lastFeedback = 'ok';
+        playSuccess();
         updateHud();
         draw();
         setTimeout(nextRound, 450);
@@ -177,6 +212,7 @@
       state.lives -= 1;
       state.stepIndex = 0; // reinicia la secuencia a adivinar
       state.lastFeedback = 'error';
+      playError();
       updateHud();
       draw();
       if (state.lives <= 0) {

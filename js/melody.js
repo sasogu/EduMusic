@@ -9,6 +9,7 @@
       color: '#22c55e',
       highlight: '#dcfce7',
       activeHighlight: '#bbf7d0',
+      sample: 'key07.ogg',
     },
     re: {
       label: 'RE',
@@ -19,6 +20,7 @@
       color: '#06b6d4',
       highlight: '#cffafe',
       activeHighlight: '#a5f3fc',
+      sample: 'key09.ogg',
     },
     mi: {
       label: 'MI',
@@ -29,6 +31,7 @@
       color: '#f97316',
       highlight: '#ffedd5',
       activeHighlight: '#fed7aa',
+      sample: 'key11.ogg',
     },
     fa: {
       label: 'FA',
@@ -39,6 +42,7 @@
       color: '#10b981',
       highlight: '#dcfce7',
       activeHighlight: '#bbf7d0',
+      sample: 'key12.ogg',
     },
     sol: {
       label: 'SOL',
@@ -49,6 +53,7 @@
       color: '#2563eb',
       highlight: '#dbeafe',
       activeHighlight: '#bfdbfe',
+      sample: 'key14.ogg',
     },
     la: {
       label: 'LA',
@@ -59,6 +64,7 @@
       color: '#a855f7',
       highlight: '#f3e8ff',
       activeHighlight: '#e9d5ff',
+      sample: 'key16.ogg',
     },
     si: {
       label: 'SI',
@@ -69,6 +75,7 @@
       color: '#f43f5e',
       highlight: '#ffe4e6',
       activeHighlight: '#fecdd3',
+      sample: 'key18.ogg',
     },
     do_high: {
       label: "DO'",
@@ -79,6 +86,7 @@
       color: '#ef4444',
       highlight: '#fee2e2',
       activeHighlight: '#fecaca',
+      sample: 'key19.ogg',
     },
   };
 
@@ -91,6 +99,7 @@
   });
 
   const dom = {
+    wrapper: document.querySelector('.melody-wrapper'),
     staffCanvas: document.getElementById('staffCanvas'),
     pianoCanvas: document.getElementById('pianoCanvas'),
     startBtn: document.getElementById('startMelodyBtn'),
@@ -98,6 +107,7 @@
     resetBtn: document.getElementById('resetMelodyBtn'),
     roundEl: document.getElementById('melodyRound'),
     bestEl: document.getElementById('melodyBest'),
+    errorsEl: document.getElementById('melodyErrors'),
     statusEl: document.getElementById('melodyStatus'),
   };
   if (!dom.staffCanvas || !dom.pianoCanvas) return;
@@ -126,6 +136,52 @@
     }
   }
 
+  const audio = { ctx: null };
+  const sampleCache = new Map();
+
+  const APP_BASE_URL = (() => {
+    const manifest = document.querySelector('link[rel="manifest"]');
+    if (manifest) {
+      try {
+        const fromManifest = new URL(manifest.href, window.location.href);
+        return fromManifest.href.replace(/manifest\.json.*$/, '');
+      } catch (_) {}
+    }
+    try {
+      const current = new URL(window.location.href);
+      current.pathname = current.pathname.replace(/\/[^/]*$/, '/');
+      return current.href;
+    } catch (_) {
+      return window.location.origin + '/';
+    }
+  })();
+
+  const SAMPLE_BASE_URL = (() => {
+    try {
+      return new URL('assets/piano/', APP_BASE_URL).href;
+    } catch (_) {
+      return 'assets/piano/';
+    }
+  })();
+
+  const OCTAVE_FACTOR = 2;
+  const MAX_ERRORS = 3;
+  const FALLBACK_AUDIO_SRC = (() => {
+    try {
+      return new URL('assets/audio/piano.ogg', APP_BASE_URL).href;
+    } catch (_) {
+      return 'assets/audio/piano.ogg';
+    }
+  })();
+  const FALLBACK_BASE_FREQ = 440; // Aproximamos la muestra a un LA4
+  let fallbackAudio = null;
+
+  const clamp01 = (value) => {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return 0;
+    return Math.min(1, Math.max(0, num));
+  };
+
   const state = {
     sequence: [],
     availableNotes: ['sol', 'mi', 'la', 'do'],
@@ -137,8 +193,10 @@
     userIndex: 0,
     playing: false,
     accepting: false,
+    errors: 0,
     lastStatus: null,
   };
+  state.availableNotes.forEach((noteId) => warmSample(noteId));
 
   const staff = {
     spacing: 18,
@@ -169,22 +227,165 @@
     blackRects: [],
   };
 
-  const audio = { ctx: null };
-
   function ensureAudio() {
     if (!audio.ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (AC) audio.ctx = new AC();
     }
+    if (audio.ctx && audio.ctx.state === 'suspended') {
+      audio.ctx.resume().catch(() => {});
+    }
   }
 
-  function pianoTone(freq, durMs = 600, baseGain = 0.14) {
+  function getSampleEntry(noteId) {
+    const meta = NOTE_META[noteId];
+    if (!meta || !meta.sample) return null;
+    if (!sampleCache.has(noteId)) {
+      sampleCache.set(noteId, {
+        buffer: null,
+        loading: null,
+        url: (() => {
+          try {
+            return new URL(meta.sample, SAMPLE_BASE_URL).href;
+          } catch (_) {
+            return `${SAMPLE_BASE_URL}${meta.sample}`;
+          }
+        })(),
+      });
+    }
+    return sampleCache.get(noteId);
+  }
+
+  async function loadSample(noteId) {
+    ensureAudio();
+    const ctxA = audio.ctx;
+    if (!ctxA) return null;
+    const entry = getSampleEntry(noteId);
+    if (!entry) return null;
+    if (entry.buffer) return entry.buffer;
+    if (entry.loading) return entry.loading;
+    if (!entry.url) return null;
+    entry.loading = fetch(entry.url)
+      .then((resp) => {
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return resp.arrayBuffer();
+      })
+      .then((data) => ctxA.decodeAudioData(data))
+      .then((buffer) => {
+        entry.buffer = buffer;
+        entry.loading = null;
+        return buffer;
+      })
+      .catch((err) => {
+        entry.loading = null;
+        console.warn('[melody] Unable to load sample', noteId, err);
+        return null;
+      });
+    return entry.loading;
+  }
+
+  function warmSample(noteId) {
+    const entry = getSampleEntry(noteId);
+    if (!entry) return;
+    if (entry.buffer || entry.loading) return;
+    loadSample(noteId).catch(() => {});
+  }
+
+  function currentGameVolume() {
+    if (window.Sfx) {
+      if (typeof window.Sfx.getGameVolume === 'function') {
+        const val = window.Sfx.getGameVolume();
+        if (Number.isFinite(val)) return clamp01(val);
+      }
+      if (typeof window.Sfx.getState === 'function') {
+        const stateSfx = window.Sfx.getState();
+        if (stateSfx) {
+          if (stateSfx.muted) return 0;
+          if (stateSfx.volumeGame != null) return clamp01(stateSfx.volumeGame);
+          if (stateSfx.volumeSfx != null) return clamp01(stateSfx.volumeSfx);
+        }
+      }
+    }
+    return 1;
+  }
+
+  function playFallbackHtmlAudio(noteId) {
+    if (!fallbackAudio) {
+      try {
+        fallbackAudio = new Audio(FALLBACK_AUDIO_SRC);
+        fallbackAudio.preload = 'auto';
+      } catch (err) {
+        fallbackAudio = null;
+      }
+    }
+    if (!fallbackAudio) return false;
+    try {
+      const inst = fallbackAudio.cloneNode(true);
+      const meta = NOTE_META[noteId];
+      const targetFreq = meta ? meta.freq * OCTAVE_FACTOR : FALLBACK_BASE_FREQ;
+      const rate = Math.max(0.35, Math.min(3.2, targetFreq / FALLBACK_BASE_FREQ));
+      inst.playbackRate = rate;
+      inst.volume = currentGameVolume();
+      inst.currentTime = 0;
+      inst.play().catch(() => {});
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function playSampleBuffer(buffer, durationMs = 600) {
+    ensureAudio();
+    const ctxA = audio.ctx;
+    if (!ctxA || !buffer) return false;
+    try {
+      const source = ctxA.createBufferSource();
+      source.buffer = buffer;
+      source.playbackRate.value = OCTAVE_FACTOR;
+
+      const gain = ctxA.createGain();
+      const mixVolume = currentGameVolume();
+      const now = ctxA.currentTime;
+      const attackSec = 0.012;
+      const releaseSec = 0.28;
+      const sustainSec = Math.max(durationMs / 1000 / OCTAVE_FACTOR, 0.35);
+      const stopAt = sustainSec + releaseSec + 0.1;
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(0.88 * mixVolume, now + attackSec);
+      gain.gain.setValueAtTime(0.88 * mixVolume, now + sustainSec * 0.65);
+      gain.gain.linearRampToValueAtTime(Math.max(0.12 * mixVolume, 0.0001), now + sustainSec);
+      gain.gain.linearRampToValueAtTime(0.0001, now + stopAt);
+
+      source.connect(gain).connect(ctxA.destination);
+      source.start(now);
+      source.stop(now + stopAt + 0.05);
+      return true;
+    } catch (err) {
+      console.warn('[melody] Unable to play buffer', err);
+      return false;
+    }
+  }
+
+  function tryPlaySample(noteId, durationMs = 600) {
+    const entry = getSampleEntry(noteId);
+    if (!entry) return false;
+    if (entry.buffer) {
+      return playSampleBuffer(entry.buffer, durationMs);
+    }
+    if (!entry.loading) {
+      loadSample(noteId).catch(() => {});
+    }
+    return false;
+  }
+
+  function pianoTone(freq, durMs = 600, mixVolume = 1, baseGain = 0.14) {
     ensureAudio();
     if (!audio.ctx) return;
     const ctxA = audio.ctx;
     const now = ctxA.currentTime;
     const out = ctxA.createGain();
-    out.gain.setValueAtTime(1, now);
+    out.gain.setValueAtTime(Math.max(mixVolume, 0.0001), now);
 
     const lp = ctxA.createBiquadFilter();
     lp.type = 'lowpass';
@@ -204,8 +405,8 @@
       const osc = ctxA.createOscillator();
       const g = ctxA.createGain();
       osc.type = p.type;
-      osc.frequency.setValueAtTime(freq * p.mult, now);
-      const peak = baseGain * p.weight;
+      osc.frequency.setValueAtTime(freq * p.mult * OCTAVE_FACTOR, now);
+      const peak = baseGain * p.weight * mixVolume;
       g.gain.setValueAtTime(0.0001, now);
       g.gain.exponentialRampToValueAtTime(Math.max(0.001, peak), now + 0.01);
       g.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.08, sec * p.decay));
@@ -218,7 +419,11 @@
   function playNoteAudio(noteId, dur = 600) {
     const meta = NOTE_META[noteId];
     if (!meta) return;
-    pianoTone(meta.freq, dur);
+    const mixVolume = currentGameVolume();
+    const usedSample = tryPlaySample(noteId, dur);
+    if (usedSample) return;
+    if (playFallbackHtmlAudio(noteId, mixVolume)) return;
+    pianoTone(meta.freq, dur, mixVolume);
   }
 
   function delay(ms) {
@@ -242,9 +447,23 @@
     state.lastStatus = { kind, key, fallback, params };
   }
 
+  function flashMistakeCue() {
+    if (!dom.wrapper) return;
+    dom.wrapper.classList.remove('is-mistake');
+    // Force reflow to restart animation if class already present
+    void dom.wrapper.offsetWidth;
+    dom.wrapper.classList.add('is-mistake');
+    setTimeout(() => {
+      dom.wrapper && dom.wrapper.classList.remove('is-mistake');
+    }, 700);
+  }
+
   function updateHud() {
     dom.roundEl.textContent = String(state.round);
     dom.bestEl.textContent = String(state.best);
+    if (dom.errorsEl) {
+      dom.errorsEl.textContent = `${state.errors}/${MAX_ERRORS}`;
+    }
   }
 
   function saveBest() {
@@ -455,6 +674,7 @@
       const nextNote = state.unlockQueue.shift();
       if (!state.availableNotes.includes(nextNote)) {
         state.availableNotes.push(nextNote);
+        warmSample(nextNote);
       }
       state.nextUnlockRound += state.unlockStep;
       return nextNote;
@@ -492,6 +712,8 @@
     state.round = 0;
     state.userIndex = 0;
     state.accepting = false;
+    state.errors = 0;
+    updateHud();
     setStatus('info', 'melody.status.ready', 'Pulsa Iniciar para escuchar la secuencia.');
     await delay(100);
     await nextRound();
@@ -537,6 +759,8 @@
     state.sequence = [];
     state.round = 0;
     state.userIndex = 0;
+    state.errors = 0;
+    flashMistakeCue();
     renderScene();
     updateHud();
     setStatus('error', 'melody.status.fail', 'Se rompió la secuencia. Pulsa Iniciar para intentarlo de nuevo.');
@@ -568,7 +792,29 @@
         setStatus('info', 'melody.status.keep_going', '¡Bien! Sigue con la secuencia.');
       }
     } else {
-      handleGameOver();
+      state.errors += 1;
+      const reachedLimit = state.errors >= MAX_ERRORS;
+      if (reachedLimit) {
+        if (window.Sfx && typeof window.Sfx.error === 'function') {
+          window.Sfx.error();
+        }
+        handleGameOver();
+        return;
+      }
+      updateHud();
+      flashMistakeCue();
+      const fallbackMsg = `Casi... Escucha de nuevo la secuencia. Errores: ${state.errors}/${MAX_ERRORS}.`;
+      setStatus('error', 'melody.status.mistake', fallbackMsg, {
+        errors: state.errors,
+        max: MAX_ERRORS,
+      });
+      state.accepting = false;
+      state.playing = false;
+      state.userIndex = 0;
+      updateControls();
+      setTimeout(() => {
+        playSequence();
+      }, 800);
     }
   }
 
@@ -586,6 +832,7 @@
     state.userIndex = 0;
     state.accepting = false;
     state.playing = false;
+    state.errors = 0;
     renderScene();
     updateHud();
     setStatus('info', 'melody.status.ready', 'Pulsa Iniciar para escuchar la secuencia.');
@@ -671,6 +918,7 @@
       const { kind, key, fallback, params } = state.lastStatus;
       setStatus(kind, key, fallback, params);
     }
+    updateHud();
     renderScene();
   }
 
