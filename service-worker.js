@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.5.2';
+const SW_VERSION = 'v0.5.8';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -10,6 +10,7 @@ const ASSETS = [
   'css/style.css',
   'css/piano.css',
   'css/rhythm-dictation.css',
+  'css/melody-dictation.css',
   'js/app.js',
   'js/i18n/index.js',
   'js/i18n/gamehub.js',
@@ -24,6 +25,7 @@ const ASSETS = [
   'js/i18n/recursos.js',
   'js/i18n/offline.js',
   'js/i18n/piano.js',
+  'js/i18n/melody-dictation.js',
   'manifest.json',
   'html/game.html',
   'html/solmi.html',
@@ -37,6 +39,7 @@ const ASSETS = [
   'html/melody.html',
   'html/rhythm.html',
   'html/rhythm-dictation.html',
+  'html/melody-dictation.html',
   'html/clave-sol.html',
   'html/piano.html',
   'html/recursos.html',
@@ -46,6 +49,7 @@ const ASSETS = [
   'js/melody.js',
   'js/rhythm.js',
   'js/rhythm-dictation.js',
+  'js/melody-dictation.js',
   'js/clave_sol.js',
   'js/piano.js',
   'assets/icon-192.png',
