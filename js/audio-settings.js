@@ -43,6 +43,24 @@
   };
   let i18nBundleRegistered = false;
   let i18nListenerRegistered = false;
+  const gameVolumeListeners = new Set();
+
+  function toSnapshot() {
+    return {
+      volumeEffects: state.volumeSfx,
+      volumeGame: state.volumeGame,
+      muted: state.muted,
+    };
+  }
+
+  function emitGameVolumeChange() {
+    if (!gameVolumeListeners.size) return;
+    const volume = state.muted ? 0 : state.volumeGame;
+    const snapshot = toSnapshot();
+    gameVolumeListeners.forEach((fn) => {
+      try { fn(volume, { ...snapshot }); } catch (_) {}
+    });
+  }
 
   function ensureI18nBundle() {
     if (i18nBundleRegistered) return;
@@ -116,6 +134,7 @@
   }
 
   const state = loadState();
+  emitGameVolumeChange();
 
   const audioSources = {
     success: resolveAudioPath('assets/audio/winner.mp3'),
@@ -172,12 +191,14 @@
     }
     updateClipSettings();
     saveState();
+    emitGameVolumeChange();
   }
 
   function setMuted(muted) {
     state.muted = Boolean(muted);
     updateClipSettings();
     saveState();
+    emitGameVolumeChange();
   }
 
   function shouldHideControlsPanel() {
@@ -384,6 +405,16 @@
     },
     getState() {
       return { ...state };
+    },
+    onGameVolumeChange(handler) {
+      if (typeof handler !== 'function') return () => {};
+      gameVolumeListeners.add(handler);
+      try {
+        handler(this.getGameVolume(), toSnapshot());
+      } catch (_) {}
+      return () => {
+        gameVolumeListeners.delete(handler);
+      };
     },
   };
 })();

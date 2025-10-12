@@ -652,6 +652,43 @@
   }
 
   // ---------- Audio ----------
+  const clamp01 = (value) => {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return 0;
+    return Math.min(1, Math.max(0, num));
+  };
+  function computeGameVolume() {
+    if (window.Sfx) {
+      if (typeof window.Sfx.getGameVolume === 'function') {
+        const vol = window.Sfx.getGameVolume();
+        if (Number.isFinite(vol)) return clamp01(vol);
+      }
+      if (typeof window.Sfx.getState === 'function') {
+        const state = window.Sfx.getState();
+        if (state) {
+          if (state.muted) return 0;
+          if (state.volumeGame != null) return clamp01(state.volumeGame);
+          if (state.volumeSfx != null) return clamp01(state.volumeSfx);
+        }
+      }
+    }
+    return 1;
+  }
+  let gameVolume = computeGameVolume();
+  function currentGameVolume() { return gameVolume; }
+  function setGameVolume(vol) {
+    if (Number.isFinite(vol)) gameVolume = clamp01(vol);
+    else gameVolume = computeGameVolume();
+  }
+  (function bindGameVolumeWatcher(attempt = 0) {
+    if (window.Sfx && typeof window.Sfx.onGameVolumeChange === 'function') {
+      window.Sfx.onGameVolumeChange((vol) => setGameVolume(vol));
+      return;
+    }
+    if (attempt < 5) {
+      setTimeout(() => bindGameVolumeWatcher(attempt + 1), 500);
+    }
+  })();
   const audio = { ctx: null };
   function ensureAudio() {
     if (!audio.ctx) {
@@ -661,13 +698,16 @@
   }
   function tone(freq, durMs, type = 'sine', gain = 0.08) {
     if (!audio.ctx) return;
+    const mix = currentGameVolume();
+    if (mix <= 0) return;
     const now = audio.ctx.currentTime;
     const osc = audio.ctx.createOscillator();
     const g = audio.ctx.createGain();
     osc.type = type;
     osc.frequency.setValueAtTime(freq, now);
     g.gain.setValueAtTime(0, now);
-    g.gain.linearRampToValueAtTime(gain, now + 0.01);
+    const peak = Math.max(0, gain * mix);
+    g.gain.linearRampToValueAtTime(peak, now + 0.01);
     g.gain.exponentialRampToValueAtTime(0.0001, now + durMs / 1000);
     osc.connect(g).connect(audio.ctx.destination);
     osc.start(now);
@@ -676,6 +716,8 @@
   // Piano-like tone: additive partials + short noise attack + lowpass envelope
   function pianoTone(freq, durMs = 500, baseGain = 0.12) {
     if (!audio.ctx) return;
+    const mix = currentGameVolume();
+    if (mix <= 0) return;
     const ctx = audio.ctx;
     const now = ctx.currentTime;
 
@@ -708,7 +750,7 @@
       hp.type = 'highpass';
       hp.frequency.setValueAtTime(1800, now);
       const ng = ctx.createGain();
-      ng.gain.setValueAtTime(baseGain * 0.14, now);
+      ng.gain.setValueAtTime(baseGain * 0.14 * mix, now);
       ng.gain.exponentialRampToValueAtTime(0.0001, now + noiseDur);
       noise.connect(hp).connect(ng).connect(lp);
       noise.start(now);
@@ -732,7 +774,7 @@
       osc.frequency.setValueAtTime(freq * p.mult, now);
       if (osc.detune && p.detuneCents) osc.detune.setValueAtTime(p.detuneCents, now);
       // Percussive envelope: very fast attack, exponential decay
-      const peak = baseGain * p.weight;
+      const peak = baseGain * p.weight * mix;
       g.gain.setValueAtTime(0.0001, now);
       g.gain.exponentialRampToValueAtTime(Math.max(0.001, peak), now + 0.006);
       g.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.08, sec * p.decay));

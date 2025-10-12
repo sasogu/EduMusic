@@ -49,6 +49,43 @@
   let noteSequence = [];
   let mediaQueryList = null;
   let compactLayoutCache = null;
+  const clamp01 = (value) => {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return 0;
+    return Math.min(1, Math.max(0, num));
+  };
+  function computeGameVolume() {
+    if (window.Sfx) {
+      if (typeof window.Sfx.getGameVolume === 'function') {
+        const vol = window.Sfx.getGameVolume();
+        if (Number.isFinite(vol)) return clamp01(vol);
+      }
+      if (typeof window.Sfx.getState === 'function') {
+        const snapshot = window.Sfx.getState();
+        if (snapshot) {
+          if (snapshot.muted) return 0;
+          if (snapshot.volumeGame != null) return clamp01(snapshot.volumeGame);
+          if (snapshot.volumeSfx != null) return clamp01(snapshot.volumeSfx);
+        }
+      }
+    }
+    return 1;
+  }
+  let gameVolume = computeGameVolume();
+  function getGameVolume() { return gameVolume; }
+  function setGameVolume(vol) {
+    if (Number.isFinite(vol)) gameVolume = clamp01(vol);
+    else gameVolume = computeGameVolume();
+  }
+  (function bindGameVolumeWatcher(attempt = 0) {
+    if (window.Sfx && typeof window.Sfx.onGameVolumeChange === 'function') {
+      window.Sfx.onGameVolumeChange((vol) => setGameVolume(vol));
+      return;
+    }
+    if (attempt < 5) {
+      setTimeout(() => bindGameVolumeWatcher(attempt + 1), 500);
+    }
+  })();
 
   function t(key, params, fallback) {
     if (window.i18n && typeof window.i18n.t === 'function') {
@@ -158,10 +195,14 @@
   function playBuffer(ctx, buffer) {
     if (!ctx || !buffer) return;
     try {
+      const mix = getGameVolume();
+      if (mix <= 0) return;
       const source = ctx.createBufferSource();
       source.buffer = buffer;
       source.playbackRate.value = PLAYBACK_RATE;
-      source.connect(ctx.destination);
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(Math.max(0.001, mix), ctx.currentTime);
+      source.connect(gain).connect(ctx.destination);
       source.start();
     } catch (err) {
       console.warn('[piano] No se pudo reproducir la muestra', err);

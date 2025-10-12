@@ -13,6 +13,43 @@
   const messageEl = document.getElementById('memoryMessage');
   const turnEl = document.getElementById('memoryTurn');
   const scoresEl = document.getElementById('memoryScores');
+  const clamp01 = (value) => {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return 0;
+    return Math.min(1, Math.max(0, num));
+  };
+  function computeGameVolume() {
+    if (window.Sfx) {
+      if (typeof window.Sfx.getGameVolume === 'function') {
+        const vol = window.Sfx.getGameVolume();
+        if (Number.isFinite(vol)) return clamp01(vol);
+      }
+      if (typeof window.Sfx.getState === 'function') {
+        const snapshot = window.Sfx.getState();
+        if (snapshot) {
+          if (snapshot.muted) return 0;
+          if (snapshot.volumeGame != null) return clamp01(snapshot.volumeGame);
+          if (snapshot.volumeSfx != null) return clamp01(snapshot.volumeSfx);
+        }
+      }
+    }
+    return 1;
+  }
+  let gameVolume = computeGameVolume();
+  function getGameVolume() { return gameVolume; }
+  function setGameVolume(vol) {
+    if (Number.isFinite(vol)) gameVolume = clamp01(vol);
+    else gameVolume = computeGameVolume();
+  }
+  (function bindGameVolumeWatcher(attempt = 0) {
+    if (window.Sfx && typeof window.Sfx.onGameVolumeChange === 'function') {
+      window.Sfx.onGameVolumeChange((vol) => setGameVolume(vol));
+      return;
+    }
+    if (attempt < 5) {
+      setTimeout(() => bindGameVolumeWatcher(attempt + 1), 500);
+    }
+  })();
 
   const INSTRUMENTS = [
     {
@@ -251,6 +288,8 @@
       const def = inst && inst.audio;
       if (!def || !Array.isArray(def.melody)) return;
       if (!this.ensure()) return;
+      const mix = getGameVolume();
+      if (mix <= 0) return;
       const ctx = this.ctx;
       const baseType = def.type || 'sine';
       let t = ctx.currentTime;
@@ -267,9 +306,9 @@
           const noise = ctx.createBufferSource();
           noise.buffer = buffer;
           const gain = ctx.createGain();
-          const peak = note.gain || 0.22;
+          const peak = (note.gain || 0.22) * mix;
           gain.gain.setValueAtTime(0.001, t);
-          gain.gain.exponentialRampToValueAtTime(Math.max(0.01, peak), t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(Math.max(0.001, peak), t + 0.02);
           gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
           noise.connect(gain).connect(ctx.destination);
           noise.start(t);
@@ -280,10 +319,10 @@
           osc.type = type;
           osc.frequency.setValueAtTime(note.freq || 440, t);
           const gain = ctx.createGain();
-          const peak = note.gain || 0.18;
+          const peak = (note.gain || 0.18) * mix;
           gain.gain.setValueAtTime(0.001, t);
           const dur = Math.max(0.15, note.dur || 0.35);
-          gain.gain.exponentialRampToValueAtTime(Math.max(0.01, peak), t + 0.05);
+          gain.gain.exponentialRampToValueAtTime(Math.max(0.001, peak), t + 0.05);
           gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
           osc.connect(gain).connect(ctx.destination);
           osc.start(t);
@@ -298,13 +337,19 @@
       if (!inst) return;
       const buffer = await this.loadSample(instId);
       if (buffer) {
+        const mix = getGameVolume();
+        if (mix <= 0) {
+          this.stopCurrent();
+          return;
+        }
         this.stopCurrent();
         const ctx = this.ctx;
         const source = ctx.createBufferSource();
         source.buffer = buffer;
         const gain = ctx.createGain();
         gain.gain.setValueAtTime(0.001, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + 0.02);
+        const peak = 0.9 * mix;
+        gain.gain.linearRampToValueAtTime(Math.max(0.001, peak), ctx.currentTime + 0.02);
         const duration = Math.max(0.4, buffer.duration);
         gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration + 0.05);
         source.connect(gain).connect(ctx.destination);

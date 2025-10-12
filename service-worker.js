@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.7.12';
+const SW_VERSION = 'v0.7.14';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
