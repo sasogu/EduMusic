@@ -201,6 +201,154 @@
           { freq: 174.61, dur: 0.55 }
         ]
       }
+    },
+    {
+      id: 'quarter-note',
+      pool: 'notation',
+      emoji: '♩',
+      color: '#2563eb',
+      label: { es: 'Negra', val: 'Negra' },
+      family: { es: 'Figura de duración: 1 tiempo', val: 'Figura de durada: 1 temps' },
+      cardKinds: ['visual', 'visual'],
+      audio: {
+        type: 'sine',
+        melody: [
+          { freq: 493.88, dur: 0.35 }
+        ]
+      }
+    },
+    {
+      id: 'half-note',
+      pool: 'notation',
+      emoji: '𝅗𝅥',
+      color: '#7c3aed',
+      label: { es: 'Blanca', val: 'Blanca' },
+      family: { es: 'Figura de duración: 2 tiempos', val: 'Figura de durada: 2 temps' },
+      cardKinds: ['visual', 'visual'],
+      audio: {
+        type: 'triangle',
+        melody: [
+          { freq: 392.0, dur: 0.55 }
+        ]
+      }
+    },
+    {
+      id: 'pair-eighth',
+      pool: 'notation',
+      emoji: '♫',
+      color: '#f97316',
+      label: { es: 'Corcheas', val: 'Corxeres' },
+      family: { es: 'Divide la negra en dos sonidos', val: 'Divideix la negra en dos sons' },
+      cardKinds: ['visual', 'visual'],
+      audio: {
+        type: 'square',
+        melody: [
+          { freq: 659.25, dur: 0.18 },
+          { freq: 698.46, dur: 0.18, gap: 0.05 }
+        ]
+      }
+    },
+    {
+      id: 'half-rest',
+      pool: 'notation',
+      emoji: '𝄼',
+      color: '#0ea5e9',
+      label: { es: 'Silencio de blanca', val: 'Silenci de blanca' },
+      family: { es: 'Silencio que ocupa 2 tiempos', val: 'Silenci que ocupa 2 temps' },
+      cardKinds: ['visual', 'visual'],
+      audio: {
+        type: 'sine',
+        melody: [
+          { freq: 174.61, dur: 0.2 },
+          { freq: 130.81, dur: 0.25, gap: 0.12 }
+        ]
+      }
+    },
+    {
+      id: 'final-bar',
+      pool: 'notation',
+      emoji: '‖',
+      color: '#22c55e',
+      label: { es: 'Barra final', val: 'Barra final' },
+      family: { es: 'Señala el cierre de la pieza', val: 'Assenyala el final de la peça' },
+      cardKinds: ['visual', 'visual'],
+      audio: {
+        type: 'triangle',
+        melody: [
+          { freq: 261.63, dur: 0.3 },
+          { freq: 196.0, dur: 0.3 }
+        ]
+      }
+    },
+    {
+      id: 'treble-clef',
+      pool: 'notation',
+      emoji: '𝄞',
+      color: '#f59e0b',
+      label: { es: 'Clave de sol', val: 'Clau de sol' },
+      family: { es: 'Ubica la nota sol en la segunda línea', val: 'Situa la nota sol en la segona línia' },
+      cardKinds: ['visual', 'visual'],
+      audio: {
+        type: 'sawtooth',
+        melody: [
+          { freq: 392.0, dur: 0.28 },
+          { freq: 523.25, dur: 0.32 }
+        ]
+      }
+    },
+    {
+      id: 'sharp-sign',
+      pool: 'notation-advanced',
+      emoji: '♯',
+      color: '#ef4444',
+      label: { es: 'Sostenido', val: 'Sostingut' },
+      family: { es: 'Eleva la nota medio tono', val: 'Puja la nota mig to' },
+      cardKinds: ['visual', 'visual']
+    },
+    {
+      id: 'flat-sign',
+      pool: 'notation-advanced',
+      emoji: '♭',
+      color: '#0ea5e9',
+      label: { es: 'Bemol', val: 'Bemoll' },
+      family: { es: 'Baja la nota medio tono', val: 'Baixa la nota mig to' },
+      cardKinds: ['visual', 'visual']
+    },
+    {
+      id: 'natural-sign',
+      pool: 'notation-advanced',
+      emoji: '♮',
+      color: '#22c55e',
+      label: { es: 'Becuadro', val: 'Becuadre' },
+      family: { es: 'Anula alteraciones previas', val: 'Anul·la alteracions prèvies' },
+      cardKinds: ['visual', 'visual']
+    },
+    {
+      id: 'fermata-sign',
+      pool: 'notation-advanced',
+      emoji: '𝄐',
+      color: '#f97316',
+      label: { es: 'Calderón (fermata)', val: 'Calderó (fermata)' },
+      family: { es: 'Permite sostener la nota o silencio', val: 'Permet sostindre la nota o silenci' },
+      cardKinds: ['visual', 'visual']
+    },
+    {
+      id: 'repeat-sign',
+      pool: 'notation-advanced',
+      emoji: '𝄇',
+      color: '#6366f1',
+      label: { es: 'Signo de repetición', val: 'Signe de repetició' },
+      family: { es: 'Vuelve al pasaje anterior', val: 'Torna al passatge anterior' },
+      cardKinds: ['visual', 'visual']
+    },
+    {
+      id: 'segno-sign',
+      pool: 'notation-advanced',
+      emoji: '𝄋',
+      color: '#a855f7',
+      label: { es: 'Segno', val: 'Segno' },
+      family: { es: 'Marca el punto D.S.', val: 'Marca el punt D.S.' },
+      cardKinds: ['visual', 'visual']
     }
   ];
 
@@ -376,8 +524,10 @@
   function buildDeck(instDefs) {
     const deck = [];
     instDefs.forEach((inst) => {
-      deck.push({ uid: `${inst.id}-sound`, instrument: inst.id, kind: 'sound' });
-      deck.push({ uid: `${inst.id}-visual`, instrument: inst.id, kind: 'visual' });
+      const kinds = Array.isArray(inst.cardKinds) && inst.cardKinds.length ? inst.cardKinds : ['sound', 'visual'];
+      kinds.forEach((kind, index) => {
+        deck.push({ uid: `${inst.id}-${kind}-${index}`, instrument: inst.id, kind });
+      });
     });
     return shuffle(deck);
   }
@@ -537,8 +687,9 @@
         front.style.border = `2px solid ${inst.color}`;
         front.style.color = '#0f172a';
       }
+      const isNotation = inst && inst.pool === 'notation';
       const icon = document.createElement('span');
-      icon.style.fontSize = '28px';
+      icon.style.fontSize = isNotation ? '64px' : '58px';
       icon.textContent = inst ? inst.emoji : '🎶';
       const name = document.createElement('span');
       name.className = 'instr-name';
@@ -602,7 +753,10 @@
     state.revealIds.add(uid);
 
     const instrument = btn.dataset.instrument;
-    Promise.resolve(audioEngine.play(instrument)).catch(() => {});
+    const kind = btn.dataset.kind;
+    if (kind === 'sound') {
+      Promise.resolve(audioEngine.play(instrument)).catch(() => {});
+    }
 
     if (!state.firstCard) {
       state.firstCard = btn;
