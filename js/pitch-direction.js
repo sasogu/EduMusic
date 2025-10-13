@@ -552,6 +552,12 @@
     }
   });
 
+  window.addEventListener('score:saved', (ev) => {
+    if (!ev || !ev.detail || ev.detail.gameId !== SCOREBOARD_ID) return;
+    if (state.running) return;
+    resetGame({ autoplay: true });
+  });
+
   if (window.i18n && typeof window.i18n.onChange === 'function') {
     window.i18n.onChange(handleLanguageChange);
   }
