@@ -159,6 +159,40 @@
       color: #2563eb;
       padding: 0 2px;
     }
+    @media (max-width: 1024px) {
+      .memory-wrapper {
+        padding: 0 16px;
+      }
+      .memory-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+      }
+      .memory-controls .buttons {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .memory-mode,
+      .memory-deck,
+      .memory-buttons {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .memory-stats {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .memory-board {
+        padding: 16px;
+      }
+      .memory-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .memory-card {
+        padding-bottom: 110%;
+      }
+    }
     @media (max-width: 640px) {
       .memory-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -183,5 +217,10 @@
       .memory-buttons {
         width: 100%;
         justify-content: space-between;
+      }
+      .memory-stats {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
       }
     }
