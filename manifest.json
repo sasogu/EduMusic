@@ -1,8 +1,8 @@
 {
   "name": "EduMúsic",
   "short_name": "EduMúsic",
-  "start_url": "../index.html",
-  "scope": "/",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#f0f4fa",
   "theme_color": "#4a90e2",
