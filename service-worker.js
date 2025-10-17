@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.7.23';
+const SW_VERSION = 'v0.8.02';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -15,6 +15,7 @@ const ASSETS = [
   'css/pitch-direction.css',
   'js/app.js',
   'js/audio-settings.js',
+  'js/index-tags.js',
   'js/i18n/index.js',
   'js/i18n/gamehub.js',
   'js/i18n/memory.js',

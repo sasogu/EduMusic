@@ -40,7 +40,25 @@
       'index.piano.small': 'Selector de partituras · Piano interactivo',
       'index.resources.title': 'Recursos de Juegos Musicales',
       'index.resources.desc': 'Explora enlaces a actividades musicales externas seleccionadas.',
-      'index.resources.small': 'Incluye aprendomusica.com y otras propuestas educativas'
+      'index.resources.small': 'Incluye aprendomusica.com y otras propuestas educativas',
+      'tags.filter.title': 'Filtrar por etiquetas',
+      'tags.filter.hint': 'Selecciona una o varias etiquetas para ver actividades relacionadas.',
+      'tags.filter.clear': 'Limpiar filtros',
+      'tags.filter.noResults': 'No hay actividades con esas etiquetas.',
+      'tags.juego': 'Juego',
+      'tags.melodia': 'Melodía',
+      'tags.inicial': 'Inicial',
+      'tags.memoria': 'Memoria',
+      'tags.audicion': 'Audición',
+      'tags.intermedio': 'Intermedio',
+      'tags.arrastrar': 'Arrastrar y soltar',
+      'tags.ritmo': 'Ritmo',
+      'tags.dictado': 'Dictado',
+      'tags.avanzado': 'Avanzado',
+      'tags.piano': 'Piano',
+      'tags.exploracion': 'Exploración',
+      'tags.recursos': 'Recursos',
+      'tags.docentes': 'Docentes'
     },
     val: {
       'index.choose': 'Tria una activitat per a començar:',
@@ -81,7 +99,25 @@
       'index.piano.small': 'Selector de partitures · Piano interactiu',
       'index.resources.title': 'Recursos de Jocs Musicals',
       'index.resources.desc': 'Explora enllaços a activitats musicals externes seleccionades.',
-      'index.resources.small': 'Inclou aprendomusica.com i altres propostes educatives'
+      'index.resources.small': 'Inclou aprendomusica.com i altres propostes educatives',
+      'tags.filter.title': 'Filtra per etiquetes',
+      'tags.filter.hint': 'Selecciona una o diverses etiquetes per a veure activitats relacionades.',
+      'tags.filter.clear': 'Netejar filtres',
+      'tags.filter.noResults': 'No hi ha activitats amb eixes etiquetes.',
+      'tags.juego': 'Joc',
+      'tags.melodia': 'Melodia',
+      'tags.inicial': 'Inicial',
+      'tags.memoria': 'Memòria',
+      'tags.audicion': 'Audició',
+      'tags.intermedio': 'Intermedi',
+      'tags.arrastrar': 'Arrossegar i deixar anar',
+      'tags.ritmo': 'Ritme',
+      'tags.dictado': 'Dictat',
+      'tags.avanzado': 'Avançat',
+      'tags.piano': 'Piano',
+      'tags.exploracion': 'Exploració',
+      'tags.recursos': 'Recursos',
+      'tags.docentes': 'Docents'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {
