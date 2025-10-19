@@ -34,6 +34,23 @@
       'melodic.feedback.correct': 'Molt bé! Prepara l\'oïda per al següent dictat.',
       'melodic.feedback.wrong': 'Quasi... Escolta de nou i torna-ho a intentar.',
       'melodic.feedback.gameover': 'Final de la partida. Prem Inicia per a continuar practicant.'
+    },
+    en: {
+      'melodic.title': 'Melodic Dictation',
+      'melodic.instructions': 'Listen to a sequence of four quarter notes featuring G and E. From 5 points onward A is added, at 10 points C appears, at 15 F arrives, at 20 D joins and at 25 B is included. Choose the correct answer.',
+      'melodic.repeat': 'Play melody',
+      'melodic.options.label': 'Options:',
+      'melodic.options.2': '2 options',
+      'melodic.options.3': '3 options',
+      'melodic.options.4': '4 options',
+      'melodic.difficulty.label': 'Mode:',
+      'melodic.difficulty.names': 'Level 1: G / E with progressive unlocks',
+      'melodic.difficulty.staff': 'Level 2: Staff view',
+      'melodic.feedback.welcome': 'Press Start to begin a new dictation.',
+      'melodic.feedback.listen': 'Listen to the melody and choose the correct option.',
+      'melodic.feedback.correct': 'Correct! Get ready for the next dictation.',
+      'melodic.feedback.wrong': 'Almost… Listen again and try once more.',
+      'melodic.feedback.gameover': 'Game over. Press Start to keep practising.'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

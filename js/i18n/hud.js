@@ -22,6 +22,17 @@
       'hud.speed.slow': 'Lent',
       'hud.speed.normal': 'Normal',
       'hud.speed.fast': 'Ràpid'
+    },
+    en: {
+      'hud.points': 'Points: {n}',
+      'hud.lives': 'Lives: {n}',
+      'hud.start': 'Start',
+      'hud.pause': 'Pause',
+      'hud.restart': 'Restart',
+      'hud.speed': 'Speed:',
+      'hud.speed.slow': 'Slow',
+      'hud.speed.normal': 'Normal',
+      'hud.speed.fast': 'Fast'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

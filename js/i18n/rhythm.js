@@ -22,6 +22,17 @@
       'rhythm.level1': 'Nivell 1',
       'rhythm.level2': 'Nivell 2',
       'rhythm.level3': 'Nivell 3'
+    },
+    en: {
+      'rhythm.title': 'Rhythm: TA, SU (and TITI)',
+      'rhythm.instructions': 'Identify rhythmic patterns using a quarter note (TA) and a rest (SU). After 10 points, TITI (two eighth notes) joins the challenges.',
+      'rhythm.play': 'Replay',
+      'rhythm.play_hint': 'Hear the current pattern again',
+      'rhythm.include_titi': 'Include TITI',
+      'rhythm.level': 'Level:',
+      'rhythm.level1': 'Level 1',
+      'rhythm.level2': 'Level 2',
+      'rhythm.level3': 'Level 3'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

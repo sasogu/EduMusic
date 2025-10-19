@@ -38,6 +38,25 @@
       'resources.teoria.title': 'Teoria.com',
       'resources.teoria.desc': 'Exercicis interactius de teoria musical, dictats i lectura a primera vista.',
       'resources.teoria.meta': 'Idioma: Castellà · Registre opcional'
+    },
+    en: {
+      'resources.title': 'Musical Game Resources',
+      'resources.intro': 'A small selection of sites with interactive music games, activities and materials to keep practising.',
+      'resources.aprendo.title': 'Aprendomusica.com',
+      'resources.aprendo.desc': 'Platform featuring music theory games, dictations, rhythm reading and classroom resources.',
+      'resources.aprendo.meta': 'Free',
+      'resources.edutictac.title': 'EduTicTac',
+      'resources.edutictac.desc': 'Interactive resources and activities for teaching music in primary education.',
+      'resources.edutictac.meta': 'Free',
+      'resources.musictech.title': 'Music Tech Teacher',
+      'resources.musictech.desc': 'Online quizzes and games about theory, rhythms, instruments and note reading.',
+      'resources.musictech.meta': 'Language: English · Recommended from age 8',
+      'resources.classics.title': 'Classics for Kids',
+      'resources.classics.desc': 'Games about composers, styles and active listening with a playful approach.',
+      'resources.classics.meta': 'Language: English · Guided activities',
+      'resources.teoria.title': 'Teoria.com',
+      'resources.teoria.desc': 'Interactive exercises in music theory, dictation and sight reading.',
+      'resources.teoria.meta': 'Language: Spanish · Optional sign-up'
     }
   };
 

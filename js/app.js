@@ -10,6 +10,7 @@ function ensureLangSwitcher() {
     <select id="langSelect">
       <option value="es" data-i18n="lang.es">Español</option>
       <option value="val" data-i18n="lang.val">Valencià</option>
+      <option value="en" data-i18n="lang.en">English</option>
     </select>
   `;
   return host.querySelector('#langSelect');
@@ -150,7 +151,7 @@ function ensureSwFooter() {
     }
   })();
 })();
-// --- Simple i18n engine (es + val) ---
+// --- Simple i18n engine (es + val + en) ---
 (function() {
   const baseDict = {
     es: {
@@ -161,8 +162,9 @@ function ensureSwFooter() {
       'sw.status.unavailable': 'no disponible',
       'sw.status.disabled': 'sin SW',
       'lang.label': 'Idioma:',
-      'lang.es': 'Castellà',
+      'lang.es': 'Español',
       'lang.val': 'Valencià',
+      'lang.en': 'English',
       'gamehub.back': 'Volver al inicio',
       'game.back': 'Volver al inicio'
     },
@@ -174,16 +176,32 @@ function ensureSwFooter() {
       'sw.status.unavailable': 'no disponible',
       'sw.status.disabled': 'sense SW',
       'lang.label': 'Idioma:',
-      'lang.es': 'Español',
+      'lang.es': 'Castellà',
       'lang.val': 'Valencià',
+      'lang.en': 'Anglés',
       'gamehub.back': "Torna a l'inici",
       'game.back': "Torna a l'inici"
+    },
+    en: {
+      'sw.label': 'Service Worker:',
+      'sw.loading': 'loading…',
+      'sw.status.unsupported': 'not supported',
+      'sw.status.insecure': 'requires HTTPS or localhost',
+      'sw.status.unavailable': 'unavailable',
+      'sw.status.disabled': 'no SW',
+      'lang.label': 'Language:',
+      'lang.es': 'Spanish',
+      'lang.val': 'Valencian',
+      'lang.en': 'English',
+      'gamehub.back': 'Back to home',
+      'game.back': 'Back to home'
     }
   };
 
   const dict = {
     es: { ...baseDict.es },
-    val: { ...baseDict.val }
+    val: { ...baseDict.val },
+    en: { ...baseDict.en }
   };
 
   const registeredBundles = new Set(['__base']);
@@ -194,6 +212,7 @@ function ensureSwFooter() {
     if (!payload) return;
     if (payload.es && typeof payload.es === 'object') Object.assign(dict.es, payload.es);
     if (payload.val && typeof payload.val === 'object') Object.assign(dict.val, payload.val);
+    if (payload.en && typeof payload.en === 'object') Object.assign(dict.en, payload.en);
   }
 
   function format(str, params) {
@@ -218,15 +237,30 @@ function ensureSwFooter() {
   }
 
   function t(key, params) {
-    const d = dict[current] || dict.val || dict.es;
-    const raw = d[key] || (dict.val && dict.val[key]) || (dict.es && dict.es[key]) || key;
+    const langOrder = [
+      current,
+      current !== 'en' ? 'en' : null,
+      current !== 'es' ? 'es' : null,
+      current !== 'val' ? 'val' : null
+    ].filter(Boolean);
+    let raw;
+    for (let i = 0; i < langOrder.length; i++) {
+      const lang = langOrder[i];
+      if (dict[lang] && Object.prototype.hasOwnProperty.call(dict[lang], key)) {
+        raw = dict[lang][key];
+        break;
+      }
+    }
+    if (raw == null) raw = key;
     return format(raw, params);
   }
 
   function setLang(code) {
-    current = (code === 'val') ? 'val' : 'es';
+    current = (code === 'val') ? 'val' : (code === 'en' ? 'en' : 'es');
     try { localStorage.setItem('lang', current); } catch {}
-    try { document.documentElement.lang = current === 'val' ? 'ca' : 'es'; } catch {}
+    try {
+      document.documentElement.lang = current === 'val' ? 'ca' : (current === 'en' ? 'en' : 'es');
+    } catch {}
     apply();
     for (const fn of listeners) { try { fn(current); } catch {} }
   }
@@ -271,7 +305,7 @@ function ensureSwFooter() {
   function init() {
     const sel = ensureLangSwitcher();
     ensureSwFooter();
-    document.documentElement.lang = current === 'val' ? 'ca' : 'es';
+    document.documentElement.lang = current === 'val' ? 'ca' : (current === 'en' ? 'en' : 'es');
     apply();
     if (sel) sel.addEventListener('change', () => setLang(sel.value));
   }

@@ -53,6 +53,33 @@
       'pitchdir.modal.title': 'Doble seqüència',
       'pitchdir.modal.body': 'Has avançat de nivell. Ara escoltaràs dos seqüències seguides: respon després de cadascuna.',
       'pitchdir.modal.close': 'Entés!'
+    },
+    en: {
+      'pitchdir.title': 'Pitch Direction',
+      'pitchdir.subtitle': 'Listen to two tones and choose whether the second rises, falls or stays the same.',
+      'pitchdir.stats.attempts': 'Attempts: {n}',
+      'pitchdir.stats.correct': 'Correct: {n}',
+      'pitchdir.stats.lives': 'Lives: {n}',
+      'pitchdir.stats.streak': 'Streak: {n}',
+      'pitchdir.controls.start': 'Start',
+      'pitchdir.controls.playing': 'Playing…',
+      'pitchdir.controls.reset': 'Restart game',
+      'pitchdir.option.up': 'Up ⤴',
+      'pitchdir.option.same': 'Same ↔',
+      'pitchdir.option.down': 'Down ⤵',
+      'pitchdir.feedback.prompt': 'Listen to the sequence and decide if it goes up, down or stays level.',
+      'pitchdir.feedback.ready': 'Challenge ready. Press “Start”.',
+      'pitchdir.feedback.ready.multi': 'Advanced level: you will hear two sequences in a row. Answer both.',
+      'pitchdir.feedback.correct.up': 'Correct! The sound rises.',
+      'pitchdir.feedback.correct.down': 'Correct! The sound falls.',
+      'pitchdir.feedback.correct.same': 'Correct! The sound stays the same.',
+      'pitchdir.feedback.retry': 'Try again and listen carefully.',
+      'pitchdir.feedback.partial': 'Great! Now answer the second sequence.',
+      'pitchdir.feedback.locked': 'Playing… please wait.',
+      'pitchdir.feedback.gameover': 'Game over. Press “Restart game” to try again.',
+      'pitchdir.modal.title': 'Double sequence',
+      'pitchdir.modal.body': 'You have advanced a level. From now on you will hear two sequences in a row—answer after each one.',
+      'pitchdir.modal.close': 'Understood!'
     }
   };
 

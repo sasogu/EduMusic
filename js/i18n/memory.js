@@ -56,6 +56,34 @@
       'memory.message.win.p1': 'Victòria del Jugador 1! Intents: {attempts} · J1: {p1} · J2: {p2} · Temps: {time}',
       'memory.message.win.p2': 'Victòria del Jugador 2! Intents: {attempts} · J1: {p1} · J2: {p2} · Temps: {time}',
       'memory.message.win.tie': 'Empat! Intents: {attempts} · J1: {p1} · J2: {p2} · Temps: {time}'
+    },
+    en: {
+      'memory.title': 'Instrument Memories',
+      'memory.subtitle': 'Interactive prototype: flip the cards to discover instruments and match each sound with its image.',
+      'memory.controls.start': 'Start game',
+      'memory.controls.reset': 'Reset',
+      'memory.controls.audio': 'Play sounds when turning cards',
+      'memory.controls.mode.solo': '1 player',
+      'memory.controls.mode.versus': '2 players',
+      'memory.controls.deck.label': 'Collection:',
+      'memory.controls.deck.standard': 'Base group (piano, violin…)',
+      'memory.controls.deck.orchestra': 'Classical orchestra',
+      'memory.controls.deck.notation': 'Musical symbols',
+      'memory.controls.deck.notationAdvanced': 'Advanced musical symbols',
+      'memory.stats.matches': 'Pairs: {found}/{total}',
+      'memory.stats.attempts': 'Attempts: {n}',
+      'memory.stats.time': 'Time: {t}',
+      'memory.stats.turn': 'Turn: Player {n}',
+      'memory.stats.scores': 'Score — P1: {p1} · P2: {p2}',
+      'memory.card.listen': 'Listen',
+      'memory.message.ready': 'New game: good luck!',
+      'memory.message.match': 'Great! You matched {name}.',
+      'memory.message.match.turn': 'Great! You matched {name}. Player {n}, go again.',
+      'memory.message.try': 'Try again and listen carefully.',
+      'memory.message.win': 'Board complete! Attempts: {attempts} · Time: {time}',
+      'memory.message.win.p1': 'Player 1 wins! Attempts: {attempts} · P1: {p1} · P2: {p2} · Time: {time}',
+      'memory.message.win.p2': 'Player 2 wins! Attempts: {attempts} · P1: {p1} · P2: {p2} · Time: {time}',
+      'memory.message.win.tie': 'It\'s a tie! Attempts: {attempts} · P1: {p1} · P2: {p2} · Time: {time}'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

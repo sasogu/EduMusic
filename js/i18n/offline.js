@@ -14,6 +14,13 @@
       'offline.message': 'Sembla que no tens connexió a la xarxa. Pots continuar utilitzant les activitats que ja estiguen guardades a l\'aplicació.',
       'offline.retry': 'Tornar-ho a provar',
       'offline.hint': 'L\'aplicació funcionarà sense connexió per a les pàgines i àudios emmagatzemats.'
+    },
+    en: {
+      'offline.metaTitle': 'EduMúsic — Offline',
+      'offline.heading': 'Offline',
+      'offline.message': 'It looks like you are not connected right now. You can keep using the activities that are already stored in the app.',
+      'offline.retry': 'Try again',
+      'offline.hint': 'The app works offline for pages and audio that have been cached.'
     }
   };
 

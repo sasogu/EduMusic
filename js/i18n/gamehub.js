@@ -50,6 +50,31 @@
       'gamehub.coming.title': 'Pròximament',
       'gamehub.coming.desc': 'Ací s\'afegiran nous nivells d\'Atrapa Notes.',
       'gamehub.coming.small': 'Idees benvingudes'
+    },
+    en: {
+      'gamehub.title': 'Catch the Notes',
+      'gamehub.intro': 'Choose a challenge to catch notes on the staff.',
+      'gamehub.solmi.title': 'G and E',
+      'gamehub.solmi.desc': 'Press the matching keys to catch the notes G and E.',
+      'gamehub.solmi.small': 'Progressive difficulty · Online ranking',
+      'gamehub.solmila.title': 'G, E and A',
+      'gamehub.solmila.desc': 'Add the note A to the challenge and stay accurate on the staff.',
+      'gamehub.solmila.small': 'Three notes · Same gameplay loop',
+      'gamehub.solmilado.title': 'G, E, A and C',
+      'gamehub.solmilado.desc': 'Include low C and practise ledger lines on the staff.',
+      'gamehub.solmilado.small': 'Four notes · Reading with extra lines',
+      'gamehub.solmiladore.title': 'G, E, A, C and D',
+      'gamehub.solmiladore.desc': 'Add high D and reinforce staff reading skills.',
+      'gamehub.solmiladore.small': 'Five notes · Extra lines and spaces',
+      'gamehub.solmiladorefa.title': 'G, E, A, C, D and F',
+      'gamehub.solmiladorefa.desc': 'Bring in F to cover the full degree and strengthen reading.',
+      'gamehub.solmiladorefa.small': 'Six notes · Extended ascending scale',
+      'gamehub.allnotes.title': 'All the Notes',
+      'gamehub.allnotes.desc': 'Catch the full C major scale: climb up and come back down.',
+      'gamehub.allnotes.small': 'Seven notes · Complete scale',
+      'gamehub.coming.title': 'Coming soon',
+      'gamehub.coming.desc': 'More Catch the Notes levels will appear here.',
+      'gamehub.coming.small': 'Suggestions welcome'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

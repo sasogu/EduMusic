@@ -38,6 +38,25 @@
       'piano.keyboard.last': 'Última nota:',
       'piano.keyboard.none': '—',
       'piano.keyboard.trigger': 'Tecla {key}'
+    },
+    en: {
+      'piano.title': 'Keyboard and Scores',
+      'piano.intro': 'Pick a score and play along on the keyboard. The range adapts to your device.',
+      'piano.selector.label': 'Choose a score:',
+      'piano.selector.none': 'Select a score',
+      'piano.scores.enriqueta': 'Enriqueta’s Shop',
+      'piano.scores.frerejacques': 'Frère Jacques',
+      'piano.scores.campanitas': 'Little Bells',
+      'piano.score.hint': 'If the score takes a moment to appear, check your connection.',
+      'piano.score.loading': 'Loading score…',
+      'piano.score.caption': 'Showing: {title}',
+      'piano.score.error': 'The selected score could not be loaded.',
+      'piano.score.alt': 'Score: {title}',
+      'piano.keyboard.title': 'Interactive keyboard',
+      'piano.keyboard.help': 'Tap or click the keys to practise. You can also use your computer keyboard.',
+      'piano.keyboard.last': 'Last note:',
+      'piano.keyboard.none': '—',
+      'piano.keyboard.trigger': 'Key {key}'
     }
   };
 

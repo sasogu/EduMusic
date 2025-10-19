@@ -34,6 +34,23 @@
       'dictation.feedback.correct': 'Molt bé! Prepara l\'oïda per al següent patró.',
       'dictation.feedback.wrong': 'Quasi... Escolta de nou i torna-ho a intentar.',
       'dictation.feedback.gameover': 'Final de la partida. Prem Inicia per a continuar practicant.'
+    },
+    en: {
+      'dictation.title': 'Rhythm Dictation',
+      'dictation.instructions': 'Listen to a four-beat pattern with quarter notes (TA) and pairs of eighth notes (TI-TI). After 5 points, SU (a rest) appears. Choose the correct answer.',
+      'dictation.repeat': 'Play rhythm',
+      'dictation.options.label': 'Options:',
+      'dictation.options.2': '2 options',
+      'dictation.options.3': '3 options',
+      'dictation.options.4': '4 options',
+      'dictation.difficulty.label': 'Mode:',
+      'dictation.difficulty.text': 'Level 1: TA / TI-TI',
+      'dictation.difficulty.symbols': 'Level 2: ♩ / ♫',
+      'dictation.feedback.welcome': 'Press Start to begin a new dictation.',
+      'dictation.feedback.listen': 'Listen to the pattern and choose the correct option.',
+      'dictation.feedback.correct': 'Great! Get ready for the next pattern.',
+      'dictation.feedback.wrong': 'Almost… Listen again and try once more.',
+      'dictation.feedback.gameover': 'Game over. Press Start to keep practising.'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

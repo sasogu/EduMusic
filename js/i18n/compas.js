@@ -56,6 +56,34 @@
       'compas.feedback.perfect': 'Molt bé! Has completat el compàs.',
       'compas.feedback.tooMuch': 'T\'has passat de temps. Lleva alguna fitxa.',
       'compas.feedback.missing': 'Encara falten temps per completar.'
+    },
+    en: {
+      'compas.title': 'Time Signature Puzzle',
+      'compas.instructions': 'Drag rhythm tiles into the target bar until you reach the required number of beats. You can return tiles to the tray if you make a mistake.',
+      'compas.controls.new': 'New puzzle',
+      'compas.controls.check': 'Check',
+      'compas.controls.reset': 'Reset',
+      'compas.available.title': 'Available tiles',
+      'compas.available.hint': 'Drag into the bar',
+      'compas.target.title': 'Target bar',
+      'compas.target.progress': 'Beats used:',
+      'compas.target.info': '{meter} time · {beats} beats',
+      'compas.metrics.solved': 'Solved:',
+      'compas.metrics.streak': 'Current streak:',
+      'compas.back': 'Back to home',
+      'compas.tile.duration': 'Duration: {n} beats',
+      'compas.tiles.negra': 'Quarter note (1 beat)',
+      'compas.tiles.titi': 'Two eighth notes (1 beat)',
+      'compas.tiles.corchea': 'Eighth note (1/2 beat)',
+      'compas.tiles.corcheaRest': 'Eighth rest (1/2 beat)',
+      'compas.tiles.dottedQuarter': 'Dotted quarter (1.5 beats)',
+      'compas.tiles.half': 'Half note (2 beats)',
+      'compas.tiles.quarterRest': 'Quarter rest (1 beat)',
+      'compas.tiles.semicorcheas': 'Four sixteenth notes (1 beat)',
+      'compas.feedback.empty': 'Add tiles to the bar to get started.',
+      'compas.feedback.perfect': 'Great! The bar is complete.',
+      'compas.feedback.tooMuch': 'Too many beats. Remove a tile.',
+      'compas.feedback.missing': 'You still need more beats to finish.'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

@@ -60,6 +60,36 @@
       'melorhythm.unlock.note.si': 'Has desbloquejat la nota SI!',
       'melorhythm.unlock.figure.rest': 'Nou ritme: silenci de negra!',
       'melorhythm.unlock.figure.half': 'Nou ritme: blanca!'
+    },
+    en: {
+      'melorhythm.title': 'Melodic-Rhythmic Dictation',
+      'melorhythm.instructions': 'Listen to a four-beat measure combining notes (G and E) with quarter notes and pairs of eighths. Choose the matching pattern; as you earn points new notes, rests, and rhythms unlock.',
+      'melorhythm.options.label': 'Options:',
+      'melorhythm.options.2': '2 options',
+      'melorhythm.options.3': '3 options',
+      'melorhythm.options.4': '4 options',
+      'melorhythm.repeat': 'Play pattern',
+      'melorhythm.rest.label': 'Rest',
+      'melorhythm.speed.label': 'Speed:',
+      'melorhythm.speed.slow': 'Slow',
+      'melorhythm.speed.normal': 'Normal',
+      'melorhythm.speed.fast': 'Fast',
+      'melorhythm.view.label': 'Mode:',
+      'melorhythm.view.names': 'Notes + rhythm',
+      'melorhythm.view.staff': 'Staff only',
+      'melorhythm.feedback.welcome': 'Press Start to begin a new dictation.',
+      'melorhythm.feedback.listen': 'Listen to the pattern and choose the correct option.',
+      'melorhythm.feedback.correct': 'Correct! Get ready for the next pattern.',
+      'melorhythm.feedback.wrong': 'Almost… Listen again and try once more.',
+      'melorhythm.feedback.gameover': 'Game over. Press Start to keep practising.',
+      'melorhythm.feedback.unlock': 'New unlock!',
+      'melorhythm.unlock.note.la': 'You unlocked note A!',
+      'melorhythm.unlock.note.do': 'You unlocked note C!',
+      'melorhythm.unlock.note.fa': 'You unlocked note F!',
+      'melorhythm.unlock.note.re': 'You unlocked note D!',
+      'melorhythm.unlock.note.si': 'You unlocked note B!',
+      'melorhythm.unlock.figure.rest': 'New rhythm: quarter rest!',
+      'melorhythm.unlock.figure.half': 'New rhythm: half note!'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

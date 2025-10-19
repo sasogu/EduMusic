@@ -20,6 +20,16 @@
       'clef.result.good': 'Molt bé! Bona forma de clau de sol.',
       'clef.result.near': 'Quasi. Recorre millor els punts guia.',
       'clef.result.try': 'Intenta-ho de nou seguint la guia.'
+    },
+    en: {
+      'clef.title': 'Draw the Treble Clef',
+      'clef.instructions': 'Trace with your finger or mouse following the guide dots to draw the treble clef. Try to loop around the 2nd line (the G line). Press Evaluate to check your drawing.',
+      'clef.reset': 'Clear',
+      'clef.evaluate': 'Check',
+      'clef.show_guides': 'Show guide',
+      'clef.result.good': 'Well done! Nice treble clef shape.',
+      'clef.result.near': 'Almost there. Follow the guide dots more closely.',
+      'clef.result.try': 'Give it another go following the guide.'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {
