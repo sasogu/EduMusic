@@ -61,7 +61,7 @@
       'wordguess.feedback.retry': 'Keep going, you still have attempts ({remaining}).',
       'wordguess.feedback.win': 'Nice! You earned {round} points. Total: {total}.',
       'wordguess.feedback.fail': 'No attempts left. The word was {word}. Final score: {score}.',
-      'wordguess.rank.title': 'Musical Words Ranking'
+      'wordguess.rank.title': 'Musical Words Leaderboard'
     }
   };
 

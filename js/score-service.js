@@ -122,6 +122,7 @@
         loading: false,
       };
       this.bindEvents();
+      this.applyTranslations();
     }
 
     bindEvents() {
@@ -162,10 +163,27 @@
       this.toggleSaveBox(false);
     }
 
+    getDefaultName() {
+      if (window.i18n && typeof window.i18n.t === 'function') {
+        const value = window.i18n.t('game.save.anon');
+        if (value && value !== 'game.save.anon') return value;
+      }
+      const lang = (window.i18n && typeof window.i18n.getLang === 'function') ? window.i18n.getLang() : 'es';
+      if (lang === 'val') return 'Anònim';
+      if (lang === 'en') return 'Anonymous';
+      return 'Anónimo';
+    }
+
+    applyTranslations() {
+      if (window.i18n && typeof window.i18n.apply === 'function') {
+        window.i18n.apply(this.root);
+      }
+    }
+
     async submit() {
       if (this.state.latestScore < this.options.showSaveAt) return;
       const rawName = this.dom.nameInput.value || '';
-      const name = rawName.trim() || 'Anónimo';
+      const name = rawName.trim() || this.getDefaultName();
       this.dom.saveButton.disabled = true;
       try {
         await this.service.addEntry(this, name, this.state.latestScore);
@@ -188,6 +206,7 @@
           text: 'Aún no hay puntuaciones. ¡Sé el primero!',
         });
         this.dom.list.appendChild(li);
+        this.applyTranslations();
         return;
       }
       const ptsLabel = (window.i18n && typeof window.i18n.t === 'function')
@@ -199,6 +218,7 @@
         li.textContent = `${entry.name} — ${entry.score} ${ptsLabel} (${date.toLocaleDateString()})`;
         this.dom.list.appendChild(li);
       });
+      this.applyTranslations();
     }
 
     async refresh() {
@@ -276,7 +296,10 @@
       sections.forEach((section) => this.mountOne(section, {}));
       if (!this.listenerAttached && window.i18n && typeof window.i18n.onChange === 'function') {
         window.i18n.onChange(() => {
-          this.boards.forEach((board) => board.refresh());
+          this.boards.forEach((board) => {
+            board.applyTranslations();
+            board.refresh();
+          });
         });
         this.listenerAttached = true;
       }

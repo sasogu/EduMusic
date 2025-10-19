@@ -32,6 +32,7 @@
 
   const NOTE_META = {
     mi: {
+      labels: { es: 'MI', val: 'MI', en: 'E' },
       label: 'MI',
       offsetSteps: 0,
       pianoIndex: 2,
@@ -42,6 +43,7 @@
       freq: 329.63,
     },
     sol: {
+      labels: { es: 'SOL', val: 'SOL', en: 'G' },
       label: 'SOL',
       offsetSteps: -2,
       pianoIndex: 4,
@@ -52,6 +54,7 @@
       freq: 392.0,
     },
     la: {
+      labels: { es: 'LA', val: 'LA', en: 'A' },
       label: 'LA',
       offsetSteps: -3,
       pianoIndex: 5,
@@ -62,6 +65,7 @@
       freq: 440.0,
     },
     do: {
+      labels: { es: 'DO', val: 'DO', en: 'C' },
       label: 'DO',
       offsetSteps: 2,
       pianoIndex: 0,
@@ -72,6 +76,7 @@
       freq: 261.63,
     },
     re: {
+      labels: { es: 'RE', val: 'RE', en: 'D' },
       label: 'RE',
       offsetSteps: 1.2,
       pianoIndex: 1,
@@ -82,6 +87,7 @@
       freq: 293.66,
     },
     fa: {
+      labels: { es: 'FA', val: 'FA', en: 'F' },
       label: 'FA',
       offsetSteps: -1,
       pianoIndex: 3,
@@ -92,6 +98,7 @@
       freq: 349.23,
     },
     si: {
+      labels: { es: 'SI', val: 'SI', en: 'B' },
       label: 'SI',
       offsetSteps: -4,
       pianoIndex: 6,
@@ -103,11 +110,60 @@
     },
   };
 
+  const WHITE_KEY_PITCHES = ['do', 're', 'mi', 'fa', 'sol', 'la', 'si'];
+
   function getPitchMeta(pitch) {
     return NOTE_META[pitch] || null;
   }
   function sanitizeKey(str) {
     return (str || '').toString().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  }
+
+  function getCurrentLang() {
+    if (window.i18n && typeof window.i18n.getLang === 'function') {
+      return window.i18n.getLang();
+    }
+    return 'es';
+  }
+
+  function getMetaLabel(meta) {
+    if (!meta) return '';
+    const lang = getCurrentLang();
+    if (meta.labels && meta.labels[lang]) return meta.labels[lang];
+    if (meta.labels) {
+      if (meta.labels.es) return meta.labels.es;
+      if (meta.labels.val) return meta.labels.val;
+      if (meta.labels.en) return meta.labels.en;
+    }
+    return meta.label || '';
+  }
+
+  function getPitchLabel(pitch) {
+    const meta = getPitchMeta(pitch);
+    const label = getMetaLabel(meta);
+    return label || String(pitch || '').toUpperCase();
+  }
+
+  function formatNoteList(labels) {
+    const clean = labels.filter(Boolean);
+    if (!clean.length) return '';
+    const lang = getCurrentLang();
+    const conjunction = lang === 'en' ? 'or' : 'o';
+    if (clean.length === 1) return clean[0];
+    if (clean.length === 2) return `${clean[0]} ${conjunction} ${clean[1]}`;
+    return `${clean.slice(0, -1).join(', ')} ${conjunction} ${clean.slice(-1)}`;
+  }
+
+  function buildHintFallback(noteLabels) {
+    const lang = getCurrentLang();
+    const readable = formatNoteList(noteLabels);
+    if (lang === 'en') {
+      return readable ? `Play ${readable} on the keyboard` : 'Play the highlighted notes on the keyboard';
+    }
+    if (lang === 'val') {
+      return readable ? `Prem ${readable} al teclat` : 'Prem les notes indicades al teclat';
+    }
+    return readable ? `Pulsa ${readable} en el piano` : 'Pulsa las notas indicadas en el piano';
   }
 
   const WHITE_KEY_TO_PITCH = {};
@@ -438,7 +494,7 @@
     const top = piano.top;
     const h = piano.height;
     const keyW = piano.keyW;
-    const labels = ['DO','RE','MI','FA','SOL','LA','SI'];
+    const labels = WHITE_KEY_PITCHES.map(getPitchLabel);
     const mono = shouldUseMonoPalette();
     ctx.save();
     // base
@@ -468,7 +524,7 @@
         ctx.font = meta ? 'bold 14px system-ui, -apple-system, Segoe UI, Roboto, Arial' : '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText(labels[i], x + keyW/2, top + h - 8);
+        ctx.fillText(labels[i] || '', x + keyW/2, top + h - 8);
       }
     }
     // black keys overlay
@@ -493,11 +549,8 @@
       hint = GAME_CONFIG.hintFallback;
     }
     if (!hint) {
-      const noteLabels = GAME_CONFIG.pitches.map(p => (getPitchMeta(p)?.label || p.toUpperCase()));
-      let readable = noteLabels[0] || '';
-      if (noteLabels.length === 2) readable = `${noteLabels[0]} o ${noteLabels[1]}`;
-      else if (noteLabels.length > 2) readable = `${noteLabels.slice(0, -1).join(', ')} o ${noteLabels.slice(-1)}`;
-      hint = readable ? `Pulsa ${readable} en el piano` : 'Pulsa las notas indicadas en el piano';
+      const noteLabels = GAME_CONFIG.pitches.map(getPitchLabel);
+      hint = buildHintFallback(noteLabels);
     }
     ctx.fillText(hint, 10, top + 8);
     ctx.restore();
@@ -527,7 +580,7 @@
       // Mostrar nombre solo hasta 10 puntos
       if (state.score < 10) {
         ctx.fillStyle = '#111';
-        ctx.fillText((meta && meta.label) ? meta.label : n.pitch.toUpperCase(), n.x, n.y - Math.floor(staff.spacing * 2.4));
+        ctx.fillText(meta ? getMetaLabel(meta) : n.pitch.toUpperCase(), n.x, n.y - Math.floor(staff.spacing * 2.4));
       }
     }
   }

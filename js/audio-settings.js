@@ -24,6 +24,14 @@
       'sfx.volume.effects': 'Efectes',
       'sfx.mute': 'Silencia',
     },
+    en: {
+      'sfx.panel.title': 'Volume',
+      'sfx.toggle.hide': 'Hide sound controls',
+      'sfx.toggle.show': 'Show sound controls',
+      'sfx.volume.game': 'Game',
+      'sfx.volume.effects': 'Effects',
+      'sfx.mute': 'Mute',
+    },
   };
   const TEXT_KEYS = {
     panelTitle: 'sfx.panel.title',
