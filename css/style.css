@@ -158,15 +158,47 @@ button {
 
 .activity-card {
   display: block;
+  position: relative;
   text-decoration: none;
   color: inherit;
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(226, 232, 240, 0.08)), #fff;
+  border-radius: 16px;
+  padding: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease;
   outline: 2px solid transparent;
   outline-offset: 4px;
+  overflow: hidden;
+}
+
+.activity-card::after {
+  content: attr(data-emoji);
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  font-size: 72px;
+  line-height: 1;
+  opacity: 0.18;
+  transform: rotate(-6deg);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.activity-card:hover::after,
+.activity-card:focus-visible::after {
+  opacity: 0.24;
+  transform: rotate(-2deg) translateY(-4px) scale(1.05);
+}
+
+.activity-card:not([data-emoji])::after,
+.activity-card[data-emoji=""]::after {
+  display: none;
+}
+
+.activity-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .tag-filter {
@@ -267,6 +299,54 @@ button {
 .activity-card small {
   color: #64748b;
   font-size: 0.85rem;
+}
+
+.activity-card[data-theme="catch"] {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(14, 165, 233, 0.06)), #fff;
+}
+
+.activity-card[data-theme="memory"] {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.18), rgba(34, 197, 94, 0.06)), #fff;
+}
+
+.activity-card[data-theme="wordguess"] {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(250, 204, 21, 0.08)), #fff;
+}
+
+.activity-card[data-theme="compas"] {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(165, 180, 252, 0.08)), #fff;
+}
+
+.activity-card[data-theme="melody"] {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(244, 114, 182, 0.08)), #fff;
+}
+
+.activity-card[data-theme="rhythm"] {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(251, 191, 36, 0.08)), #fff;
+}
+
+.activity-card[data-theme="rhythm-dictation"] {
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.18), rgba(239, 68, 68, 0.06)), #fff;
+}
+
+.activity-card[data-theme="melody-dictation"] {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(192, 132, 252, 0.08)), #fff;
+}
+
+.activity-card[data-theme="pitch"] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.06)), #fff;
+}
+
+.activity-card[data-theme="melo-rhythm"] {
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.2), rgba(236, 72, 153, 0.08)), #fff;
+}
+
+.activity-card[data-theme="piano"] {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(129, 140, 248, 0.08)), #fff;
+}
+
+.activity-card[data-theme="resources"] {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), rgba(13, 148, 136, 0.06)), #fff;
 }
 
 .activity-card--placeholder {
