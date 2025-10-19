@@ -378,6 +378,13 @@
     return INSTRUMENTS.find((inst) => inst.id === instId) || null;
   }
 
+  function hasSoundPair(instId) {
+    const inst = getInstrument(instId);
+    if (!inst) return false;
+    if (!Array.isArray(inst.cardKinds) || inst.cardKinds.length === 0) return true;
+    return inst.cardKinds.includes('sound');
+  }
+
   function isValidPool(pool) {
     return INSTRUMENTS.some((inst) => inst.pool === pool);
   }
@@ -754,7 +761,7 @@
 
     const instrument = btn.dataset.instrument;
     const kind = btn.dataset.kind;
-    if (kind === 'sound') {
+    if (kind === 'sound' || (kind === 'visual' && hasSoundPair(instrument))) {
       Promise.resolve(audioEngine.play(instrument)).catch(() => {});
     }
 

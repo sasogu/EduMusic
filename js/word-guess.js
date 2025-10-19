@@ -15,222 +15,249 @@
     instruments: [
       {
         id: 'piano',
-        term: { es: 'PIANO', val: 'PIANO' },
+        term: { es: 'PIANO', val: 'PIANO', en: 'PIANO' },
         hint: {
           es: 'Instrumento de teclado con cuerdas percutidas.',
-          val: 'Instrument de teclat amb cordes percudides.'
+          val: 'Instrument de teclat amb cordes percudides.',
+          en: 'Keyboard instrument whose strings are struck by hammers.'
         }
       },
       {
         id: 'viola',
-        term: { es: 'VIOLA', val: 'VIOLA' },
+        term: { es: 'VIOLA', val: 'VIOLA', en: 'VIOLA' },
         hint: {
           es: 'Instrumento de cuerda frotada ligeramente mayor que el violín.',
-          val: 'Instrument de corda fregada lleugerament més gran que el violí.'
+          val: 'Instrument de corda fregada lleugerament més gran que el violí.',
+          en: 'Bowed string instrument slightly larger than the violin.'
         }
       },
       {
         id: 'oboe',
-        term: { es: 'OBOE', val: 'OBOE' },
+        term: { es: 'OBOE', val: 'OBOE', en: 'OBOE' },
         hint: {
           es: 'Instrumento de viento madera con doble lengüeta.',
-          val: 'Instrument de vent-fusta amb doble canya.'
+          val: 'Instrument de vent-fusta amb doble canya.',
+          en: 'Woodwind instrument with a double reed.'
         }
       },
       {
         id: 'marimba',
-        term: { es: 'MARIMBA', val: 'MARIMBA' },
+        term: { es: 'MARIMBA', val: 'MARIMBA', en: 'MARIMBA' },
         hint: {
           es: 'Instrumento de placas afinadas que se golpean con mazas.',
-          val: 'Instrument de làmines afinades que es colpegen amb baquetes.'
+          val: 'Instrument de làmines afinades que es colpegen amb baquetes.',
+          en: 'Tuned wooden bars struck with mallets.'
         }
       },
       {
         id: 'fagot',
-        term: { es: 'FAGOT', val: 'FAGOT' },
+        term: { es: 'FAGOT', val: 'FAGOT', en: 'BASSOON' },
         hint: {
           es: 'Instrumento grave de viento madera de gran longitud.',
-          val: 'Instrument greu de vent-fusta de gran llargària.'
+          val: 'Instrument greu de vent-fusta de gran llargària.',
+          en: 'Low-pitched woodwind instrument with a long body.'
         }
       },
       {
         id: 'arpa',
-        term: { es: 'ARPA', val: 'ARPA' },
+        term: { es: 'ARPA', val: 'ARPA', en: 'HARP' },
         hint: {
           es: 'Instrumento de cuerdas pulsadas con forma triangular.',
-          val: 'Instrument de cordes polsades amb forma triangular.'
+          val: 'Instrument de cordes polsades amb forma triangular.',
+          en: 'Plucked string instrument with a triangular frame.'
         }
       },
       {
         id: 'clarinete',
-        term: { es: 'CLARINETE', val: 'CLARINET' },
+        term: { es: 'CLARINETE', val: 'CLARINET', en: 'CLARINET' },
         hint: {
           es: 'Instrumento de viento madera con boquilla de caña simple.',
-          val: 'Instrument de vent-fusta amb boqueta de canya senzilla.'
+          val: 'Instrument de vent-fusta amb boqueta de canya senzilla.',
+          en: 'Woodwind instrument with a single-reed mouthpiece.'
         }
       },
       {
         id: 'trombon',
-        term: { es: 'TROMBON', val: 'TROMBON' },
+        term: { es: 'TROMBON', val: 'TROMBON', en: 'TROMBONE' },
         hint: {
           es: 'Instrumento de metal con vara deslizante.',
-          val: 'Instrument de vent-metall amb vara lliscant.'
+          val: 'Instrument de vent-metall amb vara lliscant.',
+          en: 'Brass instrument that uses a slide to change pitch.'
         }
       },
       {
         id: 'timbales',
-        term: { es: 'TIMBALES', val: 'TIMBALS' },
+        term: { es: 'TIMBALES', val: 'TIMBALS', en: 'TIMPANI' },
         hint: {
           es: 'Pareja de tambores afinables presentes en la orquesta.',
-          val: 'Parell de tambors afinables presents en l\'orquestra.'
+          val: 'Parell de tambors afinables presents en l\'orquestra.',
+          en: 'Pair of tunable kettledrums used in the orchestra.'
         }
       }
     ],
     signs: [
       {
         id: 'pentagrama',
-        term: { es: 'PENTAGRAMA', val: 'PENTAGRAMA' },
+        term: { es: 'PENTAGRAMA', val: 'PENTAGRAMA', en: 'STAFF' },
         hint: {
           es: 'Conjunto de cinco líneas y cuatro espacios para escribir música.',
-          val: 'Conjunt de cinc línies i quatre espais per a escriure música.'
+          val: 'Conjunt de cinc línies i quatre espais per a escriure música.',
+          en: 'Set of five lines and four spaces used to write music.'
         }
       },
       {
         id: 'sostenido',
-        term: { es: 'SOSTENIDO', val: 'SOSTINGUT' },
+        term: { es: 'SOSTENIDO', val: 'SOSTINGUT', en: 'SHARP' },
         hint: {
           es: 'Signo que eleva medio tono a la nota.',
-          val: 'Signe que eleva mig to a la nota.'
+          val: 'Signe que eleva mig to a la nota.',
+          en: 'Symbol that raises a note by a semitone.'
         }
       },
       {
         id: 'bemol',
-        term: { es: 'BEMOL', val: 'BEMOLL' },
+        term: { es: 'BEMOL', val: 'BEMOLL', en: 'FLAT' },
         hint: {
           es: 'Signo que baja medio tono a la nota.',
-          val: 'Signe que baixa mig to a la nota.'
+          val: 'Signe que baixa mig to a la nota.',
+          en: 'Symbol that lowers a note by a semitone.'
         }
       },
       {
         id: 'compas',
-        term: { es: 'COMPAS', val: 'COMPAS' },
+        term: { es: 'COMPAS', val: 'COMPAS', en: 'TIME SIGNATURE' },
         hint: {
           es: 'Unidad que agrupa pulsos con un número superior e inferior.',
-          val: 'Unitat que agrupa pulsacions amb un numerador i un denominador.'
+          val: 'Unitat que agrupa pulsacions amb un numerador i un denominador.',
+          en: 'Unit that groups beats, shown with a top and bottom number.'
         }
       },
       {
         id: 'calderon',
-        term: { es: 'CALDERON', val: 'CALDERON' },
+        term: { es: 'CALDERON', val: 'CALDERON', en: 'FERMATA' },
         hint: {
           es: 'Signo que indica prolongar una nota más de su valor.',
-          val: 'Signe que indica perllongar una nota més del seu valor.'
+          val: 'Signe que indica perllongar una nota més del seu valor.',
+          en: 'Sign that indicates holding a note beyond its value.'
         }
       },
       {
         id: 'ligadura',
-        term: { es: 'LIGADURA', val: 'LLIGADURA' },
+        term: { es: 'LIGADURA', val: 'LLIGADURA', en: 'TIE' },
         hint: {
           es: 'Une dos notas iguales para sumar su duración.',
-          val: 'Une dues notes iguals per a sumar la seua duració.'
+          val: 'Une dues notes iguals per a sumar la seua duració.',
+          en: 'Connects two equal notes to add their durations.'
         }
       },
       {
         id: 'silencio',
-        term: { es: 'SILENCIO', val: 'SILENCI' },
+        term: { es: 'SILENCIO', val: 'SILENCI', en: 'REST' },
         hint: {
           es: 'Símbolo que representa ausencia de sonido.',
-          val: 'Símbol que representa absència de so.'
+          val: 'Símbol que representa absència de so.',
+          en: 'Symbol that represents silence.'
         }
       },
       {
         id: 'dinamica',
-        term: { es: 'DINAMICA', val: 'DINAMICA' },
+        term: { es: 'DINAMICA', val: 'DINAMICA', en: 'DYNAMICS' },
         hint: {
           es: 'Indicaciones de intensidad como forte o piano.',
-          val: 'Indicacions d\'intensitat com forte o piano.'
+          val: 'Indicacions d\'intensitat com forte o piano.',
+          en: 'Indications of loudness such as forte or piano.'
         }
       },
       {
         id: 'crescendo',
-        term: { es: 'CRESCENDO', val: 'CRESCENDO' },
+        term: { es: 'CRESCENDO', val: 'CRESCENDO', en: 'CRESCENDO' },
         hint: {
           es: 'Indica aumentar progresivamente el volumen.',
-          val: 'Indica augmentar progressivament el volum.'
+          val: 'Indica augmentar progressivament el volum.',
+          en: 'Indicates gradually increasing the volume.'
         }
       }
     ],
     language: [
       {
         id: 'arpegio',
-        term: { es: 'ARPEGIO', val: 'ARPEGI' },
+        term: { es: 'ARPEGIO', val: 'ARPEGI', en: 'ARPEGGIO' },
         hint: {
           es: 'Acorde cuyas notas suenan de forma sucesiva.',
-          val: 'Acord les notes del qual sonen de manera successiva.'
+          val: 'Acord les notes del qual sonen de manera successiva.',
+          en: 'Chord whose notes sound one after another.'
         }
       },
       {
         id: 'escala',
-        term: { es: 'ESCALA', val: 'ESCALA' },
+        term: { es: 'ESCALA', val: 'ESCALA', en: 'SCALE' },
         hint: {
           es: 'Sucesión ordenada de notas que define una tonalidad.',
-          val: 'Successió ordenada de notes que defineix una tonalitat.'
+          val: 'Successió ordenada de notes que defineix una tonalitat.',
+          en: 'Ordered sequence of notes that defines a key.'
         }
       },
       {
         id: 'intervalo',
-        term: { es: 'INTERVALO', val: 'INTERVAL' },
+        term: { es: 'INTERVALO', val: 'INTERVAL', en: 'INTERVAL' },
         hint: {
           es: 'Distancia entre dos sonidos.',
-          val: 'Distància entre dos sons.'
+          val: 'Distància entre dos sons.',
+          en: 'Distance between two sounds.'
         }
       },
       {
         id: 'tonalidad',
-        term: { es: 'TONALIDAD', val: 'TONALITAT' },
+        term: { es: 'TONALIDAD', val: 'TONALITAT', en: 'TONALITY' },
         hint: {
           es: 'Centro sonoro que organiza una escala.',
-          val: 'Centre sonor que organitza una escala.'
+          val: 'Centre sonor que organitza una escala.',
+          en: 'Sound center that organizes a scale.'
         }
       },
       {
         id: 'polirritmo',
-        term: { es: 'POLIRRITMO', val: 'POLIRRITME' },
+        term: { es: 'POLIRRITMO', val: 'POLIRRITME', en: 'POLYRHYTHM' },
         hint: {
           es: 'Superposición de patrones rítmicos diferentes.',
-          val: 'Superposició de patrons rítmics diferents.'
+          val: 'Superposició de patrons rítmics diferents.',
+          en: 'Overlap of different rhythmic patterns.'
         }
       },
       {
         id: 'sincopa',
-        term: { es: 'SINCOPA', val: 'SINCOPA' },
+        term: { es: 'SINCOPA', val: 'SINCOPA', en: 'SYNCOPATION' },
         hint: {
           es: 'Desplazamiento del acento hacia tiempos débiles.',
-          val: 'Desplaçament de l\'accent cap als temps febles.'
+          val: 'Desplaçament de l\'accent cap als temps febles.',
+          en: 'Shift of the accent onto weak beats.'
         }
       },
       {
         id: 'armadura',
-        term: { es: 'ARMADURA', val: 'ARMADURA' },
+        term: { es: 'ARMADURA', val: 'ARMADURA', en: 'KEY SIGNATURE' },
         hint: {
           es: 'Conjunto de sostenidos o bemoles al inicio del pentagrama.',
-          val: 'Conjunt de sostinguts o bemolls a l\'inici del pentagrama.'
+          val: 'Conjunt de sostinguts o bemolls a l\'inici del pentagrama.',
+          en: 'Set of sharps or flats placed at the start of the staff.'
         }
       },
       {
         id: 'cromatica',
-        term: { es: 'CROMATICA', val: 'CROMATICA' },
+        term: { es: 'CROMATICA', val: 'CROMATICA', en: 'CHROMATIC' },
         hint: {
           es: 'Escala que avanza por semitonos.',
-          val: 'Escala que avança per semitons.'
+          val: 'Escala que avança per semitons.',
+          en: 'Scale that moves by semitones.'
         }
       },
       {
         id: 'modulacion',
-        term: { es: 'MODULACION', val: 'MODULACIO' },
+        term: { es: 'MODULACION', val: 'MODULACIO', en: 'MODULATION' },
         hint: {
           es: 'Cambio de tonalidad dentro de una pieza.',
-          val: 'Canvi de tonalitat dins d\'una peça.'
+          val: 'Canvi de tonalitat dins d\'una peça.',
+          en: 'Change of key within a piece.'
         }
       }
     ]
@@ -260,6 +287,18 @@
 
   const elements = {};
   const keyboardButtons = new Map();
+
+  function playSuccess() {
+    if (window.Sfx && typeof window.Sfx.success === 'function') {
+      window.Sfx.success();
+    }
+  }
+
+  function playError() {
+    if (window.Sfx && typeof window.Sfx.error === 'function') {
+      window.Sfx.error();
+    }
+  }
 
   function showScoreboardPrompt(score) {
     if (window.ScoreService && score > 0) {
@@ -473,10 +512,14 @@
     if (state.term.includes(letter)) {
       if (button) button.classList.add('correct');
       updateWordDisplay();
-      if (isWordSolved()) endRound(true);
+      if (isWordSolved()) {
+        playSuccess();
+        endRound(true);
+      }
     } else {
       state.mistakes += 1;
       if (button) button.classList.add('wrong');
+      playError();
       renderProgress();
       updateAttempts();
       if (state.mistakes >= MAX_MISTAKES) {
