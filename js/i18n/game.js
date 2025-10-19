@@ -35,7 +35,7 @@
       'game.allnotes.level.advanced': 'Nivel 2 · Notas negras',
       'game.title': 'Atrapa Notas: Sol y Mi',
       'game.instructions': 'Las notas (MI y SOL) avanzan de izquierda a derecha sobre su línea del pentagrama — SOL en 2ª línea y MI en 1ª (abajo). Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si te equivocas de nombre (respecto a la nota que va delante), pierdes una vida. A partir de 10 puntos, se oculta el nombre sobre la nota; a partir de 20, también se ocultan los nombres en el teclado. Teclado: S = Sol, M = Mi.',
-      'game.ranking': 'Leaderboard',
+      'game.ranking': 'Ranking',
       'game.save.your_score': 'Tu puntuación:',
       'game.save.your_name': 'Tu nombre:',
       'game.save.placeholder': 'Escribe tu nombre',
