@@ -2,7 +2,7 @@
 (function() {
   const payload = {
     es: {
-      'memory.title': 'Memorias de Instrumentos',
+      'memory.title': 'Memory de Instrumentos',
       'memory.subtitle': 'Boceto interactivo: gira las cartas para descubrir instrumentos y empareja cada timbre con su imagen.',
       'memory.controls.start': 'Comenzar partida',
       'memory.controls.reset': 'Reiniciar',
@@ -30,7 +30,7 @@
       'memory.message.win.tie': '¡Empate! Intentos: {attempts} · J1: {p1} · J2: {p2} · Tiempo: {time}'
     },
     val: {
-      'memory.title': 'Memòries d\'Instruments',
+      'memory.title': 'Memory d\'Instruments',
       'memory.subtitle': 'Esbós interactiu: gira les cartes per descobrir instruments i emparellar el timbre amb la seua imatge.',
       'memory.controls.start': 'Comença partida',
       'memory.controls.reset': 'Reinicia',
@@ -58,7 +58,7 @@
       'memory.message.win.tie': 'Empat! Intents: {attempts} · J1: {p1} · J2: {p2} · Temps: {time}'
     },
     en: {
-      'memory.title': 'Instrument Memories',
+      'memory.title': 'Instrument Memory',
       'memory.subtitle': 'Interactive prototype: flip the cards to discover instruments and match each sound with its image.',
       'memory.controls.start': 'Start game',
       'memory.controls.reset': 'Reset',
