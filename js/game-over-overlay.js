@@ -52,7 +52,7 @@
         </p>
         <div class="gameover-overlay__input-block">
           <label class="gameover-overlay__label" for="gameoverName" data-i18n="game.save.your_name">Tu nombre:</label>
-          <input id="gameoverName" type="text" maxlength="24" autocomplete="name"
+          <input id="gameoverName" type="text" maxlength="3" autocomplete="name"
             class="gameover-overlay__input" data-i18n="game.over.placeholder" data-i18n-attr="placeholder" placeholder="AAA">
         </div>
         <p class="gameover-overlay__error" role="alert" hidden></p>
@@ -112,9 +112,15 @@
     });
 
     nodes.nameInput.addEventListener('input', () => {
-      const raw = nodes.nameInput.value || '';
-      const filtered = raw.replace(/[^0-9A-Za-zÁÉÍÓÚÜÑÄËÏÖÜÂÊÎÔÛÇà-ÿ\s\-_'’]/g, '');
-      nodes.nameInput.value = filtered.toUpperCase();
+      const helper = (window.ScoreService && typeof window.ScoreService.normalizeInitials === 'function')
+        ? window.ScoreService.normalizeInitials
+        : (value) => {
+            if (value == null) return '';
+            const upper = value.toString().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const filtered = upper.replace(/[^A-Z0-9]/g, '');
+            return filtered.slice(0, 3);
+          };
+      nodes.nameInput.value = helper(nodes.nameInput.value);
     });
 
     nodes.saveBtn.addEventListener('click', () => attemptSave());
@@ -167,7 +173,15 @@
       showError(t('game.over.error', 'No se pudo guardar la puntuación.'));
       return;
     }
-    const name = (state.nodes.nameInput.value || '').trim();
+    const helper = (window.ScoreService && typeof window.ScoreService.normalizeInitials === 'function')
+      ? window.ScoreService.normalizeInitials
+      : (value) => {
+          if (value == null) return '';
+          const upper = value.toString().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const filtered = upper.replace(/[^A-Z0-9]/g, '');
+          return filtered.slice(0, 3);
+        };
+    const name = helper(state.nodes.nameInput.value || '');
     setSaving(true);
     state.nodes.error.hidden = true;
     try {

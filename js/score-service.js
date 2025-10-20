@@ -4,6 +4,22 @@
     supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iZ25wcGtrbHlvdWJ4YXprZnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczNjYwNDEsImV4cCI6MjA3Mjk0MjA0MX0.3agAyUPaeyHT3CCf_DmmQgVyL70dAKGikkGpdZ165Vs',
   };
   const DEFAULT_MAX_ENTRIES = 10;
+  const DEFAULT_INITIALS = 'AAA';
+
+  function normalizeInitials(raw) {
+    if (raw == null) return '';
+    const upper = raw.toString().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const filtered = upper.replace(/[^A-Z0-9]/g, '');
+    return filtered.slice(0, 3);
+  }
+
+  function ensureInitials(raw, fallbackRaw) {
+    const primary = normalizeInitials(raw);
+    if (primary) return primary;
+    const fallback = normalizeInitials(fallbackRaw);
+    if (fallback) return fallback;
+    return DEFAULT_INITIALS;
+  }
 
   function sanitizeKey(str) {
     return (str || '').toString().toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -55,15 +71,15 @@
     const label = createEl('label', {
       for: board.ids.input,
       'data-i18n': 'game.save.your_name',
-      text: 'Tu nombre:',
+      text: 'Tus iniciales:',
     });
     const nameInput = createEl('input', {
       id: board.ids.input,
       type: 'text',
-      maxlength: '24',
+      maxlength: '3',
       'data-i18n': 'game.save.placeholder',
       'data-i18n-attr': 'placeholder',
-      placeholder: 'Escribe tu nombre',
+      placeholder: 'Introduce tus iniciales',
       class: 'scoreboard__input',
     });
     const saveButton = createEl('button', {
@@ -135,6 +151,10 @@
           this.submit();
         }
       });
+      this.dom.nameInput.addEventListener('input', () => {
+        const sanitized = normalizeInitials(this.dom.nameInput.value);
+        this.dom.nameInput.value = sanitized;
+      });
     }
 
     focusInput() {
@@ -182,7 +202,7 @@
 
     async submitWithName(rawName) {
       if (this.state.latestScore < this.options.showSaveAt) return false;
-      const name = (rawName || '').trim() || this.getDefaultName();
+      const name = ensureInitials(rawName, this.getDefaultName());
       this.dom.nameInput.value = name;
       this.dom.saveButton.disabled = true;
       try {
@@ -220,7 +240,8 @@
       this.state.entries.forEach((entry) => {
         const li = createEl('li');
         const date = new Date(entry.ts || Date.now());
-        li.textContent = `${entry.name} — ${entry.score} ${ptsLabel} (${date.toLocaleDateString()})`;
+        const initials = normalizeInitials(entry.name || '') || DEFAULT_INITIALS;
+        li.textContent = `${initials} — ${entry.score} ${ptsLabel} (${date.toLocaleDateString()})`;
         this.dom.list.appendChild(li);
       });
       this.applyTranslations();
@@ -364,7 +385,12 @@
         }
       }
       const current = await this.loadEntries(board);
-      const list = Array.isArray(current) ? [...current] : [];
+      const list = Array.isArray(current)
+        ? current.map((item) => ({
+            ...item,
+            name: normalizeInitials(item && item.name != null ? item.name : '') || DEFAULT_INITIALS,
+          }))
+        : [];
       list.push(entry);
       list.sort((a, b) => b.score - a.score || new Date(a.ts) - new Date(b.ts));
       const top = list.slice(0, board.options.maxEntries);
@@ -418,6 +444,9 @@
       } catch (_) {}
     },
   };
+
+  ScoreService.normalizeInitials = normalizeInitials;
+  ScoreService.defaultInitials = DEFAULT_INITIALS;
 
   window.ScoreService = ScoreService;
 
