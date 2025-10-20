@@ -37,12 +37,25 @@
   ];
 
   function showScoreboardPrompt(score) {
-    if (window.ScoreService && score > 0) {
-      window.ScoreService.showSave(SCOREBOARD_ID, score);
+    const finalScore = Number(score) || 0;
+    if (finalScore <= 0) return;
+    if (window.GameOverOverlay && typeof window.GameOverOverlay.show === 'function') {
+      window.GameOverOverlay.show({
+        gameId: SCOREBOARD_ID,
+        score: finalScore,
+        onRetry: () => resetGame({ autoplay: true }),
+      });
+      return;
+    }
+    if (window.ScoreService) {
+      window.ScoreService.showSave(SCOREBOARD_ID, finalScore);
     }
   }
 
   function hideScoreboardPrompt() {
+    if (window.GameOverOverlay && typeof window.GameOverOverlay.isOpen === 'function' && window.GameOverOverlay.isOpen()) {
+      window.GameOverOverlay.hide();
+    }
     if (window.ScoreService) {
       window.ScoreService.hideSave(SCOREBOARD_ID);
     }

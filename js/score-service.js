@@ -180,10 +180,10 @@
       }
     }
 
-    async submit() {
-      if (this.state.latestScore < this.options.showSaveAt) return;
-      const rawName = this.dom.nameInput.value || '';
-      const name = rawName.trim() || this.getDefaultName();
+    async submitWithName(rawName) {
+      if (this.state.latestScore < this.options.showSaveAt) return false;
+      const name = (rawName || '').trim() || this.getDefaultName();
+      this.dom.nameInput.value = name;
       this.dom.saveButton.disabled = true;
       try {
         await this.service.addEntry(this, name, this.state.latestScore);
@@ -192,9 +192,14 @@
         window.dispatchEvent(new CustomEvent('score:saved', {
           detail: { gameId: this.options.gameId, score: this.state.latestScore, name },
         }));
+        return true;
       } finally {
         this.dom.saveButton.disabled = false;
       }
+    }
+
+    async submit() {
+      return this.submitWithName(this.dom.nameInput.value || '');
     }
 
     renderList(entries) {
@@ -320,6 +325,21 @@
     hideSave(gameId) {
       const board = this.getBoardByGame(gameId);
       if (board) board.hideSave();
+    },
+
+    getSaveState(gameId) {
+      const board = this.getBoardByGame(gameId);
+      if (!board) return null;
+      return {
+        latestScore: board.state.latestScore,
+        showSaveAt: board.options.showSaveAt,
+      };
+    },
+
+    async submitScore(gameId, name) {
+      const board = this.getBoardByGame(gameId);
+      if (!board) return false;
+      return board.submitWithName(name);
     },
 
     async addEntry(board, name, score) {

@@ -40,11 +40,22 @@
 
   const SCOREBOARD_ID = 'rhythm';
   function showScoreboardPrompt() {
+    if (window.GameOverOverlay && typeof window.GameOverOverlay.show === 'function') {
+      window.GameOverOverlay.show({
+        gameId: SCOREBOARD_ID,
+        score: state.score,
+        onRetry: () => startGame(),
+      });
+      return;
+    }
     if (window.ScoreService) {
       window.ScoreService.showSave(SCOREBOARD_ID, state.score);
     }
   }
   function hideScoreboardPrompt() {
+    if (window.GameOverOverlay && typeof window.GameOverOverlay.isOpen === 'function' && window.GameOverOverlay.isOpen()) {
+      window.GameOverOverlay.hide();
+    }
     if (window.ScoreService) {
       window.ScoreService.hideSave(SCOREBOARD_ID);
     }

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="rankings.title">Rankings de EduMúsic</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="icon" href="../assets/icon-192.png" type="image/png">
+</head>
+<body class="rankings-body">
+  <header class="rankings-header">
+    <a href="../index.html" class="rankings-back">
+      <span aria-hidden="true">←</span>
+      <span data-i18n="rankings.back">Volver al inicio</span>
+    </a>
+    <h1 data-i18n="rankings.title">Rankings de EduMúsic</h1>
+    <p data-i18n="rankings.subtitle">Consulta las mejores puntuaciones de cada juego y reta a tu clase a superarlas.</p>
+  </header>
+
+  <main class="rankings-main">
+    <section class="rankings-section">
+      <h2 data-i18n="rankings.group.catch">Atrapa Notas</h2>
+      <div class="rankings-grid">
+        <section class="rankings-card" data-scoreboard data-game="solmi" data-heading-key="rankings.solmi" data-heading="Sol y Mi"></section>
+        <section class="rankings-card" data-scoreboard data-game="solmila" data-heading-key="rankings.solmila" data-heading="Sol, Mi y La"></section>
+        <section class="rankings-card" data-scoreboard data-game="solmilado" data-heading-key="rankings.solmilado" data-heading="Sol, Mi, La y Do"></section>
+        <section class="rankings-card" data-scoreboard data-game="solmiladore" data-heading-key="rankings.solmiladore" data-heading="Sol, Mi, La, Do y Re"></section>
+        <section class="rankings-card" data-scoreboard data-game="solmiladorefa" data-heading-key="rankings.solmiladorefa" data-heading="Sol, Mi, La, Do, Re y Fa"></section>
+        <section class="rankings-card" data-scoreboard data-game="allnotes" data-heading-key="rankings.allnotes" data-heading="Todas las notas"></section>
+      </div>
+    </section>
+
+    <section class="rankings-section">
+      <h2 data-i18n="rankings.group.eartraining">Oído y dictados</h2>
+      <div class="rankings-grid">
+        <section class="rankings-card" data-scoreboard data-game="pitch-direction" data-heading-key="rankings.pitch_direction" data-heading="Dirección del sonido"></section>
+        <section class="rankings-card" data-scoreboard data-game="rhythm" data-heading-key="rankings.rhythm" data-heading="Ritmo: TA, SU y TITI"></section>
+        <section class="rankings-card" data-scoreboard data-game="rhythm-dictation" data-heading-key="rankings.rhythm_dictation" data-heading="Dictado rítmico"></section>
+        <section class="rankings-card" data-scoreboard data-game="melody-dictation" data-heading-key="rankings.melody_dictation" data-heading="Dictado melódico"></section>
+        <section class="rankings-card" data-scoreboard data-game="melody-rhythm" data-heading-key="rankings.melo_rhythm" data-heading="Dictado melódico-rítmico"></section>
+      </div>
+    </section>
+
+    <section class="rankings-section">
+      <h2 data-i18n="rankings.group.challenges">Retos y memoria</h2>
+      <div class="rankings-grid">
+        <section class="rankings-card" data-scoreboard data-game="melody" data-heading-key="rankings.melody" data-heading="Secuencia de melodías"></section>
+        <section class="rankings-card" data-scoreboard data-game="compas" data-heading-key="rankings.compas" data-heading="Puzzle de compases"></section>
+        <section class="rankings-card" data-scoreboard data-game="wordguess" data-heading-key="rankings.wordguess" data-heading="Palabras musicales"></section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-footer" data-sw-status></footer>
+
+  <script src="../js/app.js" defer></script>
+  <script src="../js/audio-settings.js" defer></script>
+  <script src="../js/i18n/rankings.js" defer></script>
+  <script src="../js/i18n/game.js" defer></script>
+  <script src="../js/score-service.js" defer></script>
+</body>
+</html>

@@ -383,11 +383,22 @@
   // ---------- Scoreboard integration ----------
   const rankKey = GAME_CONFIG.rankKey || GAME_CONFIG.id || 'default';
   function showScoreboardPrompt() {
+    if (window.GameOverOverlay && typeof window.GameOverOverlay.show === 'function') {
+      window.GameOverOverlay.show({
+        gameId: rankKey,
+        score: state.score,
+        onRetry: () => resetGame(),
+      });
+      return;
+    }
     if (window.ScoreService) {
       window.ScoreService.showSave(rankKey, state.score);
     }
   }
   function hideScoreboardPrompt() {
+    if (window.GameOverOverlay && typeof window.GameOverOverlay.isOpen === 'function' && window.GameOverOverlay.isOpen()) {
+      window.GameOverOverlay.hide();
+    }
     if (window.ScoreService) {
       window.ScoreService.hideSave(rankKey);
     }

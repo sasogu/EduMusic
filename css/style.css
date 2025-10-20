@@ -411,6 +411,10 @@ button {
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), rgba(13, 148, 136, 0.06)), #fff;
 }
 
+.activity-card[data-theme="rankings"] {
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.2), rgba(249, 115, 22, 0.08)), #fff;
+}
+
 .activity-card--placeholder {
   background: #f1f5f9;
   box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.4);
@@ -559,5 +563,317 @@ button {
     right: 12px;
     bottom: 12px;
     padding: 10px 12px;
+  }
+}
+
+body.has-gameover-overlay {
+  overflow: hidden;
+}
+
+.gameover-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.98) 60%, rgba(8, 12, 24, 0.98) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 2000;
+  padding: 24px;
+}
+
+.gameover-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gameover-overlay__panel {
+  position: relative;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(9, 13, 26, 0.97) 100%);
+  border: 2px solid #38bdf8;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.55), 0 0 25px rgba(56, 189, 248, 0.45);
+  padding: 28px 32px;
+  max-width: 420px;
+  width: min(100%, 420px);
+  color: #e2e8f0;
+  text-align: center;
+  overflow: hidden;
+}
+
+.gameover-overlay__scanlines {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(180deg, rgba(148, 163, 184, 0.07) 0, rgba(148, 163, 184, 0.07) 2px, transparent 2px, transparent 4px);
+  pointer-events: none;
+}
+
+.gameover-overlay__title {
+  font-family: 'Press Start 2P', 'VT323', 'Courier New', monospace;
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  letter-spacing: 0.08em;
+  margin: 0 0 12px;
+  color: #38bdf8;
+  text-shadow: 0 0 6px rgba(56, 189, 248, 0.75);
+}
+
+.gameover-overlay__subtitle {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.gameover-overlay__scoreline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  margin: 18px 0 10px;
+  color: #f8fafc;
+}
+
+.gameover-overlay__scoreline strong {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #facc15;
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.45);
+}
+
+.gameover-overlay__input-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+
+.gameover-overlay__label {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: #94a3b8;
+}
+
+.gameover-overlay__input {
+  font-family: 'Press Start 2P', 'VT323', 'Courier New', monospace;
+  font-size: 1.1rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 12px 14px;
+  width: min(100%, 260px);
+  border-radius: 10px;
+  border: 2px solid rgba(56, 189, 248, 0.65);
+  background: rgba(15, 23, 42, 0.6);
+  color: #f8fafc;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.25);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gameover-overlay__input:focus {
+  border-color: #facc15;
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.4);
+  outline: none;
+}
+
+.gameover-overlay__error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #f87171;
+  min-height: 1.1em;
+}
+
+.gameover-overlay__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.gameover-overlay__btn {
+  font-family: 'Press Start 2P', 'VT323', 'Courier New', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  min-width: 160px;
+}
+
+.gameover-overlay__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gameover-overlay__btn:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.gameover-overlay__btn--primary {
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  color: #0f172a;
+  box-shadow: 0 10px 18px rgba(14, 165, 233, 0.35);
+}
+
+.gameover-overlay__btn--primary:not(:disabled):hover {
+  box-shadow: 0 14px 26px rgba(14, 165, 233, 0.45);
+}
+
+.gameover-overlay__btn--secondary {
+  background: transparent;
+  color: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.6);
+}
+
+.gameover-overlay__btn--secondary:not(:disabled):hover {
+  border-color: #38bdf8;
+}
+
+.gameover-overlay__btn--ghost {
+  background: transparent;
+  color: #94a3b8;
+  border-color: transparent;
+}
+
+.gameover-overlay__btn--ghost:not(:disabled):hover {
+  color: #f8fafc;
+}
+
+@media (max-width: 520px) {
+  .gameover-overlay__panel {
+    padding: 24px 22px;
+  }
+
+  .gameover-overlay__buttons {
+    flex-direction: column;
+  }
+
+  .gameover-overlay__btn {
+    width: 100%;
+  }
+}
+
+.rankings-body {
+  background: linear-gradient(180deg, #f8fafc 0%, #e0f2fe 100%);
+  min-height: 100vh;
+  color: #0f172a;
+}
+
+.rankings-header {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 36px 24px 12px;
+  text-align: center;
+}
+
+.rankings-header h1 {
+  font-family: 'Baloo 2', 'Poppins', 'Segoe UI', sans-serif;
+  font-size: clamp(1.8rem, 2.6vw, 2.4rem);
+  margin: 12px 0 8px;
+  color: #0f172a;
+}
+
+.rankings-header p {
+  margin: 0 auto;
+  max-width: 620px;
+  color: #334155;
+  font-size: 1rem;
+}
+
+.rankings-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.1);
+  color: #0f172a;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.rankings-back:hover,
+.rankings-back:focus-visible {
+  background: rgba(15, 23, 42, 0.16);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.rankings-main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.rankings-section h2 {
+  font-size: 1.5rem;
+  margin: 0 0 16px;
+  color: #1e293b;
+  text-align: center;
+}
+
+.rankings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.rankings-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  padding: 18px 20px 22px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.rankings-card h2 {
+  font-size: 1.15rem;
+  margin: 0 0 12px;
+  color: #0f172a;
+  text-align: left;
+}
+
+.rankings-card .scoreboard__list {
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+
+.rankings-card .scoreboard__list li {
+  margin-bottom: 6px;
+  color: #1f2937;
+}
+
+.rankings-card .scoreboard__save {
+  display: none !important;
+}
+
+.rankings-card .scoreboard__list li strong {
+  color: #0f172a;
+}
+
+@media (max-width: 640px) {
+  .rankings-header {
+    padding: 28px 16px 8px;
+  }
+
+  .rankings-main {
+    padding: 0 16px 40px;
+    gap: 32px;
+  }
+
+  .rankings-section h2 {
+    font-size: 1.3rem;
   }
 }
