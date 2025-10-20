@@ -27,27 +27,17 @@ Esta es una Progressive Web App educativa para aprender música, con actividades
 - Controles: flechas izquierda/derecha o arrastrar en móvil.
 - Objetivo: atrapar la nota en la mitad correcta de la barra (izquierda = Sol, derecha = Mi). Vidas: 3.
 
-### Ranking multi-dispositivo (opcional con Supabase)
-Para compartir el ranking entre dispositivos, puedes usar Supabase (Postgres + REST).
+### Ranking compartido (YunoHost + MariaDB)
+Para sincronizar las puntuaciones entre dispositivos, el proyecto incluye una API PHP lista para desplegar en una instancia **My Webapp** de YunoHost (o cualquier hosting con PHP 8.x).
 
-1) Crea un proyecto en Supabase y una tabla `scores`:
-```
-create table public.scores (
-  id bigserial primary key,
-  name text not null check (char_length(name) between 1 and 24),
-  score int not null check (score >= 0),
-  ts timestamptz not null default now()
-);
-alter table public.scores enable row level security;
-create policy "allow select" on public.scores for select using (true);
-create policy "allow insert" on public.scores for insert with check (true);
-```
+1. Sigue las instrucciones de `server/leaderboard/README.md` para crear la base de datos y usuario MariaDB, copiar los archivos y configurar el backend.
+2. Edita `server/leaderboard/config/db.php` y asigna una clave API aleatoria (`api_key`). Usa la misma clave en el frontend.
+3. En el frontend, abre `js/app.js` y actualiza el objeto `LEADERBOARD_DEFAULT` con:
+   - `baseUrl`: ruta (relativa o absoluta) al endpoint, por ejemplo `leaderboard` si está en la misma webapp.
+   - `apiKey`: la clave configurada en el backend.
+4. Opcionalmente, puedes sobrescribir estos valores en producción añadiendo en las páginas `<meta name="edumusic:leaderboard:base">` y `<meta name="edumusic:leaderboard:key">`.
 
-2) Copia el `Project URL` y el `anon public key` desde Supabase.
-
-3) En `game.js`, establece `REMOTE.supabaseUrl` y `REMOTE.supabaseAnonKey` (líneas cercanas al inicio).
-
-El juego usará la API REST de Supabase para leer/escribir el Top-10. Si no se configuran credenciales o falla la red, se usa un ranking local (`localStorage`).
+Cuando la API está disponible, el juego consulta `GET /leaderboard/top` para mostrar el ranking y envía puntuaciones con `POST /leaderboard/submit`. Si la red falla o la API responde con error, el sistema conserva un ranking local en `localStorage` como respaldo.
 
 ## Cómo ejecutar
 Abre `index.html` en tu navegador. Para instalar como PWA, accede desde un servidor local.

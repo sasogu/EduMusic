@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.9.08';
+const SW_VERSION = 'v0.9.10';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -151,8 +151,19 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
+  const pathname = url.pathname || '';
+  const lowerPath = pathname.toLowerCase();
 
-  
+  // Deja pasar peticiones no-GET (POST/PUT/etc.) sin intervención del SW
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  // Evita interceptar peticiones API sensibles (p.ej. leaderboard) para no cachearlas
+  if (lowerPath.includes('/leaderboard/')) {
+    return;
+  }
+
 
   // Serve a favicon even if /favicon.ico isn't present on disk
   if (url.pathname.endsWith('/favicon.ico')) {

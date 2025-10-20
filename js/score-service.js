@@ -1,7 +1,7 @@
 (() => {
   const DEFAULT_REMOTE = {
-    supabaseUrl: 'https://nbgnppkklyoubxazkfvw.supabase.co',
-    supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iZ25wcGtrbHlvdWJ4YXprZnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczNjYwNDEsImV4cCI6MjA3Mjk0MjA0MX0.3agAyUPaeyHT3CCf_DmmQgVyL70dAKGikkGpdZ165Vs',
+    supabaseUrl: '',
+    supabaseAnonKey: '',
   };
   const DEFAULT_MAX_ENTRIES = 10;
   const DEFAULT_INITIALS = 'AAA';
@@ -19,6 +19,15 @@
     const fallback = normalizeInitials(fallbackRaw);
     if (fallback) return fallback;
     return DEFAULT_INITIALS;
+  }
+
+  function isNonEmptyString(value) {
+    return typeof value === 'string' && value.trim() !== '';
+  }
+
+  function buildRemoteBase(remote) {
+    if (!remote || !isNonEmptyString(remote.supabaseUrl)) return null;
+    return remote.supabaseUrl.trim().replace(/\/+$/, '');
   }
 
   function sanitizeKey(str) {
@@ -44,7 +53,7 @@
   }
 
   function remoteEnabled(remote) {
-    return Boolean(remote && remote.supabaseUrl && remote.supabaseAnonKey);
+    return Boolean(buildRemoteBase(remote));
   }
 
   function buildMarkup(board) {
@@ -262,9 +271,19 @@
 
     configure(opts = {}) {
       if (opts.remote) {
+        const current = this.config.remote || { ...DEFAULT_REMOTE };
+        const url =
+          opts.remote.url
+          || opts.remote.baseUrl
+          || opts.remote.endpoint
+          || opts.remote.supabaseUrl;
+        const key =
+          opts.remote.apiKey
+          || opts.remote.token
+          || opts.remote.supabaseAnonKey;
         this.config.remote = {
-          supabaseUrl: opts.remote.supabaseUrl || DEFAULT_REMOTE.supabaseUrl,
-          supabaseAnonKey: opts.remote.supabaseAnonKey || DEFAULT_REMOTE.supabaseAnonKey,
+          supabaseUrl: url !== undefined ? String(url || '').trim() : current.supabaseUrl,
+          supabaseAnonKey: key !== undefined ? String(key || '').trim() : current.supabaseAnonKey,
         };
       }
       if (Array.isArray(opts.mount) && opts.mount.length) {
@@ -365,18 +384,25 @@
 
     async addEntry(board, name, score) {
       const entry = { name, score, ts: new Date().toISOString() };
-      if (remoteEnabled(this.config.remote)) {
+      const remoteBase = buildRemoteBase(this.config.remote);
+      if (remoteBase) {
         try {
-          const url = `${this.config.remote.supabaseUrl}/rest/v1/scores`;
-          const res = await fetch(url, {
+          const headers = {
+            'Content-Type': 'application/json',
+          };
+          if (isNonEmptyString(this.config.remote.supabaseAnonKey)) {
+            headers['X-API-Key'] = this.config.remote.supabaseAnonKey.trim();
+          }
+          const body = {
+            game: board.options.gameId || board.options.rankKey || 'default',
+            initials: name,
+            score,
+          };
+          const submitUrl = `${remoteBase}/submit`;
+          const res = await fetch(submitUrl, {
             method: 'POST',
-            headers: {
-              apikey: this.config.remote.supabaseAnonKey,
-              Authorization: `Bearer ${this.config.remote.supabaseAnonKey}`,
-              'Content-Type': 'application/json',
-              Prefer: 'return=representation',
-            },
-            body: JSON.stringify(entry),
+            headers,
+            body: JSON.stringify(body),
           });
           if (!res.ok) throw new Error('remote insert failed');
           return;
@@ -384,7 +410,7 @@
           // fall through to local storage
         }
       }
-      const current = await this.loadEntries(board);
+      const current = this.loadLocal(board);
       const list = Array.isArray(current)
         ? current.map((item) => ({
             ...item,
@@ -398,21 +424,40 @@
     },
 
     async loadEntries(board) {
-      if (remoteEnabled(this.config.remote)) {
+      const remoteBase = buildRemoteBase(this.config.remote);
+      if (remoteBase) {
         try {
-          const params = `select=name,score,ts&order=score.desc&limit=${board.options.maxEntries}`;
-          const url = `${this.config.remote.supabaseUrl}/rest/v1/scores?${params}`;
+          const params = new URLSearchParams({
+            game: board.options.gameId || board.options.rankKey || 'default',
+          });
+          const headers = {};
+          if (isNonEmptyString(this.config.remote.supabaseAnonKey)) {
+            headers['X-API-Key'] = this.config.remote.supabaseAnonKey.trim();
+          }
+          const url = `${remoteBase}/top?${params.toString()}`;
           const res = await fetch(url, {
-            headers: {
-              apikey: this.config.remote.supabaseAnonKey,
-              Authorization: `Bearer ${this.config.remote.supabaseAnonKey}`,
-            },
+            headers,
             cache: 'no-store',
           });
           if (res.ok) {
             const payload = await res.json();
-            if (Array.isArray(payload)) {
-              return payload;
+            const raw = Array.isArray(payload)
+              ? payload
+              : (Array.isArray(payload && payload.entries) ? payload.entries : []);
+            if (Array.isArray(raw)) {
+              const mapped = raw
+                .map((item) => {
+                  if (!item) return null;
+                  const scoreNum = Number(item.score);
+                  if (!Number.isFinite(scoreNum)) return null;
+                  const initials = normalizeInitials(item.initials || item.name || item.player) || DEFAULT_INITIALS;
+                  const ts = item.created_at || item.ts || item.timestamp || new Date().toISOString();
+                  return { name: initials, score: scoreNum, ts };
+                })
+                .filter(Boolean)
+                .slice(0, board.options.maxEntries);
+              this.persistLocal(board, mapped);
+              return mapped;
             }
           }
         } catch (_) {
@@ -449,6 +494,14 @@
   ScoreService.defaultInitials = DEFAULT_INITIALS;
 
   window.ScoreService = ScoreService;
+
+  const autoRemote =
+    (typeof window !== 'undefined' && (window.EduMusicLeaderboard || window.ScoreServiceRemoteConfig || window.ScoreServiceRemote)) || null;
+  if (autoRemote && typeof autoRemote === 'object') {
+    try {
+      ScoreService.configure({ remote: autoRemote });
+    } catch (_) {}
+  }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => ScoreService.scanDom());
