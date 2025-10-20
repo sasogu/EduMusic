@@ -1,6 +1,7 @@
 (() => {
   const NOTE_META = {
     do: {
+      labels: { es: 'DO', val: 'DO', en: 'C' },
       label: 'DO',
       key: 'd',
       freq: 261.63,
@@ -12,6 +13,7 @@
       sample: 'key07.ogg',
     },
     re: {
+      labels: { es: 'RE', val: 'RE', en: 'D' },
       label: 'RE',
       key: 'r',
       freq: 293.66,
@@ -23,6 +25,7 @@
       sample: 'key09.ogg',
     },
     mi: {
+      labels: { es: 'MI', val: 'MI', en: 'E' },
       label: 'MI',
       key: 'm',
       freq: 329.63,
@@ -34,6 +37,7 @@
       sample: 'key11.ogg',
     },
     fa: {
+      labels: { es: 'FA', val: 'FA', en: 'F' },
       label: 'FA',
       key: 'f',
       freq: 349.23,
@@ -45,6 +49,7 @@
       sample: 'key12.ogg',
     },
     sol: {
+      labels: { es: 'SOL', val: 'SOL', en: 'G' },
       label: 'SOL',
       key: 's',
       freq: 392.0,
@@ -56,6 +61,7 @@
       sample: 'key14.ogg',
     },
     la: {
+      labels: { es: 'LA', val: 'LA', en: 'A' },
       label: 'LA',
       key: 'l',
       freq: 440.0,
@@ -67,6 +73,7 @@
       sample: 'key16.ogg',
     },
     si: {
+      labels: { es: 'SI', val: 'SI', en: 'B' },
       label: 'SI',
       key: 'b',
       freq: 493.88,
@@ -78,6 +85,7 @@
       sample: 'key18.ogg',
     },
     do_high: {
+      labels: { es: "DO'", val: "DO'", en: 'C' },
       label: "DO'",
       key: 'c',
       freq: 523.25,
@@ -92,6 +100,27 @@
 
   const WHITE_NOTES = ['do', 're', 'mi', 'fa', 'sol', 'la', 'si', 'do_high'];
   const WHITE_INDEX_TO_NOTE = WHITE_NOTES.slice();
+
+  function getCurrentLang() {
+    if (window.i18n && typeof window.i18n.getLang === 'function') {
+      return window.i18n.getLang();
+    }
+    return 'es';
+  }
+
+  function getNoteLabel(noteId) {
+    const meta = NOTE_META[noteId];
+    if (!meta) return (noteId || '').toString().toUpperCase();
+    const labels = meta.labels || {};
+    const lang = getCurrentLang();
+    if (labels[lang]) return labels[lang];
+    if (labels.es) return labels.es;
+    if (labels.val) return labels.val;
+    if (labels.en) return labels.en;
+    if (meta.label) return meta.label;
+    return (noteId || '').toString().toUpperCase();
+  }
+
   const KEYBOARD_MAP = {};
   WHITE_NOTES.forEach((noteId) => {
     const meta = NOTE_META[noteId];
@@ -642,7 +671,7 @@
       pianoCtx.font = '700 16px "Inter", "Segoe UI", system-ui';
       pianoCtx.textAlign = 'center';
       pianoCtx.textBaseline = 'middle';
-      pianoCtx.fillText(meta?.label || noteId.toUpperCase(), x + piano.keyW / 2, piano.height - 22);
+      pianoCtx.fillText(getNoteLabel(noteId), x + piano.keyW / 2, piano.height - 22);
       if (meta?.key) {
         pianoCtx.font = '600 13px "Inter", "Segoe UI", system-ui';
         pianoCtx.fillStyle = '#64748b';
@@ -751,11 +780,15 @@
     }
     const unlocked = maybeUnlockNote();
     if (unlocked) {
-      const meta = NOTE_META[unlocked];
       renderScene();
-      setStatus('success', 'melody.status.unlock', {
-        note: meta?.label || unlocked.toUpperCase(),
-      }, () => `¡Nueva nota desbloqueada: ${meta?.label || unlocked.toUpperCase()}!`);
+      const noteLabel = getNoteLabel(unlocked);
+      const fallback = () => {
+        const lang = getCurrentLang();
+        if (lang === 'en') return `New note unlocked: ${noteLabel}!`;
+        if (lang === 'val') return `Nova nota desbloquejada: ${noteLabel}!`;
+        return `¡Nueva nota desbloqueada: ${noteLabel}!`;
+      };
+      setStatus('success', 'melody.status.unlock', fallback, { note: noteLabel });
     } else {
       setStatus('success', 'melody.status.round_complete', '¡Genial! Se añade una nota más.');
     }
