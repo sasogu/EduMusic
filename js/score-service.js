@@ -5,6 +5,7 @@
   };
   const DEFAULT_MAX_ENTRIES = 10;
   const DEFAULT_INITIALS = 'AAA';
+  const GENERIC_ANON_INITIALS = new Set(['ANO']);
 
   function normalizeInitials(raw) {
     if (raw == null) return '';
@@ -17,7 +18,7 @@
     const primary = normalizeInitials(raw);
     if (primary) return primary;
     const fallback = normalizeInitials(fallbackRaw);
-    if (fallback) return fallback;
+    if (fallback && !GENERIC_ANON_INITIALS.has(fallback)) return fallback;
     return DEFAULT_INITIALS;
   }
 
@@ -249,7 +250,10 @@
       this.state.entries.forEach((entry) => {
         const li = createEl('li');
         const date = new Date(entry.ts || Date.now());
-        const initials = normalizeInitials(entry.name || '') || DEFAULT_INITIALS;
+        const normalized = normalizeInitials(entry.name || '');
+        const initials = (normalized && !GENERIC_ANON_INITIALS.has(normalized))
+          ? normalized
+          : DEFAULT_INITIALS;
         li.textContent = `${initials} — ${entry.score} ${ptsLabel} (${date.toLocaleDateString()})`;
         this.dom.list.appendChild(li);
       });
