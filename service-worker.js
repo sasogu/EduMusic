@@ -156,18 +156,11 @@ self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
   const pathname = url.pathname || '';
-  const lowerPath = pathname.toLowerCase();
 
   // Deja pasar peticiones no-GET (POST/PUT/etc.) sin intervención del SW
   if (request.method !== 'GET') {
     return;
   }
-
-  // Evita interceptar peticiones API sensibles (p.ej. leaderboard) para no cachearlas
-  if (lowerPath.includes('/leaderboard/')) {
-    return;
-  }
-
 
   // Serve a favicon even if /favicon.ico isn't present on disk
   if (url.pathname.endsWith('/favicon.ico')) {
