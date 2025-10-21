@@ -77,6 +77,15 @@
         }
       },
       {
+        id: 'flauta',
+        term: { es: 'FLAUTA', val: 'FLAUTA', en: 'FLUTE' },
+        hint: {
+          es: 'Instrumento agudo de viento madera que se toca de forma transversal.',
+          val: 'Instrument agut de vent-fusta que es toca de manera transversal.',
+          en: 'High-pitched woodwind instrument played transversely.'
+        }
+      },
+      {
         id: 'trombon',
         term: { es: 'TROMBON', val: 'TROMBON', en: 'TROMBONE' },
         hint: {
@@ -86,12 +95,102 @@
         }
       },
       {
+        id: 'trompa',
+        term: { es: 'TROMPA', val: 'TROMPA', en: 'HORN' },
+        hint: {
+          es: 'Instrumento de metal de tubo enrollado con campana ancha.',
+          val: 'Instrument de metall de tub enrotllat amb campana ampla.',
+          en: 'Brass instrument with coiled tubing and a wide bell.'
+        }
+      },
+      {
+        id: 'trompeta',
+        term: { es: 'TROMPETA', val: 'TROMPETA', en: 'TRUMPET' },
+        hint: {
+          es: 'Instrumento de metal agudo con pistones y sonido brillante.',
+          val: 'Instrument de metall agut amb pistons i so brillant.',
+          en: 'High brass instrument with valves and a bright tone.'
+        }
+      },
+      {
         id: 'timbales',
         term: { es: 'TIMBALES', val: 'TIMBALS', en: 'TIMPANI' },
         hint: {
           es: 'Pareja de tambores afinables presentes en la orquesta.',
           val: 'Parell de tambors afinables presents en l\'orquestra.',
           en: 'Pair of tunable kettledrums used in the orchestra.'
+        }
+      },
+      {
+        id: 'violin',
+        term: { es: 'VIOLIN', val: 'VIOLI', en: 'VIOLIN' },
+        hint: {
+          es: 'Instrumento de cuerda frotada más agudo de la orquesta.',
+          val: 'Instrument de corda fregada més agut de l\'orquestra.',
+          en: 'Highest-pitched bowed string instrument in the orchestra.'
+        }
+      },
+      {
+        id: 'violonchelo',
+        term: { es: 'VIOLONCHELO', val: 'VIOLONCEL', en: 'CELLO' },
+        hint: {
+          es: 'Cuerda frotada grave que aporta calidez y melodía.',
+          val: 'Corda fregada greu que aporta calidesa i melodia.',
+          en: 'Low bowed string instrument known for its warm tone.'
+        }
+      },
+      {
+        id: 'contrabajo',
+        term: { es: 'CONTRABAJO', val: 'CONTRABAIX', en: 'DOUBLEBASS' },
+        hint: {
+          es: 'Instrumento de cuerda frotada más grave de la orquesta.',
+          val: 'Instrument de corda fregada més greu de l\'orquestra.',
+          en: 'Lowest-pitched bowed string instrument in the orchestra.'
+        }
+      },
+      {
+        id: 'tuba',
+        term: { es: 'TUBA', val: 'TUBA', en: 'TUBA' },
+        hint: {
+          es: 'Instrumento de metal más grave, base del viento metal.',
+          val: 'Instrument de metall més greu, base del vent metall.',
+          en: 'Lowest brass instrument providing the brass foundation.'
+        }
+      },
+      {
+        id: 'caja',
+        term: { es: 'CAJA', val: 'CAIXA', en: 'SNAREDRUM' },
+        hint: {
+          es: 'Tambor de parche doble con bordonera metálica vibrante.',
+          val: 'Tambor de doble pedaç amb bordonera metàl·lica vibrant.',
+          en: 'Double-headed drum with a vibrating metal snare.'
+        }
+      },
+      {
+        id: 'bombo',
+        term: { es: 'BOMBO', val: 'BOMBO', en: 'BASSDRUM' },
+        hint: {
+          es: 'Tambor de gran tamaño que marca golpes profundos.',
+          val: 'Tambor de gran mida que marca colps profunds.',
+          en: 'Large drum that provides deep, resonant beats.'
+        }
+      },
+      {
+        id: 'platillos',
+        term: { es: 'PLATILLOS', val: 'PLATETS', en: 'CYMBALS' },
+        hint: {
+          es: 'Discos metálicos que producen un choque brillante.',
+          val: 'Discos metàl·lics que produeixen un xoc brillant.',
+          en: 'Metal discs that create a bright crashing sound.'
+        }
+      },
+      {
+        id: 'triangulo',
+        term: { es: 'TRIANGULO', val: 'TRIANGLE', en: 'TRIANGLE' },
+        hint: {
+          es: 'Barra metálica doblada que suena con un golpe claro.',
+          val: 'Barra metàl·lica corbada que sona amb un colp clar.',
+          en: 'Bent metal bar that rings with a clear strike.'
         }
       }
     ],
