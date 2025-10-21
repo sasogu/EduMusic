@@ -79,10 +79,10 @@
 
   const FALLBACK_TEXT = {
     'pitchheight.prompt.idle': () => 'Pulsa “Comenzar” para crear un patrón.',
-    'pitchheight.prompt.target': ({ pattern }) => `Patrón objetivo: ${pattern || ''}`,
+    'pitchheight.prompt.listen': () => 'Escucha el patrón y elige la tarjeta correcta.',
     'pitchheight.prompt.levelup': ({ cards }) => `Nuevo nivel: ${cards || 0} tarjetas disponibles.`,
-    'pitchheight.feedback.idle': () => 'Selecciona la tarjeta que corresponde al patrón.',
-    'pitchheight.feedback.ready': () => 'Observa el patrón y elige la tarjeta adecuada.',
+    'pitchheight.feedback.idle': () => 'Selecciona la tarjeta que corresponde al patrón escuchado.',
+    'pitchheight.feedback.ready': () => 'Escucha el patrón y elige la tarjeta correcta.',
     'pitchheight.feedback.listening': () => 'Escucha el patrón y prepárate para elegir.',
     'pitchheight.feedback.correct': ({ score }) => `¡Correcto! Puntuación: ${score ?? 0}`,
     'pitchheight.feedback.levelup': ({ cards }) => `Nuevo nivel: ahora se muestran ${cards ?? 0} tarjetas.`,
@@ -207,13 +207,13 @@
   async function playPatternHeights(heights) {
     const ctx = ensureAudio();
     if (!ctx) return;
-    const start = ctx.currentTime + 0.08;
-    heights.forEach((height, index) => {
-      const when = start + index * (STEP_DURATION + STEP_GAP);
+    for (let index = 0; index < heights.length; index += 1) {
+      const height = heights[index];
+      const when = ctx.currentTime + 0.04;
       scheduleTone(height, when);
-    });
-    const totalDuration = (STEP_DURATION + STEP_GAP) * heights.length + 0.25;
-    await wait(totalDuration * 1000);
+      const tail = index < heights.length - 1 ? STEP_GAP : 0.25;
+      await wait((STEP_DURATION + tail) * 1000);
+    }
   }
 
   async function playCurrentPattern(options = {}) {
@@ -409,7 +409,7 @@
       ui.listenBtn.hidden = false;
       ui.listenBtn.disabled = false;
     }
-    setPrompt('pitchheight.prompt.target', { pattern: getPatternLabel(target) });
+    setPrompt('pitchheight.prompt.listen');
     setFeedback('pitchheight.feedback.ready');
     setTimeout(() => {
       if (state.running && state.target === target) {
@@ -549,7 +549,7 @@
     state.level = 1;
     state.awaitingAnswer = false;
     updateHud();
-    setPrompt('pitchheight.prompt.target', { pattern: '—' }, () => 'Patrón objetivo: —');
+    setPrompt('pitchheight.prompt.listen');
     setFeedback('pitchheight.feedback.ready');
     setCardsDisabled(false);
     if (ui.startBtn) {
