@@ -4,7 +4,7 @@ const LEADERBOARD_DEFAULT = {
    * Ruta base del API en producción (relativa al sitio).
    * Ajusta este valor si despliegas el backend en otra ubicación.
    */
-  baseUrl: 'https://edumusic.edutictac.es/',
+  baseUrl: 'https://edumusic.edutictac.es/leaderboard/',
   /**
    * Clave API compartida con el backend PHP (ver server/leaderboard/config/db.php).
    * Sustituye por una cadena larga y aleatoria tras el despliegue.
