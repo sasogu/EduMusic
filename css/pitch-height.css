@@ -168,8 +168,8 @@
 .pitchheight-card__line::after {
   content: '';
   position: absolute;
-  width: 14px;
-  height: 14px;
+  width: 0px;
+  height: 0px;
   border-radius: 50%;
   right: -8px;
   top: 50%;
