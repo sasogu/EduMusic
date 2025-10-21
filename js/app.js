@@ -9,7 +9,7 @@ const LEADERBOARD_DEFAULT = {
    * Clave API compartida con el backend PHP (ver server/leaderboard/config/db.php).
    * Sustituye por una cadena larga y aleatoria tras el despliegue.
    */
-  apiKey: 'reemplaza_esta_api_key',
+  apiKey: 'xt9FpWtrEqEfTlX68',
 };
 
 (function bootstrapLeaderboardConfig() {
