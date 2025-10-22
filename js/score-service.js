@@ -16,6 +16,14 @@
     'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js',
   ];
 
+  let DEBUG = false;
+  function debugLog(...args) {
+    if (!DEBUG) return;
+    try {
+      console.log('[ScoreService]', ...args);
+    } catch (_) {}
+  }
+
   const FirebaseBackend = {
     sdkUrls: FIREBASE_SDK_URLS,
     scriptPromises: Object.create(null),
@@ -29,10 +37,13 @@
     overrideConfig(value) {
       if (value && typeof value === 'object') {
         this.config = value;
+        debugLog('Firebase config overridden', Object.keys(value));
       } else if (value === null) {
         this.config = null;
+        debugLog('Firebase explicitly disabled');
       } else {
         this.config = undefined;
+        debugLog('Firebase config reset to undefined');
       }
       this.reset();
     },
@@ -42,6 +53,7 @@
       this.app = null;
       this.db = null;
       this.configScriptPromise = null;
+      debugLog('Firebase backend reset');
     },
 
     readConfig() {
@@ -75,22 +87,27 @@
       if (this.config !== undefined && this.config !== null) return this.config;
       if (typeof window !== 'undefined' && window.EDUMUSIC_FIREBASE_CONFIG !== undefined) {
         this.config = this.readConfig() || null;
+        debugLog('Firebase config read from window', !!this.config);
         return this.config;
       }
       if (!this.configScriptUrl || typeof document === 'undefined') {
         if (this.config === undefined) this.config = null;
+        debugLog('No firebase config script available, remote disabled');
         return this.config;
       }
       if (!this.configScriptPromise) {
+        debugLog('Loading firebase config script', this.configScriptUrl);
         this.configScriptPromise = this.loadScript(this.configScriptUrl).catch((err) => {
           console.warn('[ScoreService] Firebase config script failed to load', err);
         });
       }
       try {
         await this.configScriptPromise;
+        debugLog('Firebase config script loaded');
       } catch (_) {}
       if (this.config === undefined) {
         this.config = this.readConfig() || null;
+        debugLog('Firebase config after script load', !!this.config);
       }
       return this.config;
     },
@@ -104,7 +121,9 @@
 
     isConfigured() {
       const cfg = this.ensureConfig();
-      return cfg && typeof cfg === 'object' && typeof cfg.apiKey === 'string';
+      const ready = cfg && typeof cfg === 'object' && typeof cfg.apiKey === 'string';
+      debugLog('isConfigured?', ready, cfg && cfg.projectId);
+      return ready;
     },
 
     loadScript(src) {
@@ -117,10 +136,14 @@
         const existing = document.querySelector(`script[src="${src}"]`);
         if (existing) {
           if (existing.dataset && existing.dataset.loaded === 'true') {
+            debugLog('Script already loaded', src);
             resolve();
             return;
           }
-          existing.addEventListener('load', () => resolve());
+          existing.addEventListener('load', () => {
+            debugLog('Script load event (existing)', src);
+            resolve();
+          });
           existing.addEventListener('error', () => reject(new Error(`Failed loading ${src}`)));
           return;
         }
@@ -131,18 +154,22 @@
         el.crossOrigin = 'anonymous';
         el.addEventListener('load', () => {
           if (el.dataset) el.dataset.loaded = 'true';
+          debugLog('Script load event', src);
           resolve();
         });
         el.addEventListener('error', () => reject(new Error(`Failed loading ${src}`)));
         document.head.appendChild(el);
+        debugLog('Script appended', src);
       });
       return this.scriptPromises[src];
     },
 
     async ensureScripts() {
+      debugLog('Ensuring Firebase SDK scripts');
       for (const src of this.sdkUrls) {
         await this.loadScript(src);
       }
+      debugLog('Firebase SDK scripts ready');
     },
 
     async ensureInit() {
@@ -150,9 +177,11 @@
       await this.ensureConfigLoaded();
       const config = this.ensureConfig();
       if (!config || typeof config !== 'object' || !config.apiKey) {
+        debugLog('Firebase config missing apiKey, skipping init');
         return null;
       }
       if (!this.initPromise) {
+        debugLog('Initialising Firebase');
         this.initPromise = (async () => {
           await this.ensureScripts();
           const firebase = window.firebase;
@@ -185,6 +214,7 @@
           } catch (_) {}
           this.app = app;
           this.db = db;
+          debugLog('Firebase initialised for project', config.projectId || config.project_id || 'unknown');
           return db;
         })().catch((err) => {
           console.warn('[ScoreService] Firebase initialisation failed', err);
@@ -261,9 +291,15 @@
 
     async fetchEntries(board) {
       const db = await this.ensureInit();
-      if (!db) return null;
+      if (!db) {
+        debugLog('fetchEntries: Firestore unavailable, using local', board && board.options && board.options.gameId);
+        return null;
+      }
       const coll = this.collectionRef(board);
-      if (!coll) return null;
+      if (!coll) {
+        debugLog('fetchEntries: collectionRef missing', board && board.options && board.options.gameId);
+        return null;
+      }
       const limit = (board && board.options && board.options.maxEntries) || DEFAULT_MAX_ENTRIES;
       const attempts = [
         () => coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit).get(),
@@ -279,6 +315,7 @@
               if (parsed) entries.push(parsed);
             });
           }
+          debugLog('fetchEntries: obtained entries', entries.length);
           return entries;
         } catch (err) {
           if (i === attempts.length - 1) {
@@ -286,6 +323,7 @@
             return null;
           }
           console.warn('[ScoreService] Firebase fetchEntries retrying with reduced query', err);
+          debugLog('fetchEntries: retrying with fallback query');
         }
       }
       return null;
@@ -554,6 +592,7 @@
           if (Array.isArray(opts.firebase.sdkUrls) && opts.firebase.sdkUrls.length) {
             FirebaseBackend.sdkUrls = opts.firebase.sdkUrls.slice();
             FirebaseBackend.scriptPromises = Object.create(null);
+            debugLog('configure: sdkUrls override', FirebaseBackend.sdkUrls);
           }
           if (isNonEmptyString(opts.firebase.configUrl)) {
             const baseHref = (CURRENT_SCRIPT && CURRENT_SCRIPT.src)
@@ -567,9 +606,11 @@
               FirebaseBackend.configScriptUrl = opts.firebase.configUrl;
             }
             FirebaseBackend.configScriptPromise = null;
+            debugLog('configure: configUrl override', FirebaseBackend.configScriptUrl);
           }
           if (opts.firebase.config) {
             FirebaseBackend.overrideConfig(opts.firebase.config);
+            debugLog('configure: direct firebase config provided');
           }
         } else if (opts.firebase === null || opts.firebase === false) {
           FirebaseBackend.overrideConfig(null);
@@ -577,6 +618,10 @@
       }
       if (Object.prototype.hasOwnProperty.call(opts, 'firebaseConfig')) {
         FirebaseBackend.overrideConfig(opts.firebaseConfig);
+      }
+      if (Object.prototype.hasOwnProperty.call(opts, 'debug')) {
+        DEBUG = !!opts.debug;
+        debugLog('Debug mode set via configure()', DEBUG);
       }
       if (Array.isArray(opts.mount) && opts.mount.length) {
         opts.mount.forEach((item) => this.mountOne(item.element, item.options || {}));
@@ -698,16 +743,21 @@
     async addEntry(board, name, score) {
       const entry = { name, score, ts: new Date().toISOString() };
       this.saveLocalEntry(board, entry);
+      debugLog('addEntry local save', board.options.gameId, score);
       await FirebaseBackend.addEntry(board, entry);
     },
 
     async loadEntries(board) {
+      debugLog('loadEntries start', board.options.gameId);
       const remote = await FirebaseBackend.fetchEntries(board);
       if (Array.isArray(remote)) {
         this.persistLocal(board, remote);
+        debugLog('loadEntries from remote', board.options.gameId, remote.length);
         return remote;
       }
-      return this.loadLocal(board);
+      const local = this.loadLocal(board);
+      debugLog('loadEntries from local fallback', board.options.gameId, local.length);
+      return local;
     },
 
     storageKey(board) {
@@ -737,8 +787,13 @@
   ScoreService.defaultInitials = DEFAULT_INITIALS;
   ScoreService.setFirebaseConfig = (config) => {
     FirebaseBackend.overrideConfig(config);
+    debugLog('setFirebaseConfig called');
   };
   ScoreService.isRemoteEnabled = () => FirebaseBackend.isConfigured();
+  ScoreService.setDebug = (value) => {
+    DEBUG = !!value;
+    debugLog('Debug mode set via setDebug()', DEBUG);
+  };
 
   window.ScoreService = ScoreService;
 

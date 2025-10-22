@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.9.18';
+const SW_VERSION = 'v0.9.20';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -156,6 +156,11 @@ self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
   const pathname = url.pathname || '';
+
+  // Allow cross-origin requests (Firebase, CDNs, etc.) to bypass the SW
+  if (url.origin !== self.location.origin) {
+    return;
+  }
 
   // Deja pasar peticiones no-GET (POST/PUT/etc.) sin intervención del SW
   if (request.method !== 'GET') {
