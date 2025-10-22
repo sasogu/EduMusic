@@ -32,3 +32,32 @@ Abre `index.html` en tu navegador. Para instalar como PWA, accede desde un servi
 
 ---
 Este archivo se actualizará conforme se agreguen nuevas actividades y funcionalidades.
+
+## Ranking centralizado con Firebase
+El ranking usa `localStorage` por defecto para que cada dispositivo mantenga sus puntuaciones. Para habilitar un ranking común:
+
+1. Crea un proyecto en [Firebase](https://firebase.google.com/), habilita Firestore en modo de producción y anota las credenciales públicas (apiKey, authDomain, projectId…).
+2. Edita `js/firebase-config.js` y reemplaza el valor `null` por el objeto de configuración de tu proyecto.
+3. Despliega reglas de seguridad en Firestore que limiten las escrituras únicamente a iniciales (3 caracteres) y puntuaciones numéricas. Un punto de partida:
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /leaderboards/{board}/entries/{entry} {
+         allow read: if true;
+         allow create: if request.resource.data.keys().hasOnly(
+           ['name', 'score', 'createdAt', 'createdAtLocal', 'tsString', 'gameId', 'version']
+         )
+         && request.resource.data.name is string
+         && request.resource.data.name.size() == 3
+         && request.resource.data.score is number
+         && request.resource.data.score >= 0
+         && request.resource.data.score <= 9999;
+         allow update, delete: if false;
+       }
+     }
+   }
+   ```
+4. Crea un índice compuesto (Firestore > Indexes) para `leaderboards/*/entries` ordenando por `score` descendente y `createdAt` ascendente.
+
+Con la configuración cargada, `ScoreService` usa Firestore y mantiene un fallback local en caso de perder conexión.

@@ -2,6 +2,295 @@
   const DEFAULT_MAX_ENTRIES = 10;
   const DEFAULT_INITIALS = 'AAA';
   const GENERIC_ANON_INITIALS = new Set(['ANO']);
+  const CURRENT_SCRIPT = (typeof document !== 'undefined') ? document.currentScript : null;
+  const DEFAULT_CONFIG_URL = (() => {
+    if (!CURRENT_SCRIPT || !CURRENT_SCRIPT.src) return null;
+    try {
+      return new URL('firebase-config.js', CURRENT_SCRIPT.src).href;
+    } catch (_) {
+      return null;
+    }
+  })();
+  const FIREBASE_SDK_URLS = [
+    'https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js',
+    'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js',
+  ];
+
+  const FirebaseBackend = {
+    sdkUrls: FIREBASE_SDK_URLS,
+    scriptPromises: Object.create(null),
+    initPromise: null,
+    config: undefined,
+    app: null,
+    db: null,
+    configScriptUrl: DEFAULT_CONFIG_URL,
+    configScriptPromise: null,
+
+    overrideConfig(value) {
+      if (value && typeof value === 'object') {
+        this.config = value;
+      } else if (value === null) {
+        this.config = null;
+      } else {
+        this.config = undefined;
+      }
+      this.reset();
+    },
+
+    reset() {
+      this.initPromise = null;
+      this.app = null;
+      this.db = null;
+      this.configScriptPromise = null;
+    },
+
+    readConfig() {
+      if (typeof window !== 'undefined') {
+        const globalConfig = window.EDUMUSIC_FIREBASE_CONFIG
+          || window.EduMusicFirebaseConfig
+          || window.firebaseConfig
+          || null;
+        if (globalConfig && typeof globalConfig === 'object') return globalConfig;
+      }
+      if (typeof document !== 'undefined') {
+        const script = document.querySelector('script[type="application/json"][data-firebase-config]');
+        if (script && script.textContent) {
+          try {
+            const parsed = JSON.parse(script.textContent);
+            if (parsed && typeof parsed === 'object') return parsed;
+          } catch (_) {}
+        }
+        const meta = document.querySelector('meta[name="edumusic:firebase-config"]');
+        if (meta && typeof meta.content === 'string' && meta.content.trim()) {
+          try {
+            const parsed = JSON.parse(meta.content);
+            if (parsed && typeof parsed === 'object') return parsed;
+          } catch (_) {}
+        }
+      }
+      return null;
+    },
+
+    async ensureConfigLoaded() {
+      if (this.config !== undefined && this.config !== null) return this.config;
+      if (typeof window !== 'undefined' && window.EDUMUSIC_FIREBASE_CONFIG !== undefined) {
+        this.config = this.readConfig() || null;
+        return this.config;
+      }
+      if (!this.configScriptUrl || typeof document === 'undefined') {
+        if (this.config === undefined) this.config = null;
+        return this.config;
+      }
+      if (!this.configScriptPromise) {
+        this.configScriptPromise = this.loadScript(this.configScriptUrl).catch((err) => {
+          console.warn('[ScoreService] Firebase config script failed to load', err);
+        });
+      }
+      try {
+        await this.configScriptPromise;
+      } catch (_) {}
+      if (this.config === undefined) {
+        this.config = this.readConfig() || null;
+      }
+      return this.config;
+    },
+
+    ensureConfig() {
+      if (this.config === undefined) {
+        this.config = this.readConfig() || null;
+      }
+      return this.config;
+    },
+
+    isConfigured() {
+      const cfg = this.ensureConfig();
+      return cfg && typeof cfg === 'object' && typeof cfg.apiKey === 'string';
+    },
+
+    loadScript(src) {
+      if (this.scriptPromises[src]) return this.scriptPromises[src];
+      if (typeof document === 'undefined') {
+        this.scriptPromises[src] = Promise.reject(new Error('Firebase SDK requires a DOM environment'));
+        return this.scriptPromises[src];
+      }
+      this.scriptPromises[src] = new Promise((resolve, reject) => {
+        const existing = document.querySelector(`script[src="${src}"]`);
+        if (existing) {
+          if (existing.dataset && existing.dataset.loaded === 'true') {
+            resolve();
+            return;
+          }
+          existing.addEventListener('load', () => resolve());
+          existing.addEventListener('error', () => reject(new Error(`Failed loading ${src}`)));
+          return;
+        }
+        const el = document.createElement('script');
+        el.src = src;
+        el.async = false;
+        el.defer = false;
+        el.crossOrigin = 'anonymous';
+        el.addEventListener('load', () => {
+          if (el.dataset) el.dataset.loaded = 'true';
+          resolve();
+        });
+        el.addEventListener('error', () => reject(new Error(`Failed loading ${src}`)));
+        document.head.appendChild(el);
+      });
+      return this.scriptPromises[src];
+    },
+
+    async ensureScripts() {
+      for (const src of this.sdkUrls) {
+        await this.loadScript(src);
+      }
+    },
+
+    async ensureInit() {
+      if (this.db) return this.db;
+      await this.ensureConfigLoaded();
+      const config = this.ensureConfig();
+      if (!config || typeof config !== 'object' || !config.apiKey) {
+        return null;
+      }
+      if (!this.initPromise) {
+        this.initPromise = (async () => {
+          await this.ensureScripts();
+          const firebase = window.firebase;
+          if (!firebase || typeof firebase.initializeApp !== 'function') {
+            throw new Error('Firebase SDK not available on window');
+          }
+          let app;
+          try {
+            if (firebase.apps && firebase.apps.length) {
+              app = firebase.apps.find((candidate) => {
+                try {
+                  return candidate && candidate.options && candidate.options.projectId === config.projectId;
+                } catch (_) {
+                  return false;
+                }
+              }) || firebase.app();
+            } else {
+              app = firebase.initializeApp(config);
+            }
+          } catch (err) {
+            if (err && err.code === 'app/duplicate-app') {
+              app = firebase.app();
+            } else {
+              throw err;
+            }
+          }
+          const db = firebase.firestore(app);
+          try {
+            db.settings({ ignoreUndefinedProperties: true });
+          } catch (_) {}
+          this.app = app;
+          this.db = db;
+          return db;
+        })().catch((err) => {
+          console.warn('[ScoreService] Firebase initialisation failed', err);
+          this.reset();
+          return null;
+        });
+      }
+      return this.initPromise;
+    },
+
+    collectionRef(board) {
+      const db = this.db;
+      if (!db) return null;
+      const rawKey = (board && board.options && (board.options.rankKey || board.options.gameId)) || 'default';
+      const key = sanitizeKey(rawKey) || 'default';
+      return db.collection('leaderboards').doc(key).collection('entries');
+    },
+
+    normaliseEntryPayload(board, entry) {
+      const firebase = window.firebase;
+      const now = firebase && firebase.firestore && typeof firebase.firestore.Timestamp === 'function'
+        ? firebase.firestore.Timestamp.now()
+        : null;
+      return {
+        name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
+        score: Number(entry && entry.score != null ? entry.score : 0) || 0,
+        createdAt: firebase && firebase.firestore && firebase.firestore.FieldValue
+          ? firebase.firestore.FieldValue.serverTimestamp()
+          : null,
+        createdAtLocal: now,
+        tsString: entry && entry.ts ? entry.ts : new Date().toISOString(),
+        gameId: (board && board.options && board.options.gameId) || null,
+        version: 2,
+      };
+    },
+
+    async addEntry(board, entry) {
+      const db = await this.ensureInit();
+      if (!db) return false;
+      try {
+        const coll = this.collectionRef(board);
+        if (!coll) return false;
+        await coll.add(this.normaliseEntryPayload(board, entry));
+        return true;
+      } catch (err) {
+        console.warn('[ScoreService] Firebase addEntry failed', err);
+        return false;
+      }
+    },
+
+    parseSnapshot(doc) {
+      if (!doc) return null;
+      const data = doc.data && typeof doc.data === 'function' ? doc.data() : doc;
+      if (!data || typeof data !== 'object') return null;
+      let ts = null;
+      try {
+        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+          ts = data.createdAt.toDate();
+        } else if (data.createdAtLocal && typeof data.createdAtLocal.toDate === 'function') {
+          ts = data.createdAtLocal.toDate();
+        } else if (data.tsString) {
+          ts = new Date(data.tsString);
+        }
+      } catch (_) {
+        ts = null;
+      }
+      if (!(ts instanceof Date) || Number.isNaN(ts.getTime())) ts = new Date();
+      return {
+        name: normalizeInitials(data.name != null ? data.name : '') || DEFAULT_INITIALS,
+        score: Number(data.score != null ? data.score : 0) || 0,
+        ts: ts.toISOString(),
+      };
+    },
+
+    async fetchEntries(board) {
+      const db = await this.ensureInit();
+      if (!db) return null;
+      const coll = this.collectionRef(board);
+      if (!coll) return null;
+      const limit = (board && board.options && board.options.maxEntries) || DEFAULT_MAX_ENTRIES;
+      const attempts = [
+        () => coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit).get(),
+        () => coll.orderBy('score', 'desc').limit(limit).get(),
+      ];
+      for (let i = 0; i < attempts.length; i += 1) {
+        try {
+          const snap = await attempts[i]();
+          const entries = [];
+          if (snap && typeof snap.forEach === 'function') {
+            snap.forEach((doc) => {
+              const parsed = this.parseSnapshot(doc);
+              if (parsed) entries.push(parsed);
+            });
+          }
+          return entries;
+        } catch (err) {
+          if (i === attempts.length - 1) {
+            console.warn('[ScoreService] Firebase fetchEntries failed', err);
+            return null;
+          }
+          console.warn('[ScoreService] Firebase fetchEntries retrying with reduced query', err);
+        }
+      }
+      return null;
+    },
+  };
 
   function normalizeInitials(raw) {
     if (raw == null) return '';
@@ -260,6 +549,35 @@
     listenerAttached: false,
 
     configure(opts = {}) {
+      if (Object.prototype.hasOwnProperty.call(opts, 'firebase')) {
+        if (opts.firebase && typeof opts.firebase === 'object') {
+          if (Array.isArray(opts.firebase.sdkUrls) && opts.firebase.sdkUrls.length) {
+            FirebaseBackend.sdkUrls = opts.firebase.sdkUrls.slice();
+            FirebaseBackend.scriptPromises = Object.create(null);
+          }
+          if (isNonEmptyString(opts.firebase.configUrl)) {
+            const baseHref = (CURRENT_SCRIPT && CURRENT_SCRIPT.src)
+              || (typeof window !== 'undefined' ? window.location.href : undefined)
+              || undefined;
+            try {
+              FirebaseBackend.configScriptUrl = baseHref
+                ? new URL(opts.firebase.configUrl, baseHref).href
+                : opts.firebase.configUrl;
+            } catch (_) {
+              FirebaseBackend.configScriptUrl = opts.firebase.configUrl;
+            }
+            FirebaseBackend.configScriptPromise = null;
+          }
+          if (opts.firebase.config) {
+            FirebaseBackend.overrideConfig(opts.firebase.config);
+          }
+        } else if (opts.firebase === null || opts.firebase === false) {
+          FirebaseBackend.overrideConfig(null);
+        }
+      }
+      if (Object.prototype.hasOwnProperty.call(opts, 'firebaseConfig')) {
+        FirebaseBackend.overrideConfig(opts.firebaseConfig);
+      }
       if (Array.isArray(opts.mount) && opts.mount.length) {
         opts.mount.forEach((item) => this.mountOne(item.element, item.options || {}));
       }
@@ -356,8 +674,7 @@
       return board.submitWithName(name);
     },
 
-    async addEntry(board, name, score) {
-      const entry = { name, score, ts: new Date().toISOString() };
+    saveLocalEntry(board, entry) {
       const current = this.loadLocal(board);
       const list = Array.isArray(current)
         ? current.map((item) => ({
@@ -365,13 +682,31 @@
             name: normalizeInitials(item && item.name != null ? item.name : '') || DEFAULT_INITIALS,
           }))
         : [];
-      list.push(entry);
+      list.push({
+        ...entry,
+        name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
+      });
       list.sort((a, b) => b.score - a.score || new Date(a.ts) - new Date(b.ts));
-      const top = list.slice(0, board.options.maxEntries);
+      const cap = typeof board.options.maxEntries === 'number' && board.options.maxEntries > 0
+        ? board.options.maxEntries
+        : DEFAULT_MAX_ENTRIES;
+      const top = list.slice(0, cap);
       this.persistLocal(board, top);
+      return top;
+    },
+
+    async addEntry(board, name, score) {
+      const entry = { name, score, ts: new Date().toISOString() };
+      this.saveLocalEntry(board, entry);
+      await FirebaseBackend.addEntry(board, entry);
     },
 
     async loadEntries(board) {
+      const remote = await FirebaseBackend.fetchEntries(board);
+      if (Array.isArray(remote)) {
+        this.persistLocal(board, remote);
+        return remote;
+      }
       return this.loadLocal(board);
     },
 
@@ -400,6 +735,10 @@
 
   ScoreService.normalizeInitials = normalizeInitials;
   ScoreService.defaultInitials = DEFAULT_INITIALS;
+  ScoreService.setFirebaseConfig = (config) => {
+    FirebaseBackend.overrideConfig(config);
+  };
+  ScoreService.isRemoteEnabled = () => FirebaseBackend.isConfigured();
 
   window.ScoreService = ScoreService;
 
