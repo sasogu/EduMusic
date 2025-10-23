@@ -737,13 +737,16 @@
         : DEFAULT_MAX_ENTRIES;
       const top = list.slice(0, cap);
       this.persistLocal(board, top);
+      top.included = top.includes(entry);
       return top;
     },
 
     async addEntry(board, name, score) {
       const entry = { name, score, ts: new Date().toISOString() };
-      this.saveLocalEntry(board, entry);
-      debugLog('addEntry local save', board.options.gameId, score);
+      const top = this.saveLocalEntry(board, entry);
+      const included = !!(top && top.included);
+      debugLog('addEntry local save', board.options.gameId, score, included ? 'top-entry' : 'discarded');
+      if (!included) return;
       await FirebaseBackend.addEntry(board, entry);
     },
 
