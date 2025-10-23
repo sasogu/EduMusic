@@ -43,7 +43,7 @@
       'rankings.melo_rhythm': 'Dictat melòdic-rítmic',
       'rankings.melody': 'Seqüència de melodies',
       'rankings.compas': 'Puzzle de compassos',
-      'rankings.quiz': 'Quiz musical cooperatiu',
+      'rankings.quiz': 'Quiz musical',
       'rankings.wordguess': 'Paraules musicals'
     },
     en: {
@@ -66,7 +66,7 @@
       'rankings.melo_rhythm': 'Melodic-rhythmic dictation',
       'rankings.melody': 'Melody sequence',
       'rankings.compas': 'Time signature puzzle',
-      'rankings.quiz': 'Cooperative music quiz',
+      'rankings.quiz': 'Music quiz',
       'rankings.wordguess': 'Musical words'
     }
   };
