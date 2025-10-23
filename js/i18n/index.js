@@ -12,6 +12,9 @@
       'index.wordguess.title': 'Palabras Musicales Secretas',
       'index.wordguess.desc': 'Adivina términos musicales antes de que se acaben tus notas.',
       'index.wordguess.small': 'Categorías temáticas · Pistas opcionales · Letras desde teclado',
+      'index.quiz.title': 'Quiz Musical Cooperativo',
+      'index.quiz.desc': 'Responde preguntas musicales solo o en pareja y suma puntos para el ranking.',
+      'index.quiz.small': 'Elige 10, 20 o 30 preguntas · Tres niveles de dificultad',
       'index.compas.title': 'Puzzle de Compases',
       'index.compas.desc': 'Completa compases arrastrando fichas rítmicas.',
       'index.compas.small': '2/4, 3/4 y 4/4 · Duraciones básicas',
@@ -67,7 +70,8 @@
       'tags.piano': 'Piano',
       'tags.exploracion': 'Exploración',
       'tags.recursos': 'Recursos',
-      'tags.docentes': 'Docentes'
+      'tags.docentes': 'Docentes',
+      'tags.quiz': 'Quiz'
     },
     val: {
       'index.choose': 'Tria una activitat per a començar:',
@@ -80,6 +84,9 @@
       'index.wordguess.title': 'Paraules Musicals Secretes',
       'index.wordguess.desc': 'Endevina termes musicals abans que s\'acaben les teues notes.',
       'index.wordguess.small': 'Categories temàtiques · Pistes opcionals · Lletres amb teclat',
+      'index.quiz.title': 'Quiz Musical Cooperatiu',
+      'index.quiz.desc': 'Respon preguntes de música a soles o en parella i suma punts per al rànquing.',
+      'index.quiz.small': 'Tria 10, 20 o 30 preguntes · Tres nivells de dificultat',
       'index.compas.title': 'Puzzle de Compassos',
       'index.compas.desc': 'Completa compassos arrossegant fitxes rítmiques.',
       'index.compas.small': '2/4, 3/4 i 4/4 · Duracions bàsiques',
@@ -135,7 +142,8 @@
       'tags.piano': 'Piano',
       'tags.exploracion': 'Exploració',
       'tags.recursos': 'Recursos',
-      'tags.docentes': 'Docents'
+      'tags.docentes': 'Docents',
+      'tags.quiz': 'Quiz'
     },
     en: {
       'index.choose': 'Select an activity to get started:',
@@ -148,6 +156,9 @@
       'index.wordguess.title': 'Secret Musical Words',
       'index.wordguess.desc': 'Guess musical terms before you run out of notes.',
       'index.wordguess.small': 'Category themes · Optional hints · Keyboard input',
+      'index.quiz.title': 'Cooperative Music Quiz',
+      'index.quiz.desc': 'Answer music questions solo or in pairs and climb the ranking.',
+      'index.quiz.small': 'Choose 10, 20 or 30 questions · Three difficulty levels',
       'index.compas.title': 'Time Signature Puzzle',
       'index.compas.desc': 'Complete bars by dragging rhythmic tiles.',
       'index.compas.small': '2/4, 3/4 and 4/4 · Basic durations',
@@ -203,7 +214,8 @@
       'tags.piano': 'Piano',
       'tags.exploracion': 'Exploration',
       'tags.recursos': 'Resources',
-      'tags.docentes': 'Teachers'
+      'tags.docentes': 'Teachers',
+      'tags.quiz': 'Quiz'
     }
   };
   if (window.i18n && typeof window.i18n.registerBundle === 'function') {

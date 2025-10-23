@@ -7,6 +7,7 @@
     'melodia',
     'dictado',
     'audicion',
+    'quiz',
     
   ];
 
@@ -18,6 +19,7 @@
     inicial: 'Inicial',
     intermedio: 'Intermedio',
     avanzado: 'Avanzado',
+    quiz: 'Quiz',
   };
 
   const KNOWN_TAGS = new Set([
