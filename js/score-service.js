@@ -491,9 +491,29 @@
       this.dom.saveBox.style.display = visible ? '' : 'none';
     }
 
+    isEligibleScore(score) {
+      const numeric = Number(score);
+      if (!Number.isFinite(numeric) || numeric < this.options.showSaveAt) {
+        return false;
+      }
+      if (!this.service || typeof this.service.projectEntry !== 'function') {
+        return true;
+      }
+      try {
+        const projection = this.service.projectEntry(this, {
+          name: DEFAULT_INITIALS,
+          score: numeric,
+          ts: new Date().toISOString(),
+        }, { persist: false });
+        return !!(projection && projection.included);
+      } catch (_) {
+        return true;
+      }
+    }
+
     showSave(score) {
       this.state.latestScore = score;
-      if (score < this.options.showSaveAt) {
+      if (!this.isEligibleScore(score)) {
         this.toggleSaveBox(false);
         return;
       }
@@ -719,32 +739,77 @@
       return board.submitWithName(name);
     },
 
-    saveLocalEntry(board, entry) {
-      const current = this.loadLocal(board);
-      const list = Array.isArray(current)
-        ? current.map((item) => ({
+    canSaveScore(gameId, score) {
+      const board = this.getBoardByGame(gameId);
+      if (!board) {
+        const numeric = Number(score);
+        return Number.isFinite(numeric) && numeric >= 1;
+      }
+      const projection = this.projectEntry(board, {
+        name: DEFAULT_INITIALS,
+        score,
+        ts: new Date().toISOString(),
+      }, { persist: false });
+      return projection.included;
+    },
+
+    projectEntry(board, entry, { persist = false } = {}) {
+      if (!board) return { top: [], included: false };
+
+      const threshold = typeof board.options.showSaveAt === 'number'
+        ? board.options.showSaveAt
+        : 1;
+      const scoreValue = Number(entry && entry.score != null ? entry.score : NaN);
+
+      const existingRaw = this.loadLocal(board);
+      const existing = Array.isArray(existingRaw)
+        ? existingRaw.map((item) => ({
             ...item,
             name: normalizeInitials(item && item.name != null ? item.name : '') || DEFAULT_INITIALS,
+            ts: item && item.ts ? item.ts : new Date().toISOString(),
           }))
         : [];
-      list.push({
+
+      if (!Number.isFinite(scoreValue) || scoreValue < threshold) {
+        return { top: existing, included: false };
+      }
+
+      const candidate = {
         ...entry,
         name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
-      });
-      list.sort((a, b) => b.score - a.score || new Date(a.ts) - new Date(b.ts));
+        score: scoreValue,
+        ts: entry && entry.ts ? entry.ts : new Date().toISOString(),
+        __candidate: true,
+      };
+      existing.push(candidate);
+
+      existing.sort((a, b) => b.score - a.score || new Date(a.ts) - new Date(b.ts));
       const cap = typeof board.options.maxEntries === 'number' && board.options.maxEntries > 0
         ? board.options.maxEntries
         : DEFAULT_MAX_ENTRIES;
-      const top = list.slice(0, cap);
-      this.persistLocal(board, top);
-      top.included = top.includes(entry);
-      return top;
+      const top = existing.slice(0, cap);
+      const included = top.some((item) => item.__candidate === true);
+      const cleanTop = top.map((item) => {
+        const clone = { ...item };
+        delete clone.__candidate;
+        return clone;
+      });
+
+      if (persist) {
+        this.persistLocal(board, cleanTop);
+      }
+
+      return { top: cleanTop, included };
+    },
+
+    saveLocalEntry(board, entry) {
+      const { included } = this.projectEntry(board, entry, { persist: true });
+      return included;
     },
 
     async addEntry(board, name, score) {
       const entry = { name, score, ts: new Date().toISOString() };
-      const top = this.saveLocalEntry(board, entry);
-      const included = !!(top && top.included);
+      const included = this.saveLocalEntry(board, entry);
       debugLog('addEntry local save', board.options.gameId, score, included ? 'top-entry' : 'discarded');
       if (!included) return;
       await FirebaseBackend.addEntry(board, entry);

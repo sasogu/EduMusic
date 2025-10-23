@@ -240,12 +240,22 @@
       } catch (_) {}
     }
 
-    if (window.ScoreService && typeof window.ScoreService.getBoardByGame === 'function') {
+    if (window.ScoreService && typeof window.ScoreService.canSaveScore === 'function') {
+      try {
+        canSave = window.ScoreService.canSaveScore(gameId, score);
+      } catch (_) {
+        canSave = score >= 1;
+      }
+    } else if (window.ScoreService && typeof window.ScoreService.getBoardByGame === 'function') {
       const board = window.ScoreService.getBoardByGame(gameId);
       if (board) {
         const threshold = typeof board.options.showSaveAt === 'number' ? board.options.showSaveAt : 1;
         canSave = score >= threshold;
+      } else {
+        canSave = score >= 1;
       }
+    } else {
+      canSave = score >= 1;
     }
 
     state.options = {
