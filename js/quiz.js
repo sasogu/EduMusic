@@ -489,20 +489,20 @@
       id: 'easy_rest_symbol',
       level: 'easy',
       prompt: {
-        es: '¿Qué representa este símbolo 𝄽?',
-        val: 'Què representa este símbol 𝄽?',
+        es: '¿Qué representa este símbolo 𝄽 ?',
+        val: 'Què representa este símbol 𝄽 ?',
         en: 'What does this symbol 𝄽 represent?',
       },
       answers: [
-        { id: 'half_rest', correct: true, text: { es: 'Silencio de blanca', val: 'Silenci de blanca', en: 'Half rest' } },
+        { id: 'half_rest', correct: false, text: { es: 'Silencio de blanca', val: 'Silenci de blanca', en: 'Half rest' } },
         { id: 'whole_rest', correct: false, text: { es: 'Silencio de redonda', val: 'Silenci de rodona', en: 'Whole rest' } },
-        { id: 'quarter_rest', correct: false, text: { es: 'Silencio de negra', val: 'Silenci de negra', en: 'Quarter rest' } },
+        { id: 'quarter_rest', correct: true, text: { es: 'Silencio de negra', val: 'Silenci de negra', en: 'Quarter rest' } },
         { id: 'eighth_rest', correct: false, text: { es: 'Silencio de corchea', val: 'Silenci de corxera', en: 'Eighth rest' } },
       ],
       explanation: {
-        es: 'El símbolo 𝄽 indica un silencio de blanca apoyado en la línea central.',
-        val: 'El símbol 𝄽 indica un silenci de blanca recolzat en la línia central.',
-        en: 'Symbol 𝄽 denotes a half rest resting atop the middle line.',
+        es: 'El símbolo 𝄽 indica un silencio de negra.',
+        val: 'El símbol 𝄽 indica un silenci de negra.',
+        en: 'Symbol 𝄽 denotes a quarter rest.',
       },
     },
     {
