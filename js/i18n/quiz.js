@@ -1,7 +1,7 @@
 (function() {
   const payload = {
     es: {
-      'quiz.title': 'Quiz Musical Cooperativo',
+      'quiz.title': 'Quiz Musical',
       'quiz.subtitle': 'Pon a prueba vuestros conocimientos musicales solos o por parejas.',
       'quiz.controls.title': 'Configura la partida',
       'quiz.controls.questions': 'Número de preguntas',
@@ -30,7 +30,7 @@
       'quiz.rank.title': 'Ranking de Quiz Musical'
     },
     val: {
-      'quiz.title': 'Quiz Musical Cooperatiu',
+      'quiz.title': 'Quiz Musical',
       'quiz.subtitle': 'Poseu a prova els vostres coneixements musicals sols o per parelles.',
       'quiz.controls.title': 'Configura la partida',
       'quiz.controls.questions': 'Nombre de preguntes',
@@ -59,7 +59,7 @@
       'quiz.rank.title': 'Rànquing de Quiz Musical'
     },
     en: {
-      'quiz.title': 'Cooperative Music Quiz',
+      'quiz.title': 'Music Quiz',
       'quiz.subtitle': 'Challenge your musical knowledge on your own or in pairs.',
       'quiz.controls.title': 'Set up the game',
       'quiz.controls.questions': 'Number of questions',

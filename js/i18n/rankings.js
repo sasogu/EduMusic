@@ -20,7 +20,7 @@
       'rankings.melo_rhythm': 'Dictado melódico-rítmico',
       'rankings.melody': 'Secuencia de melodías',
       'rankings.compas': 'Puzzle de compases',
-      'rankings.quiz': 'Quiz musical cooperativo',
+      'rankings.quiz': 'Quiz musical',
       'rankings.wordguess': 'Palabras musicales'
     },
     val: {
