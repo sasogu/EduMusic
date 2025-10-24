@@ -21,7 +21,8 @@
       'rankings.melody': 'Secuencia de melodías',
       'rankings.compas': 'Puzzle de compases',
       'rankings.quiz': 'Quiz musical',
-      'rankings.wordguess': 'Palabras musicales'
+      'rankings.wordguess': 'Palabras musicales',
+      'rankings.pianohero': 'Arcade Piano Hero'
     },
     val: {
       'rankings.title': 'Rànquings d\'EduMúsic',
@@ -44,7 +45,8 @@
       'rankings.melody': 'Seqüència de melodies',
       'rankings.compas': 'Puzzle de compassos',
       'rankings.quiz': 'Quiz musical',
-      'rankings.wordguess': 'Paraules musicals'
+      'rankings.wordguess': 'Paraules musicals',
+      'rankings.pianohero': 'Arcade Piano Hero'
     },
     en: {
       'rankings.title': 'EduMúsic Rankings',
@@ -67,7 +69,8 @@
       'rankings.melody': 'Melody sequence',
       'rankings.compas': 'Time signature puzzle',
       'rankings.quiz': 'Music quiz',
-      'rankings.wordguess': 'Musical words'
+      'rankings.wordguess': 'Musical words',
+      'rankings.pianohero': 'Piano Hero arcade'
     }
   };
 

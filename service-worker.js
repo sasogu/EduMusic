@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.9.27';
+const SW_VERSION = 'v0.9.29';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -16,6 +16,7 @@ const ASSETS = [
   'css/pitch-height.css',
   'css/word-guess.css',
   'css/quiz.css',
+  'css/piano-hero.css',
   'js/app.js',
   'js/audio-settings.js',
   'js/index-tags.js',
@@ -39,6 +40,7 @@ const ASSETS = [
   'js/i18n/word-guess.js',
   'js/i18n/quiz.js',
   'js/i18n/rankings.js',
+  'js/i18n/piano-hero.js',
   'manifest.json',
   'html/game.html',
   'html/solmi.html',
@@ -58,6 +60,7 @@ const ASSETS = [
   'html/pitch-height.html',
   'html/clave-sol.html',
   'html/piano.html',
+  'html/piano-hero.html',
   'html/recursos.html',
   'html/palabras-musicales.html',
   'html/quiz.html',
@@ -77,6 +80,7 @@ const ASSETS = [
   'js/piano.js',
   'js/quiz.js',
   'js/word-guess.js',
+  'js/piano-hero.js',
   'js/game-over-overlay.js',
   'assets/icon-192.png',
   'assets/icon-512.png',
