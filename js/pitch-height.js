@@ -126,6 +126,18 @@
     playing: false,
   };
 
+  function playSuccess() {
+    if (window.Sfx && typeof window.Sfx.success === 'function') {
+      window.Sfx.success();
+    }
+  }
+
+  function playError() {
+    if (window.Sfx && typeof window.Sfx.error === 'function') {
+      window.Sfx.error();
+    }
+  }
+
   function clamp01(v) {
     const num = Number(v);
     if (!Number.isFinite(num)) return 0;
@@ -473,6 +485,7 @@
     state.score += 1;
     state.streak += 1;
     updateHud();
+    playSuccess();
     if (selectionButton) {
       selectionButton.dataset.state = 'correct';
     }
@@ -496,6 +509,7 @@
     if (state.lives < 0) state.lives = 0;
     state.streak = 0;
     updateHud();
+    playError();
     if (selectionButton) {
       selectionButton.dataset.state = 'wrong';
     }
