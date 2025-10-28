@@ -1,4 +1,4 @@
-const SW_VERSION = 'v0.9.29';
+const SW_VERSION = 'v0.9.33';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -14,6 +14,7 @@ const ASSETS = [
   'css/melo-rhythm-dictation.css',
   'css/pitch-direction.css',
   'css/pitch-height.css',
+  'css/duration-choice.css',
   'css/word-guess.css',
   'css/quiz.css',
   'css/piano-hero.css',
@@ -37,6 +38,7 @@ const ASSETS = [
   'js/i18n/melo-rhythm-dictation.js',
   'js/i18n/pitch-direction.js',
   'js/i18n/pitch-height.js',
+  'js/i18n/duration-choice.js',
   'js/i18n/word-guess.js',
   'js/i18n/quiz.js',
   'js/i18n/rankings.js',
@@ -58,6 +60,7 @@ const ASSETS = [
   'html/melo-rhythm-dictation.html',
   'html/pitch-direction.html',
   'html/pitch-height.html',
+  'html/duration-choice.html',
   'html/clave-sol.html',
   'html/piano.html',
   'html/piano-hero.html',
@@ -76,6 +79,7 @@ const ASSETS = [
   'js/score-service.js',
   'js/pitch-direction.js',
   'js/pitch-height.js',
+  'js/duration-choice.js',
   'js/clave_sol.js',
   'js/piano.js',
   'js/quiz.js',
