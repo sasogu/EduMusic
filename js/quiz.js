@@ -3,6 +3,7 @@
   const SCORE_MAX_PER_QUESTION = 100;
   const SCORE_MIN_PER_QUESTION = 40;
   const SCORE_DECAY_PER_SECOND = 1;
+  const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const QUESTION_BANK = [
     // Easy level
     {
@@ -1436,6 +1437,7 @@
     questionText: null,
     questionInfo: null,
     feedback: null,
+    optionsContainer: null,
     options: [],
     playersRoot: null,
     playerCards: [],
@@ -1492,14 +1494,14 @@
     dom.questionCountSelect = document.getElementById('quizQuestionCount');
     dom.levelSelect = document.getElementById('quizLevel');
     dom.modeSelect = document.getElementById('quizMode');
-    dom.options = Array.from(document.querySelectorAll('.quiz-option'));
-    dom.playerCards = Array.from(dom.playersRoot.querySelectorAll('.quiz-player'));
+    dom.optionsContainer = document.getElementById('quizOptions');
+    dom.options = [];
+    dom.playerCards = dom.playersRoot
+      ? Array.from(dom.playersRoot.querySelectorAll('.quiz-player'))
+      : [];
 
     dom.startBtn.addEventListener('click', startGame);
     dom.nextBtn.addEventListener('click', goNextQuestion);
-    dom.options.forEach((btn) => {
-      btn.addEventListener('click', () => handleAnswer(Number(btn.dataset.index)));
-    });
 
     updatePlayersVisibility('solo');
     updateProgress(0, 0);
@@ -1518,6 +1520,60 @@
       [out[i], out[j]] = [out[j], out[i]];
     }
     return out;
+  }
+
+  function getLetterByIndex(index) {
+    const base = LETTERS.length;
+    let value = index;
+    let label = '';
+    do {
+      label = LETTERS[value % base] + label;
+      value = Math.floor(value / base) - 1;
+    } while (value >= 0);
+    return label;
+  }
+
+  function handleOptionButtonClick(event) {
+    const target = event.currentTarget;
+    const idx = Number(target.dataset.index);
+    if (Number.isInteger(idx)) {
+      handleAnswer(idx);
+    }
+  }
+
+  function ensureOptionButtons(count) {
+    if (!dom.optionsContainer) return;
+    while (dom.options.length < count) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'quiz-option';
+      btn.setAttribute('role', 'listitem');
+      const letterSpan = document.createElement('span');
+      letterSpan.className = 'quiz-option__letter';
+      letterSpan.textContent = getLetterByIndex(dom.options.length);
+      const textSpan = document.createElement('span');
+      textSpan.className = 'quiz-option__text';
+      textSpan.textContent = '—';
+      btn.append(letterSpan, textSpan);
+      btn.addEventListener('click', handleOptionButtonClick);
+      dom.optionsContainer.appendChild(btn);
+      dom.options.push(btn);
+    }
+    dom.options.forEach((btn, idx) => {
+      const visible = idx < count;
+      btn.hidden = !visible;
+      btn.disabled = false;
+      btn.classList.remove('is-correct', 'is-wrong');
+      if (visible) {
+        btn.dataset.index = String(idx);
+        const letterEl = btn.querySelector('.quiz-option__letter');
+        if (letterEl) {
+          letterEl.textContent = getLetterByIndex(idx);
+        }
+      } else {
+        delete btn.dataset.index;
+      }
+    });
   }
 
   function computePoints(elapsedMs) {
@@ -1656,15 +1712,11 @@
     dom.questionInfo.textContent = '';
     dom.feedback.textContent = '';
     dom.nextBtn.hidden = true;
-    dom.options.forEach((btn, idx) => {
-      const option = question.answers[idx];
-      if (!option) {
-        btn.hidden = true;
-        return;
-      }
-      btn.hidden = false;
-      btn.disabled = false;
-      btn.classList.remove('is-correct', 'is-wrong');
+    const answers = Array.isArray(question.answers) ? question.answers : [];
+    ensureOptionButtons(answers.length);
+    answers.forEach((option, idx) => {
+      const btn = dom.options[idx];
+      if (!btn) return;
       const textEl = btn.querySelector('.quiz-option__text');
       if (textEl) {
         textEl.textContent = getText(option.text);
@@ -1684,14 +1736,16 @@
     const option = question.answers[index];
     const correct = !!option.correct;
 
-    dom.options.forEach((btn, idx) => {
+    dom.options.forEach((btn) => {
       btn.disabled = true;
-      const candidate = question.answers[idx];
+      const btnIndex = Number(btn.dataset.index);
+      if (!Number.isInteger(btnIndex)) return;
+      const candidate = question.answers[btnIndex];
       if (!candidate) return;
       if (candidate.correct) {
         btn.classList.add('is-correct');
       }
-      if (idx === index && !candidate.correct) {
+      if (btnIndex === index && !candidate.correct) {
         btn.classList.add('is-wrong');
       }
     });

@@ -30,6 +30,14 @@ Esta es una Progressive Web App educativa para aprender música, con actividades
 ## Cómo ejecutar
 Abre `index.html` en tu navegador. Para instalar como PWA, accede desde un servidor local.
 
+## Importar cuestionarios desde ClassQuiz
+- Exporta la actividad desde [ClassQuiz](https://classquiz.de) como `.cqa`. También puedes exportar a Excel y guardarlo como `.csv` con el encabezado original.
+- Ejecuta el conversor incluido:  
+  `node tools/import-classquiz.js ruta/al/archivo.cqa --level=easy --prefix=clase`  
+  Ajusta `--level` (`easy`, `medium`, `hard`), `--lang` y `--prefix` según necesites. Usa `--include-meta` para ver un resumen y preguntas omitidas.
+- El comando genera JSON compatible con `QUESTION_BANK` (`js/quiz.js`). Añade el array resultante al banco de preguntas o reemplaza elementos existentes.
+- El quiz ahora admite cualquier número de respuestas, y el conversor genera todos los botones necesarios. Si el archivo original no marca ninguna respuesta como correcta, la primera se marca por defecto para mantener la pregunta utilizable.
+
 ---
 Este archivo se actualizará conforme se agreguen nuevas actividades y funcionalidades.
 

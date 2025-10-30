@@ -149,6 +149,7 @@
 .quiz-options {
   display: grid;
   gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .quiz-option {
@@ -192,9 +193,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
+  min-width: 36px;
+  padding: 0 10px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 999px;
   background: #1d4ed8;
   color: #fff;
   font-weight: 700;
