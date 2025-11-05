@@ -225,12 +225,13 @@
       return this.initPromise;
     },
 
-    collectionRef(board) {
+    collectionRef(board, period = 'all-time') {
       const db = this.db;
       if (!db) return null;
       const rawKey = (board && board.options && (board.options.rankKey || board.options.gameId)) || 'default';
       const key = sanitizeKey(rawKey) || 'default';
-      return db.collection('leaderboards').doc(key).collection('entries');
+      const collectionName = period === 'weekly' ? 'entries-weekly' : 'entries';
+      return db.collection('leaderboards').doc(key).collection(collectionName);
     },
 
     normaliseEntryPayload(board, entry) {
@@ -255,9 +256,14 @@
       const db = await this.ensureInit();
       if (!db) return false;
       try {
-        const coll = this.collectionRef(board);
-        if (!coll) return false;
-        await coll.add(this.normaliseEntryPayload(board, entry));
+        // Save to both all-time and weekly collections
+        const collAllTime = this.collectionRef(board, 'all-time');
+        const collWeekly = this.collectionRef(board, 'weekly');
+        const payload = this.normaliseEntryPayload(board, entry);
+        
+        if (collAllTime) await collAllTime.add(payload);
+        if (collWeekly) await collWeekly.add(payload);
+        
         return true;
       } catch (err) {
         console.warn('[ScoreService] Firebase addEntry failed', err);
@@ -289,21 +295,34 @@
       };
     },
 
-    async fetchEntries(board) {
+    async fetchEntries(board, period = 'all-time') {
       const db = await this.ensureInit();
       if (!db) {
         debugLog('fetchEntries: Firestore unavailable, using local', board && board.options && board.options.gameId);
         return null;
       }
-      const coll = this.collectionRef(board);
+      const coll = this.collectionRef(board, period);
       if (!coll) {
         debugLog('fetchEntries: collectionRef missing', board && board.options && board.options.gameId);
         return null;
       }
       const limit = (board && board.options && board.options.maxEntries) || DEFAULT_MAX_ENTRIES;
+      
+      // For weekly rankings, filter by last 7 days
+      let query = coll.orderBy('score', 'desc');
+      if (period === 'weekly') {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const firebase = window.firebase;
+        if (firebase && firebase.firestore && firebase.firestore.Timestamp) {
+          const weekTimestamp = firebase.firestore.Timestamp.fromDate(oneWeekAgo);
+          query = query.where('createdAtLocal', '>=', weekTimestamp);
+        }
+      }
+      
       const attempts = [
-        () => coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit).get(),
-        () => coll.orderBy('score', 'desc').limit(limit).get(),
+        () => query.orderBy('createdAt', 'asc').limit(limit).get(),
+        () => query.limit(limit).get(),
       ];
       for (let i = 0; i < attempts.length; i += 1) {
         try {
@@ -450,10 +469,11 @@
         headingKey: options.headingKey || 'game.ranking',
         headingFallback: options.headingFallback || 'Ranking',
         showSaveAt: typeof options.showSaveAt === 'number' ? options.showSaveAt : 1,
+        period: options.period || 'all-time', // 'all-time' or 'weekly'
       };
       this.ids = {
-        input: `${this.options.rankKey}-playerName`,
-        button: `${this.options.rankKey}-saveBtn`,
+        input: `${this.options.rankKey}-${this.options.period}-playerName`,
+        button: `${this.options.rankKey}-${this.options.period}-saveBtn`,
       };
       this.dom = buildMarkup(this);
       this.state = {
@@ -595,7 +615,8 @@
     }
 
     async refresh() {
-      const entries = await this.service.loadEntries(this);
+      const period = this.options.period || 'all-time';
+      const entries = await this.service.loadEntries(this, period);
       this.renderList(entries);
     }
   }
@@ -669,6 +690,7 @@
           options.showSaveAt,
           { allowZero: true, min: 0 },
         ),
+        period: element.getAttribute('data-period') || options.period || 'all-time',
       });
       this.boards.set(element, board);
       board.refresh();
@@ -815,38 +837,51 @@
       await FirebaseBackend.addEntry(board, entry);
     },
 
-    async loadEntries(board) {
-      debugLog('loadEntries start', board.options.gameId);
-      const remote = await FirebaseBackend.fetchEntries(board);
+    async loadEntries(board, period = 'all-time') {
+      debugLog('loadEntries start', board.options.gameId, period);
+      const remote = await FirebaseBackend.fetchEntries(board, period);
       if (Array.isArray(remote)) {
-        this.persistLocal(board, remote);
+        this.persistLocal(board, remote, period);
         debugLog('loadEntries from remote', board.options.gameId, remote.length);
         return remote;
       }
-      const local = this.loadLocal(board);
+      const local = this.loadLocal(board, period);
       debugLog('loadEntries from local fallback', board.options.gameId, local.length);
       return local;
     },
 
-    storageKey(board) {
+    storageKey(board, period = 'all-time') {
       const slug = sanitizeKey(board.options.rankKey || board.options.gameId || 'default') || 'default';
-      return `EduMúsic_rank_${slug}_v1`;
+      const suffix = period === 'weekly' ? '_weekly' : '';
+      return `EduMúsic_rank_${slug}${suffix}_v1`;
     },
 
-    loadLocal(board) {
+    loadLocal(board, period = 'all-time') {
       try {
-        const raw = localStorage.getItem(this.storageKey(board));
+        const raw = localStorage.getItem(this.storageKey(board, period));
         if (!raw) return [];
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+        let entries = Array.isArray(parsed) ? parsed : [];
+        
+        // For weekly, filter out entries older than 7 days
+        if (period === 'weekly') {
+          const oneWeekAgo = new Date();
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+          entries = entries.filter(entry => {
+            const entryDate = new Date(entry.ts);
+            return entryDate >= oneWeekAgo;
+          });
+        }
+        
+        return entries;
       } catch (_) {
         return [];
       }
     },
 
-    persistLocal(board, list) {
+    persistLocal(board, list, period = 'all-time') {
       try {
-        localStorage.setItem(this.storageKey(board), JSON.stringify(list));
+        localStorage.setItem(this.storageKey(board, period), JSON.stringify(list));
       } catch (_) {}
     },
   };

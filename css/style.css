@@ -830,7 +830,7 @@ body.has-gameover-overlay {
 
 .rankings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 20px;
 }
 
@@ -838,25 +838,57 @@ body.has-gameover-overlay {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
-  padding: 18px 20px 22px;
+  padding: 20px;
   border: 1px solid rgba(148, 163, 184, 0.25);
 }
 
-.rankings-card h2 {
-  font-size: 1.15rem;
-  margin: 0 0 12px;
+.rankings-card h3 {
+  font-size: 1.2rem;
+  margin: 0 0 16px;
   color: #0f172a;
-  text-align: left;
+  text-align: center;
+  font-weight: 700;
+}
+
+.rankings-card__boards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rankings-card__board {
+  min-width: 0; /* Permite que el contenido se ajuste */
+}
+
+.rankings-card__board h4 {
+  font-size: 0.9rem;
+  margin: 0 0 10px;
+  color: #64748b;
+  text-align: center;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 8px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
+  border-radius: 8px;
+}
+
+.rankings-card__board h2 {
+  display: none; /* Ocultar el h2 generado por el scoreboard */
 }
 
 .rankings-card .scoreboard__list {
-  margin-top: 8px;
-  font-size: 0.95rem;
+  margin-top: 0;
+  font-size: 0.85rem;
+  padding-left: 1em;
 }
 
 .rankings-card .scoreboard__list li {
   margin-bottom: 6px;
   color: #1f2937;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 .rankings-card .scoreboard__save {
@@ -867,7 +899,16 @@ body.has-gameover-overlay {
   color: #0f172a;
 }
 
+/* Responsive: en pantallas pequeñas, apilar verticalmente */
 @media (max-width: 640px) {
+  .rankings-card__boards {
+    grid-template-columns: 1fr;
+  }
+  
+  .rankings-grid {
+    grid-template-columns: 1fr;
+  }
+
   .rankings-header {
     padding: 28px 16px 8px;
   }
