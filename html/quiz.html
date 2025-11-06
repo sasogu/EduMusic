@@ -78,12 +78,31 @@
 
   <section
     data-scoreboard
-    data-game="quiz"
-    data-heading-key="quiz.rank.title"
-    data-heading="Ranking de Quiz Musical"
-    data-show-save-at="1"
-    style="max-width: 900px; margin: 24px auto; text-align: left;"
-  ></section>
+  <section class="game-rankings">
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.alltime">Ranking General</h3>
+      <section
+        data-scoreboard
+        data-game="quiz"
+        data-heading-key="quiz.rank.title"
+        data-heading="Ranking de Quiz Musical"
+        data-show-save-at="1"
+        style="max-width: 900px; margin: 24px auto; text-align: left;"
+      ></section>
+    </div>
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.weekly">Ranking Semanal</h3>
+      <section
+        data-scoreboard
+        data-game="quiz"
+        data-period="weekly"
+        data-heading-key="quiz.rank.title"
+        data-heading="Ranking de Quiz Musical"
+        data-show-save-at="1"
+        style="max-width: 900px; margin: 24px auto; text-align: left;"
+      ></section>
+    </div>
+  </section>
 
   <a href="../index.html" class="home-link">
     <span class="home-icon" aria-hidden="true">⌂</span>
