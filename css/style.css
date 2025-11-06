@@ -765,6 +765,57 @@ body.has-gameover-overlay {
   }
 }
 
+/* Game rankings - dual display (all-time and weekly) */
+.game-rankings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 1000px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.game-ranking-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.game-ranking-section h3 {
+  font-size: 1.1rem;
+  margin: 0 0 16px;
+  color: #0f172a;
+  text-align: center;
+  font-weight: 700;
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
+  border-radius: 8px;
+}
+
+.game-ranking-section .scoreboard h2 {
+  display: none; /* Hide the auto-generated heading */
+}
+
+.game-ranking-section .scoreboard__list {
+  font-size: 0.95rem;
+  padding-left: 1.2em;
+}
+
+.game-ranking-section .scoreboard__list li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 768px) {
+  .game-rankings {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
 .rankings-body {
   background: linear-gradient(180deg, #f8fafc 0%, #e0f2fe 100%);
   min-height: 100vh;

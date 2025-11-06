@@ -50,7 +50,17 @@
     Las notas (MI, SOL y LA) avanzan de izquierda a derecha sobre sus posiciones en el pentagrama. Pulsa la tecla correspondiente del piano inferior antes de que la nota salga por la derecha. Si fallas, pierdes una vida. A partir de 10 puntos se ocultan los nombres sobre las notas y a partir de 20 también los del teclado. Teclado: S = Sol, M = Mi, L = La.
   </p>
 
-  <section data-scoreboard data-game="solmila" style="max-width: 900px; margin: 16px auto; text-align: left;"></section>
+  <div class="game-rankings">
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.alltime">Ranking General</h3>
+      <section data-scoreboard data-game="solmila" data-period="all-time"></section>
+    </div>
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.weekly">Ranking Semanal</h3>
+      <section data-scoreboard data-game="solmila" data-period="weekly"></section>
+    </div>
+  </div>
+
 <a href="../html/game.html" class="btn-secondary home-link">
   <span class="home-icon" aria-hidden="true">⌂</span>
   <span data-i18n="game.solmi.back">Volver a Atrapa Notas</span>

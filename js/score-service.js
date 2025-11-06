@@ -308,15 +308,15 @@
       }
       const limit = (board && board.options && board.options.maxEntries) || DEFAULT_MAX_ENTRIES;
       
-      // For weekly rankings, filter by last 7 days
+      // For weekly rankings, filter by current week (Monday 00:01)
       let query = coll.orderBy('score', 'desc');
       if (period === 'weekly') {
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const weekStart = getWeekStart();
         const firebase = window.firebase;
         if (firebase && firebase.firestore && firebase.firestore.Timestamp) {
-          const weekTimestamp = firebase.firestore.Timestamp.fromDate(oneWeekAgo);
+          const weekTimestamp = firebase.firestore.Timestamp.fromDate(weekStart);
           query = query.where('createdAtLocal', '>=', weekTimestamp);
+          debugLog('Weekly filter: from', weekStart.toISOString());
         }
       }
       
@@ -370,6 +370,18 @@
 
   function sanitizeKey(str) {
     return (str || '').toString().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  }
+
+  function getWeekStart() {
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0 = domingo, 1 = lunes, ..., 6 = sábado
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Si es domingo, retroceder 6 días
+    
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - daysToMonday);
+    monday.setHours(0, 1, 0, 0); // 00:01 del lunes
+    
+    return monday;
   }
 
   function createEl(tag, attrs = {}, children = []) {
@@ -572,7 +584,13 @@
       try {
         await this.service.addEntry(this, name, this.state.latestScore);
         this.hideSave();
-        await this.refresh();
+        
+        // Refresh all boards for this game (both all-time and weekly)
+        const allBoards = this.service.getBoardsByGame(this.options.gameId);
+        for (const board of allBoards) {
+          await board.refresh();
+        }
+        
         window.dispatchEvent(new CustomEvent('score:saved', {
           detail: { gameId: this.options.gameId, score: this.state.latestScore, name },
         }));
@@ -736,9 +754,36 @@
       return null;
     },
 
+    getBoardsByGame(gameId) {
+      const boards = [];
+      for (const board of this.boards.values()) {
+        if (board.options.gameId === gameId) {
+          boards.push(board);
+        }
+      }
+      return boards;
+    },
+
     showSave(gameId, score) {
-      const board = this.getBoardByGame(gameId);
-      if (board) board.showSave(score);
+      const boards = this.getBoardsByGame(gameId);
+      if (boards.length === 0) return;
+      
+      // Check if score qualifies for ANY of the boards (all-time OR weekly)
+      let qualifiesForAny = false;
+      for (const board of boards) {
+        if (board.isEligibleScore(score)) {
+          qualifiesForAny = true;
+          break;
+        }
+      }
+      
+      // Show save form on the first board (usually all-time)
+      // but only if the score qualifies for at least one ranking
+      if (qualifiesForAny && boards.length > 0) {
+        boards[0].showSave(score);
+      } else if (boards.length > 0) {
+        boards[0].hideSave();
+      }
     },
 
     hideSave(gameId) {
@@ -756,23 +801,42 @@
     },
 
     async submitScore(gameId, name) {
-      const board = this.getBoardByGame(gameId);
-      if (!board) return false;
-      return board.submitWithName(name);
+      const boards = this.getBoardsByGame(gameId);
+      if (boards.length === 0) return false;
+      
+      // Submit to the first board (which triggers save to both all-time and weekly)
+      const success = await boards[0].submitWithName(name);
+      
+      // Refresh all boards to show the updated rankings
+      if (success) {
+        for (const board of boards) {
+          await board.refresh();
+        }
+      }
+      
+      return success;
     },
 
     canSaveScore(gameId, score) {
-      const board = this.getBoardByGame(gameId);
-      if (!board) {
+      const boards = this.getBoardsByGame(gameId);
+      if (boards.length === 0) {
         const numeric = Number(score);
         return Number.isFinite(numeric) && numeric >= 1;
       }
-      const projection = this.projectEntry(board, {
-        name: DEFAULT_INITIALS,
-        score,
-        ts: new Date().toISOString(),
-      }, { persist: false });
-      return projection.included;
+      
+      // Return true if score qualifies for ANY board (all-time OR weekly)
+      for (const board of boards) {
+        const projection = this.projectEntry(board, {
+          name: DEFAULT_INITIALS,
+          score,
+          ts: new Date().toISOString(),
+        }, { persist: false });
+        if (projection.included) {
+          return true;
+        }
+      }
+      
+      return false;
     },
 
     projectEntry(board, entry, { persist = false } = {}) {
@@ -783,7 +847,8 @@
         : 1;
       const scoreValue = Number(entry && entry.score != null ? entry.score : NaN);
 
-      const existingRaw = this.loadLocal(board);
+      const period = board.options.period || 'all-time';
+      const existingRaw = this.loadLocal(board, period);
       const existing = Array.isArray(existingRaw)
         ? existingRaw.map((item) => ({
             ...item,
@@ -818,7 +883,7 @@
       });
 
       if (persist) {
-        this.persistLocal(board, cleanTop);
+        this.persistLocal(board, cleanTop, period);
       }
 
       return { top: cleanTop, included };
@@ -831,9 +896,19 @@
 
     async addEntry(board, name, score) {
       const entry = { name, score, ts: new Date().toISOString() };
-      const included = this.saveLocalEntry(board, entry);
-      debugLog('addEntry local save', board.options.gameId, score, included ? 'top-entry' : 'discarded');
-      if (!included) return;
+      const gameId = board.options.gameId;
+      
+      // Get all boards for this game (all-time and weekly)
+      const allBoards = this.getBoardsByGame(gameId);
+      
+      // Save to localStorage for each period
+      for (const b of allBoards) {
+        const period = b.options.period || 'all-time';
+        const included = this.saveLocalEntry(b, entry);
+        debugLog('addEntry local save', gameId, period, score, included ? 'top-entry' : 'discarded');
+      }
+      
+      // Save to Firebase (it will save to both collections: entries and entries-weekly)
       await FirebaseBackend.addEntry(board, entry);
     },
 
@@ -863,14 +938,14 @@
         const parsed = JSON.parse(raw);
         let entries = Array.isArray(parsed) ? parsed : [];
         
-        // For weekly, filter out entries older than 7 days
+        // For weekly, filter entries from current week (Monday 00:01)
         if (period === 'weekly') {
-          const oneWeekAgo = new Date();
-          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+          const weekStart = getWeekStart();
           entries = entries.filter(entry => {
             const entryDate = new Date(entry.ts);
-            return entryDate >= oneWeekAgo;
+            return entryDate >= weekStart;
           });
+          debugLog('Weekly local filter: from', weekStart.toISOString(), 'entries:', entries.length);
         }
         
         return entries;
