@@ -232,15 +232,27 @@
       const rawKey = (board && board.options && (board.options.rankKey || board.options.gameId)) || 'default';
       const key = sanitizeKey(rawKey) || 'default';
       const docRef = db.collection('leaderboards').doc(key);
+      let reference = null;
       if (period === 'weekly') {
         if (useLegacyWeekly) {
-          return docRef.collection('entries-weekly');
+          reference = docRef.collection('entries-weekly');
+        } else {
+          const resolvedWeekKey = weekKey || getWeekKey();
+          if (!resolvedWeekKey) return null;
+          reference = docRef.collection('weekly').doc(resolvedWeekKey).collection('entries');
         }
-        const resolvedWeekKey = weekKey || getWeekKey();
-        if (!resolvedWeekKey) return null;
-        return docRef.collection('weekly').doc(resolvedWeekKey).collection('entries');
+      } else {
+        reference = docRef.collection('entries');
       }
-      return docRef.collection('entries');
+      const refPath = getRefPath(reference);
+      debugLog('collectionRef resolved', {
+        period,
+        key,
+        weekKey: options.weekKey || null,
+        legacy: !!useLegacyWeekly,
+        path: refPath,
+      });
+      return reference;
     },
 
     normaliseEntryPayload(board, entry) {
@@ -251,6 +263,11 @@
       if (firebase && firebase.firestore && firebase.firestore.Timestamp) {
         createdAtLocal = firebase.firestore.Timestamp.fromDate(nowDate);
       }
+      debugLog('normaliseEntryPayload', {
+        gameId: board && board.options && board.options.gameId,
+        weekKey,
+        timestamp: nowDate.toISOString(),
+      });
       return {
         name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
         score: Number(entry && entry.score != null ? entry.score : 0) || 0,
@@ -276,8 +293,29 @@
         const payload = this.normaliseEntryPayload(board, entry);
         
         if (collAllTime) await collAllTime.add(payload);
-        if (collWeekly) await collWeekly.add(payload);
-        if (collWeeklyLegacy) await collWeeklyLegacy.add(payload);
+        debugLog('addEntry remote save complete', {
+          gameId: board && board.options && board.options.gameId,
+          period: 'all-time',
+          path: getRefPath(collAllTime),
+        });
+        if (collWeekly) {
+          await collWeekly.add(payload);
+          debugLog('addEntry remote save complete', {
+            gameId: board && board.options && board.options.gameId,
+            period: 'weekly',
+            weekKey,
+            path: getRefPath(collWeekly),
+          });
+        }
+        if (collWeeklyLegacy) {
+          await collWeeklyLegacy.add(payload);
+          debugLog('addEntry remote save complete', {
+            gameId: board && board.options && board.options.gameId,
+            period: 'weekly-legacy',
+            weekKey,
+            path: getRefPath(collWeeklyLegacy),
+          });
+        }
         
         return true;
       } catch (err) {
@@ -342,7 +380,14 @@
         return top;
       };
 
-      const runQuery = async (query, { weeklyFilter = false } = {}) => {
+      const runQuery = async (query, { weeklyFilter = false, label = 'unnamed' } = {}) => {
+        debugLog('fetchEntries: runQuery start', {
+          label,
+          period,
+          gameId: board && board.options && board.options.gameId,
+          weeklyFilter,
+          path: getRefPath(query),
+        });
         const snap = await query.get();
         const entries = [];
         if (snap && typeof snap.forEach === 'function') {
@@ -351,21 +396,41 @@
             if (parsed) entries.push(parsed);
           });
         }
-        debugLog('fetchEntries: obtained entries', entries.length);
-        return weeklyFilter ? processWeeklyEntries(entries) : entries;
+        debugLog('fetchEntries: runQuery done', {
+          label,
+          rawEntries: entries.length,
+          weeklyFilter,
+        });
+        const result = weeklyFilter ? processWeeklyEntries(entries) : entries;
+        debugLog('fetchEntries: runQuery result size', {
+          label,
+          returned: Array.isArray(result) ? result.length : 0,
+        });
+        return result;
       };
 
       const attempts = [];
+      const enqueueAttempt = (label, fn) => {
+        attempts.push({ label, fn });
+      };
       if (period === 'weekly') {
         const weeklyFetchLimit = Math.min(200, Math.max(limit * 5, limit + 40));
         if (coll && weekKey) {
           debugLog('Weekly scoped collection query', weekKey, 'limit', limit);
-          attempts.push(() => runQuery(
-            coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
-          ));
-          attempts.push(() => runQuery(
-            coll.orderBy('score', 'desc').limit(limit),
-          ));
+          enqueueAttempt(
+            'weekly-scoped-score+created',
+            () => runQuery(
+              coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
+              { label: 'weekly-scoped-score+created' },
+            ),
+          );
+          enqueueAttempt(
+            'weekly-scoped-score',
+            () => runQuery(
+              coll.orderBy('score', 'desc').limit(limit),
+              { label: 'weekly-scoped-score' },
+            ),
+          );
         }
 
         // Legacy structure fallback (single collection)
@@ -373,59 +438,89 @@
         if (legacyColl) {
           if (weekKey) {
             debugLog('Legacy weekKey query', weekKey, 'limit', limit);
-            attempts.push(() => runQuery(
-              legacyColl
-                .where('weekKey', '==', weekKey)
-                .orderBy('score', 'desc')
-                .orderBy('createdAt', 'asc')
-                .limit(limit),
-            ));
-            attempts.push(() => runQuery(
-              legacyColl
-                .where('weekKey', '==', weekKey)
-                .orderBy('score', 'desc')
-                .limit(limit),
-            ));
+            enqueueAttempt(
+              'legacy-weekKey-score+created',
+              () => runQuery(
+                legacyColl
+                  .where('weekKey', '==', weekKey)
+                  .orderBy('score', 'desc')
+                  .orderBy('createdAt', 'asc')
+                  .limit(limit),
+                { label: 'legacy-weekKey-score+created' },
+              ),
+            );
+            enqueueAttempt(
+              'legacy-weekKey-score',
+              () => runQuery(
+                legacyColl
+                  .where('weekKey', '==', weekKey)
+                  .orderBy('score', 'desc')
+                  .limit(limit),
+                { label: 'legacy-weekKey-score' },
+              ),
+            );
           }
           const firebase = window.firebase;
           if (firebase && firebase.firestore && firebase.firestore.Timestamp && weekStart) {
             const weekTimestamp = firebase.firestore.Timestamp.fromDate(weekStart);
             debugLog('Legacy createdAt filter: from', weekStart.toISOString(), 'limit', weeklyFetchLimit);
-            attempts.push(() => runQuery(
-              legacyColl
-                .where('createdAtLocal', '>=', weekTimestamp)
-                .orderBy('createdAtLocal', 'asc')
-                .limit(weeklyFetchLimit),
-              { weeklyFilter: true },
-            ));
+            enqueueAttempt(
+              'legacy-createdAt-range',
+              () => runQuery(
+                legacyColl
+                  .where('createdAtLocal', '>=', weekTimestamp)
+                  .orderBy('createdAtLocal', 'asc')
+                  .limit(weeklyFetchLimit),
+                { weeklyFilter: true, label: 'legacy-createdAt-range' },
+              ),
+            );
           }
-          attempts.push(() => runQuery(
-            legacyColl
-              .orderBy('createdAtLocal', 'desc')
-              .limit(weeklyFetchLimit),
-            { weeklyFilter: true },
-          ));
+          enqueueAttempt(
+            'legacy-createdAt-desc',
+            () => runQuery(
+              legacyColl
+                .orderBy('createdAtLocal', 'desc')
+                .limit(weeklyFetchLimit),
+              { weeklyFilter: true, label: 'legacy-createdAt-desc' },
+            ),
+          );
         }
       } else {
-        attempts.push(() => runQuery(
-          coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
-        ));
-        attempts.push(() => runQuery(
-          coll.orderBy('score', 'desc').limit(limit),
-        ));
+        enqueueAttempt(
+          'all-time-score+created',
+          () => runQuery(
+            coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
+            { label: 'all-time-score+created' },
+          ),
+        );
+        enqueueAttempt(
+          'all-time-score',
+          () => runQuery(
+            coll.orderBy('score', 'desc').limit(limit),
+            { label: 'all-time-score' },
+          ),
+        );
       }
 
       for (let i = 0; i < attempts.length; i += 1) {
         try {
-          const entries = await attempts[i]();
+          const { label, fn } = attempts[i];
+          debugLog('fetchEntries: attempt start', {
+            label,
+            index: i,
+            period,
+            gameId: board && board.options && board.options.gameId,
+          });
+          const entries = await fn();
           if (Array.isArray(entries)) return entries;
         } catch (err) {
+          const label = attempts[i] && attempts[i].label ? attempts[i].label : `attempt-${i}`;
           if (i === attempts.length - 1) {
-            console.warn('[ScoreService] Firebase fetchEntries failed', err);
+            console.warn('[ScoreService] Firebase fetchEntries failed', label, err);
             return null;
           }
-          console.warn('[ScoreService] Firebase fetchEntries retrying with reduced query', err);
-          debugLog('fetchEntries: retrying with fallback query');
+          console.warn('[ScoreService] Firebase fetchEntries retrying with reduced query', label, err);
+          debugLog('fetchEntries: retrying with fallback query', { label, nextAttempt: i + 1 });
         }
       }
       return null;
@@ -471,6 +566,16 @@
   function getWeekKey(referenceDate = new Date()) {
     const monday = getWeekStart(referenceDate);
     return monday.toISOString().slice(0, 10);
+  }
+  
+  function getRefPath(ref) {
+    if (!ref || typeof ref !== 'object') return null;
+    try {
+      if (typeof ref.path === 'string') return ref.path;
+    } catch (_) {
+      return null;
+    }
+    return null;
   }
 
   function createEl(tag, attrs = {}, children = []) {
