@@ -236,24 +236,22 @@
 
     normaliseEntryPayload(board, entry) {
       const firebase = window.firebase;
-      const now = firebase && firebase.firestore && typeof firebase.firestore.Timestamp === 'function'
-        ? firebase.firestore.Timestamp.now()
-        : null;
-        let createdAtLocal = now;
-        if (firebase && firebase.firestore && firebase.firestore.Timestamp) {
-          createdAtLocal = firebase.firestore.Timestamp.fromDate(now);
-        }
-        return {
-          name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
-          score: Number(entry && entry.score != null ? entry.score : 0) || 0,
-          createdAt: firebase && firebase.firestore && firebase.firestore.FieldValue
-            ? firebase.firestore.FieldValue.serverTimestamp()
-            : null,
-          createdAtLocal,
-          tsString: entry && entry.ts ? entry.ts : new Date().toISOString(),
-          gameId: (board && board.options && board.options.gameId) || null,
-          version: 2,
-        };
+      const nowDate = new Date();
+      let createdAtLocal = nowDate;
+      if (firebase && firebase.firestore && firebase.firestore.Timestamp) {
+        createdAtLocal = firebase.firestore.Timestamp.fromDate(nowDate);
+      }
+      return {
+        name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
+        score: Number(entry && entry.score != null ? entry.score : 0) || 0,
+        createdAt: firebase && firebase.firestore && firebase.firestore.FieldValue
+          ? firebase.firestore.FieldValue.serverTimestamp()
+          : null,
+        createdAtLocal,
+        tsString: entry && entry.ts ? entry.ts : nowDate.toISOString(),
+        gameId: (board && board.options && board.options.gameId) || null,
+        version: 2,
+      };
     },
 
     async addEntry(board, entry) {
