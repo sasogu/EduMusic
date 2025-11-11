@@ -309,35 +309,68 @@
         return null;
       }
       const limit = (board && board.options && board.options.maxEntries) || DEFAULT_MAX_ENTRIES;
-      
-      // For weekly rankings, filter by current week (Monday 00:01)
-      let query = coll.orderBy('score', 'desc');
-      if (period === 'weekly') {
-        const weekStart = getWeekStart();
-        const firebase = window.firebase;
-        if (firebase && firebase.firestore && firebase.firestore.Timestamp) {
-          const weekTimestamp = firebase.firestore.Timestamp.fromDate(weekStart);
-          query = query.where('createdAtLocal', '>=', weekTimestamp);
-          debugLog('Weekly filter: from', weekStart.toISOString());
+      const weekStart = period === 'weekly' ? getWeekStart() : null;
+
+      const processWeeklyEntries = (entries) => {
+        if (!weekStart) return entries;
+        const filtered = entries.filter((entry) => {
+          const ts = new Date(entry.ts);
+          return ts >= weekStart;
+        });
+        filtered.sort((a, b) => b.score - a.score || new Date(a.ts) - new Date(b.ts));
+        const top = filtered.slice(0, limit);
+        debugLog('fetchEntries: weekly post-process', filtered.length, '->', top.length);
+        return top;
+      };
+
+      const runQuery = async (query, { weeklyFilter = false } = {}) => {
+        const snap = await query.get();
+        const entries = [];
+        if (snap && typeof snap.forEach === 'function') {
+          snap.forEach((doc) => {
+            const parsed = this.parseSnapshot(doc);
+            if (parsed) entries.push(parsed);
+          });
         }
+        debugLog('fetchEntries: obtained entries', entries.length);
+        return weeklyFilter ? processWeeklyEntries(entries) : entries;
+      };
+
+      const attempts = [];
+      if (period === 'weekly') {
+        const weeklyFetchLimit = Math.min(200, Math.max(limit * 10, limit + 40));
+        const firebase = window.firebase;
+        if (firebase && firebase.firestore && firebase.firestore.Timestamp && weekStart) {
+          const weekTimestamp = firebase.firestore.Timestamp.fromDate(weekStart);
+          debugLog('Weekly filter: from', weekStart.toISOString(), 'limit', weeklyFetchLimit);
+          attempts.push(() => runQuery(
+            coll
+              .where('createdAtLocal', '>=', weekTimestamp)
+              .orderBy('createdAtLocal', 'asc')
+              .limit(weeklyFetchLimit),
+            { weeklyFilter: true },
+          ));
+        }
+        // Fallback: rely on creation date ordering and filter client-side
+        attempts.push(() => runQuery(
+          coll
+            .orderBy('createdAtLocal', 'desc')
+            .limit(weeklyFetchLimit),
+          { weeklyFilter: true },
+        ));
+      } else {
+        attempts.push(() => runQuery(
+          coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
+        ));
+        attempts.push(() => runQuery(
+          coll.orderBy('score', 'desc').limit(limit),
+        ));
       }
-      
-      const attempts = [
-        () => query.orderBy('createdAt', 'asc').limit(limit).get(),
-        () => query.limit(limit).get(),
-      ];
+
       for (let i = 0; i < attempts.length; i += 1) {
         try {
-          const snap = await attempts[i]();
-          const entries = [];
-          if (snap && typeof snap.forEach === 'function') {
-            snap.forEach((doc) => {
-              const parsed = this.parseSnapshot(doc);
-              if (parsed) entries.push(parsed);
-            });
-          }
-          debugLog('fetchEntries: obtained entries', entries.length);
-          return entries;
+          const entries = await attempts[i]();
+          if (Array.isArray(entries)) return entries;
         } catch (err) {
           if (i === attempts.length - 1) {
             console.warn('[ScoreService] Firebase fetchEntries failed', err);
