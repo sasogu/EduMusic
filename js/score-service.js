@@ -238,6 +238,7 @@
       const firebase = window.firebase;
       const nowDate = new Date();
       let createdAtLocal = nowDate;
+      const weekKey = getWeekKey(nowDate);
       if (firebase && firebase.firestore && firebase.firestore.Timestamp) {
         createdAtLocal = firebase.firestore.Timestamp.fromDate(nowDate);
       }
@@ -250,6 +251,7 @@
         createdAtLocal,
         tsString: entry && entry.ts ? entry.ts : nowDate.toISOString(),
         gameId: (board && board.options && board.options.gameId) || null,
+        weekKey,
         version: 2,
       };
     },
@@ -310,6 +312,7 @@
       }
       const limit = (board && board.options && board.options.maxEntries) || DEFAULT_MAX_ENTRIES;
       const weekStart = period === 'weekly' ? getWeekStart() : null;
+      const weekKey = weekStart ? getWeekKey(weekStart) : null;
 
       const processWeeklyEntries = (entries) => {
         if (!weekStart) return entries;
@@ -339,10 +342,26 @@
       const attempts = [];
       if (period === 'weekly') {
         const weeklyFetchLimit = Math.min(200, Math.max(limit * 10, limit + 40));
+        if (weekKey) {
+          debugLog('Weekly weekKey query', weekKey, 'limit', limit);
+          attempts.push(() => runQuery(
+            coll
+              .where('weekKey', '==', weekKey)
+              .orderBy('score', 'desc')
+              .orderBy('createdAt', 'asc')
+              .limit(limit),
+          ));
+          attempts.push(() => runQuery(
+            coll
+              .where('weekKey', '==', weekKey)
+              .orderBy('score', 'desc')
+              .limit(limit),
+          ));
+        }
         const firebase = window.firebase;
         if (firebase && firebase.firestore && firebase.firestore.Timestamp && weekStart) {
           const weekTimestamp = firebase.firestore.Timestamp.fromDate(weekStart);
-          debugLog('Weekly filter: from', weekStart.toISOString(), 'limit', weeklyFetchLimit);
+          debugLog('Weekly legacy filter: from', weekStart.toISOString(), 'limit', weeklyFetchLimit);
           attempts.push(() => runQuery(
             coll
               .where('createdAtLocal', '>=', weekTimestamp)
@@ -351,7 +370,7 @@
             { weeklyFilter: true },
           ));
         }
-        // Fallback: rely on creation date ordering and filter client-side
+        // Final fallback: rely on creation date ordering and filter client-side
         attempts.push(() => runQuery(
           coll
             .orderBy('createdAtLocal', 'desc')
@@ -407,8 +426,8 @@
     return (str || '').toString().toLowerCase().replace(/[^a-z0-9]+/g, '-');
   }
 
-  function getWeekStart() {
-    const now = new Date();
+  function getWeekStart(referenceDate = new Date()) {
+    const now = new Date(referenceDate);
     const dayOfWeek = now.getDay(); // 0 = domingo, 1 = lunes, ..., 6 = sábado
     const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Si es domingo, retroceder 6 días
     
@@ -417,6 +436,14 @@
     monday.setHours(0, 1, 0, 0); // 00:01 del lunes
     
     return monday;
+  }
+
+  function getWeekKey(referenceDate = new Date()) {
+    const monday = getWeekStart(referenceDate);
+    const year = monday.getFullYear();
+    const month = String(monday.getMonth() + 1).padStart(2, '0');
+    const day = String(monday.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   function createEl(tag, attrs = {}, children = []) {
