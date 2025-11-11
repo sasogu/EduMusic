@@ -268,7 +268,7 @@
         weekKey,
         timestamp: nowDate.toISOString(),
       });
-      return {
+      const payload = {
         name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
         score: Number(entry && entry.score != null ? entry.score : 0) || 0,
         createdAt: firebase && firebase.firestore && firebase.firestore.FieldValue
@@ -280,6 +280,8 @@
         weekKey,
         version: 2,
       };
+      debugLog('normaliseEntryPayload payload keys', Object.keys(payload));
+      return payload;
     },
 
     async addEntry(board, entry) {
@@ -322,7 +324,11 @@
         
         return true;
       } catch (err) {
-        console.warn('[ScoreService] Firebase addEntry failed', err);
+        console.warn('[ScoreService] Firebase addEntry failed', {
+          gameId: board && board.options && board.options.gameId,
+          payloadKeys: payload ? Object.keys(payload) : [],
+          weekKey: currentWeekKey,
+        }, err);
         return false;
       }
     },
