@@ -239,17 +239,21 @@
       const now = firebase && firebase.firestore && typeof firebase.firestore.Timestamp === 'function'
         ? firebase.firestore.Timestamp.now()
         : null;
-      return {
-        name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
-        score: Number(entry && entry.score != null ? entry.score : 0) || 0,
-        createdAt: firebase && firebase.firestore && firebase.firestore.FieldValue
-          ? firebase.firestore.FieldValue.serverTimestamp()
-          : null,
-        createdAtLocal: now,
-        tsString: entry && entry.ts ? entry.ts : new Date().toISOString(),
-        gameId: (board && board.options && board.options.gameId) || null,
-        version: 2,
-      };
+        let createdAtLocal = now;
+        if (firebase && firebase.firestore && firebase.firestore.Timestamp) {
+          createdAtLocal = firebase.firestore.Timestamp.fromDate(now);
+        }
+        return {
+          name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
+          score: Number(entry && entry.score != null ? entry.score : 0) || 0,
+          createdAt: firebase && firebase.firestore && firebase.firestore.FieldValue
+            ? firebase.firestore.FieldValue.serverTimestamp()
+            : null,
+          createdAtLocal,
+          tsString: entry && entry.ts ? entry.ts : new Date().toISOString(),
+          gameId: (board && board.options && board.options.gameId) || null,
+          version: 2,
+        };
     },
 
     async addEntry(board, entry) {

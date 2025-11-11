@@ -282,4 +282,21 @@
   <script src="../js/i18n/game.js" defer></script>
   <script src="../js/score-service.js" defer></script>
 </body>
+<script>
+  // Forzar recarga de todos los scoreboards al cargar la página
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.ScoreService && typeof window.ScoreService.scanDom === 'function') {
+      window.ScoreService.scanDom();
+      // Refrescar todos los boards explícitamente
+      setTimeout(function() {
+        if (window.ScoreService && window.ScoreService.boards) {
+          window.ScoreService.boards.forEach(function(board) {
+            if (typeof board.refresh === 'function') board.refresh();
+          });
+        }
+      }, 500);
+    }
+  });
+</script>
+</body>
 </html>
