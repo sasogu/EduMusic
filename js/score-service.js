@@ -225,13 +225,22 @@
       return this.initPromise;
     },
 
-    collectionRef(board, period = 'all-time') {
+    collectionRef(board, period = 'all-time', options = {}) {
       const db = this.db;
       if (!db) return null;
+      const { weekKey, useLegacyWeekly = false } = options || {};
       const rawKey = (board && board.options && (board.options.rankKey || board.options.gameId)) || 'default';
       const key = sanitizeKey(rawKey) || 'default';
-      const collectionName = period === 'weekly' ? 'entries-weekly' : 'entries';
-      return db.collection('leaderboards').doc(key).collection(collectionName);
+      const docRef = db.collection('leaderboards').doc(key);
+      if (period === 'weekly') {
+        if (useLegacyWeekly) {
+          return docRef.collection('entries-weekly');
+        }
+        const resolvedWeekKey = weekKey || getWeekKey();
+        if (!resolvedWeekKey) return null;
+        return docRef.collection('weekly').doc(resolvedWeekKey).collection('entries');
+      }
+      return docRef.collection('entries');
     },
 
     normaliseEntryPayload(board, entry) {
@@ -262,11 +271,13 @@
       try {
         // Save to both all-time and weekly collections
         const collAllTime = this.collectionRef(board, 'all-time');
-        const collWeekly = this.collectionRef(board, 'weekly');
+        const collWeekly = this.collectionRef(board, 'weekly', { weekKey });
+        const collWeeklyLegacy = this.collectionRef(board, 'weekly', { weekKey, useLegacyWeekly: true });
         const payload = this.normaliseEntryPayload(board, entry);
         
         if (collAllTime) await collAllTime.add(payload);
         if (collWeekly) await collWeekly.add(payload);
+        if (collWeeklyLegacy) await collWeeklyLegacy.add(payload);
         
         return true;
       } catch (err) {
@@ -305,14 +316,19 @@
         debugLog('fetchEntries: Firestore unavailable, using local', board && board.options && board.options.gameId);
         return null;
       }
-      const coll = this.collectionRef(board, period);
+      const weekReference = period === 'weekly' ? new Date() : null;
+      const weekStart = weekReference ? getWeekStart(weekReference) : null;
+      const weekKey = weekReference ? getWeekKey(weekReference) : null;
+      const coll = this.collectionRef(
+        board,
+        period,
+        weekKey ? { weekKey } : undefined,
+      );
       if (!coll) {
         debugLog('fetchEntries: collectionRef missing', board && board.options && board.options.gameId);
         return null;
       }
       const limit = (board && board.options && board.options.maxEntries) || DEFAULT_MAX_ENTRIES;
-      const weekStart = period === 'weekly' ? getWeekStart() : null;
-      const weekKey = weekStart ? getWeekKey(weekStart) : null;
 
       const processWeeklyEntries = (entries) => {
         if (!weekStart) return entries;
@@ -341,42 +357,55 @@
 
       const attempts = [];
       if (period === 'weekly') {
-        const weeklyFetchLimit = Math.min(200, Math.max(limit * 10, limit + 40));
-        if (weekKey) {
-          debugLog('Weekly weekKey query', weekKey, 'limit', limit);
+        const weeklyFetchLimit = Math.min(200, Math.max(limit * 5, limit + 40));
+        if (coll && weekKey) {
+          debugLog('Weekly scoped collection query', weekKey, 'limit', limit);
           attempts.push(() => runQuery(
-            coll
-              .where('weekKey', '==', weekKey)
-              .orderBy('score', 'desc')
-              .orderBy('createdAt', 'asc')
-              .limit(limit),
+            coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
           ));
           attempts.push(() => runQuery(
-            coll
-              .where('weekKey', '==', weekKey)
-              .orderBy('score', 'desc')
-              .limit(limit),
+            coll.orderBy('score', 'desc').limit(limit),
           ));
         }
-        const firebase = window.firebase;
-        if (firebase && firebase.firestore && firebase.firestore.Timestamp && weekStart) {
-          const weekTimestamp = firebase.firestore.Timestamp.fromDate(weekStart);
-          debugLog('Weekly legacy filter: from', weekStart.toISOString(), 'limit', weeklyFetchLimit);
+
+        // Legacy structure fallback (single collection)
+        const legacyColl = this.collectionRef(board, 'weekly', { useLegacyWeekly: true });
+        if (legacyColl) {
+          if (weekKey) {
+            debugLog('Legacy weekKey query', weekKey, 'limit', limit);
+            attempts.push(() => runQuery(
+              legacyColl
+                .where('weekKey', '==', weekKey)
+                .orderBy('score', 'desc')
+                .orderBy('createdAt', 'asc')
+                .limit(limit),
+            ));
+            attempts.push(() => runQuery(
+              legacyColl
+                .where('weekKey', '==', weekKey)
+                .orderBy('score', 'desc')
+                .limit(limit),
+            ));
+          }
+          const firebase = window.firebase;
+          if (firebase && firebase.firestore && firebase.firestore.Timestamp && weekStart) {
+            const weekTimestamp = firebase.firestore.Timestamp.fromDate(weekStart);
+            debugLog('Legacy createdAt filter: from', weekStart.toISOString(), 'limit', weeklyFetchLimit);
+            attempts.push(() => runQuery(
+              legacyColl
+                .where('createdAtLocal', '>=', weekTimestamp)
+                .orderBy('createdAtLocal', 'asc')
+                .limit(weeklyFetchLimit),
+              { weeklyFilter: true },
+            ));
+          }
           attempts.push(() => runQuery(
-            coll
-              .where('createdAtLocal', '>=', weekTimestamp)
-              .orderBy('createdAtLocal', 'asc')
+            legacyColl
+              .orderBy('createdAtLocal', 'desc')
               .limit(weeklyFetchLimit),
             { weeklyFilter: true },
           ));
         }
-        // Final fallback: rely on creation date ordering and filter client-side
-        attempts.push(() => runQuery(
-          coll
-            .orderBy('createdAtLocal', 'desc')
-            .limit(weeklyFetchLimit),
-          { weeklyFilter: true },
-        ));
       } else {
         attempts.push(() => runQuery(
           coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
@@ -428,22 +457,20 @@
 
   function getWeekStart(referenceDate = new Date()) {
     const now = new Date(referenceDate);
-    const dayOfWeek = now.getDay(); // 0 = domingo, 1 = lunes, ..., 6 = sábado
+    const dayOfWeek = now.getUTCDay(); // 0 = domingo, 1 = lunes, ..., 6 = sábado
     const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Si es domingo, retroceder 6 días
-    
-    const monday = new Date(now);
-    monday.setDate(now.getDate() - daysToMonday);
-    monday.setHours(0, 1, 0, 0); // 00:01 del lunes
-    
-    return monday;
+    const mondayDate = now.getUTCDate() - daysToMonday;
+    return new Date(Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      mondayDate,
+      0, 1, 0, 0,
+    ));
   }
 
   function getWeekKey(referenceDate = new Date()) {
     const monday = getWeekStart(referenceDate);
-    const year = monday.getFullYear();
-    const month = String(monday.getMonth() + 1).padStart(2, '0');
-    const day = String(monday.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return monday.toISOString().slice(0, 10);
   }
 
   function createEl(tag, attrs = {}, children = []) {
@@ -970,7 +997,7 @@
         debugLog('addEntry local save', gameId, period, score, included ? 'top-entry' : 'discarded');
       }
       
-      // Save to Firebase (it will save to both collections: entries and entries-weekly)
+      // Save to Firebase (general leaderboard plus weekly scopes/legacy fallback)
       await FirebaseBackend.addEntry(board, entry);
     },
 
