@@ -1,7 +1,10 @@
-const SW_VERSION = 'v1.1.1';
+const SW_VERSION = 'v1.1.2';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
+const CRITICAL_SCRIPTS = new Set([
+  'js/score-service.js',
+]);
 
 const ASSETS = [
   './',
@@ -153,6 +156,21 @@ async function staleWhileRevalidate(request) {
   return Response.error();
 }
 
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE);
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (err) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw err;
+  }
+}
+
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE).then(cache => {
@@ -216,13 +234,17 @@ self.addEventListener('fetch', event => {
     || url.pathname.endsWith('.js')
     || url.pathname.includes('/js/');
   if (isScript) {
+    const scopePath = new URL(self.registration.scope).pathname;
+    let relativePath = url.pathname.startsWith(scopePath)
+      ? url.pathname.slice(scopePath.length)
+      : url.pathname;
+    relativePath = relativePath.replace(/^\/+/, '');
+    const isCriticalScript = CRITICAL_SCRIPTS.has(relativePath);
     event.respondWith((async () => {
-      if (IS_FRESH_VERSION) {
+      if (IS_FRESH_VERSION || isCriticalScript) {
         // Network-first para evitar JS obsoleto tras actualizar
         try {
-          const resp = await fetch(request);
-          const copy = resp.clone();
-          caches.open(CACHE).then(c => c.put(request, copy));
+          const resp = await networkFirst(request);
           return resp;
         } catch {
           const cached = await caches.match(request);
