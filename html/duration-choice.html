@@ -61,7 +61,22 @@
     </p>
   </section>
 
-  <section data-scoreboard data-game="duration-choice" data-show-save-at="1" style="max-width:720px;margin:18px auto;text-align:left;"></section>
+  <section class="duration-scoreboards" style="max-width:720px;margin:18px auto;text-align:left;">
+    <section
+      data-scoreboard
+      data-game="duration-choice"
+      data-show-save-at="1"
+      data-heading="Ranking general"
+      style="margin-bottom:16px;"
+    ></section>
+    <section
+      data-scoreboard
+      data-game="duration-choice"
+      data-period="weekly"
+      data-heading="Ranking semanal"
+      data-show-save-at="1"
+    ></section>
+  </section>
 
   <a href="../index.html" class="home-link" style="margin-top:12px;">
     <span class="home-icon" aria-hidden="true">⌂</span>
@@ -73,6 +88,7 @@
   <script src="../js/app.js" defer></script>
   <script src="../js/audio-settings.js" defer></script>
   <script src="../js/i18n/duration-choice.js" defer></script>
+  <script src="../js/i18n/rankings.js" defer></script>
   <script src="../js/i18n/game.js" defer></script>
   <script src="../js/i18n/hud.js" defer></script>
   <script src="../js/score-service.js" defer></script>
