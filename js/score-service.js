@@ -289,11 +289,13 @@
         // Prepare payload and collection references
         const payload = this.normaliseEntryPayload(board, entry);
         const currentWeekKey = payload && payload.weekKey ? payload.weekKey : getWeekKey();
+        const payloadAllTime = { ...payload };
+        delete payloadAllTime.weekKey;
         const collAllTime = this.collectionRef(board, 'all-time');
         const collWeekly = this.collectionRef(board, 'weekly', { weekKey: currentWeekKey });
         const collWeeklyLegacy = this.collectionRef(board, 'weekly', { weekKey: currentWeekKey, useLegacyWeekly: true });
-        
-        if (collAllTime) await collAllTime.add(payload);
+
+        if (collAllTime) await collAllTime.add(payloadAllTime);
         debugLog('addEntry remote save complete', {
           gameId: board && board.options && board.options.gameId,
           period: 'all-time',
