@@ -286,11 +286,12 @@
       const db = await this.ensureInit();
       if (!db) return false;
       try {
-        // Save to both all-time and weekly collections
+        // Prepare payload and collection references
+        const payload = this.normaliseEntryPayload(board, entry);
+        const weekKey = payload && payload.weekKey ? payload.weekKey : getWeekKey();
         const collAllTime = this.collectionRef(board, 'all-time');
         const collWeekly = this.collectionRef(board, 'weekly', { weekKey });
         const collWeeklyLegacy = this.collectionRef(board, 'weekly', { weekKey, useLegacyWeekly: true });
-        const payload = this.normaliseEntryPayload(board, entry);
         
         if (collAllTime) await collAllTime.add(payload);
         debugLog('addEntry remote save complete', {
