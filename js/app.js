@@ -21,10 +21,23 @@ function ensureSwFooter() {
   if (!host) return null;
   host.classList.add('page-footer');
   host.innerHTML = `
-    <span data-i18n="sw.label">Service Worker:</span>
-    <span id="swVersion">cargando…</span>
-    <button id="swUpdateBtn" class="sw-update-btn" style="display:none;">Actualizar</button>
+    <div class="page-footer__meta">
+      <span data-i18n="sw.label">Service Worker:</span>
+      <span id="swVersion">cargando…</span>
+      <button id="swUpdateBtn" class="sw-update-btn" style="display:none;">Actualizar</button>
+    </div>
+    <div class="page-footer__links">
+      <a class="page-footer__link" data-about-link data-i18n="footer.about" href="#">Sobre EduMúsic</a>
+    </div>
   `;
+  const aboutLink = host.querySelector('[data-about-link]');
+  if (aboutLink) {
+    try {
+      const manifestLink = document.querySelector('link[rel="manifest"]');
+      const baseHref = manifestLink ? manifestLink.href : window.location.href;
+      aboutLink.href = new URL('html/about.html', baseHref).href;
+    } catch (_) {}
+  }
   return host.querySelector('#swVersion');
 }
 
@@ -165,7 +178,8 @@ function ensureSwFooter() {
       'lang.val': 'Valencià',
       'lang.en': 'English',
       'gamehub.back': 'Volver al inicio',
-      'game.back': 'Volver al inicio'
+      'game.back': 'Volver al inicio',
+      'footer.about': 'Sobre EduMúsic'
     },
     val: {
       'sw.label': 'Service Worker:',
@@ -179,7 +193,8 @@ function ensureSwFooter() {
       'lang.val': 'Valencià',
       'lang.en': 'Anglés',
       'gamehub.back': "Torna a l'inici",
-      'game.back': "Torna a l'inici"
+      'game.back': "Torna a l'inici",
+      'footer.about': 'Sobre EduMúsic'
     },
     en: {
       'sw.label': 'Service Worker:',
@@ -193,7 +208,8 @@ function ensureSwFooter() {
       'lang.val': 'Valencian',
       'lang.en': 'English',
       'gamehub.back': 'Back to home',
-      'game.back': 'Back to home'
+      'game.back': 'Back to home',
+      'footer.about': 'About EduMúsic'
     }
   };
 

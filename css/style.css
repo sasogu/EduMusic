@@ -17,6 +17,102 @@ body {
   user-select: none;
 }
 
+body.about-page {
+  text-align: left;
+  user-select: text;
+  -webkit-touch-callout: initial;
+  padding-bottom: 72px;
+}
+
+.about-logo {
+  display: block;
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 12px;
+}
+
+.about-subtitle {
+  max-width: 640px;
+  margin: 0.4rem auto 1.5rem;
+  font-size: 1.1rem;
+  color: #475569;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.about-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto 20px;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.about-layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.about-card {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  padding: 20px 24px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.about-card--wide {
+  grid-column: 1 / -1;
+}
+
+.about-card h2 {
+  margin-top: 0;
+  font-size: 1.35rem;
+  color: #1f2a48;
+}
+
+.about-card p {
+  margin: 0.6rem 0;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.about-list {
+  margin: 0.4rem 0 0.6rem 1.2rem;
+  padding: 0;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.about-list li {
+  margin-bottom: 0.4rem;
+}
+
+.about-link {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.about-link:hover,
+.about-link:focus-visible {
+  text-decoration: underline;
+}
+
+.about-note {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
 h1 {
   font-family: 'Baloo 2', 'Poppins', 'Segoe UI', sans-serif;
   font-size: clamp(2.6rem, 5vw, 3.6rem);
@@ -500,9 +596,39 @@ button {
 }
 
 .page-footer {
-  margin-top: 24px;
-  color: #64748b;
-  font-size: 12px;
+  margin-top: 32px;
+  color: #475569;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.page-footer__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.page-footer__links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.page-footer__link {
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.page-footer__link:hover,
+.page-footer__link:focus-visible {
+  text-decoration: underline;
 }
 
 .sw-update-btn {
