@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.1.6';
+const SW_VERSION = 'v1.2.36';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
@@ -44,6 +44,7 @@ const ASSETS = [
   'js/i18n/duration-choice.js',
   'js/i18n/word-guess.js',
   'js/i18n/quiz.js',
+  'js/i18n/instruments.js',
   'js/i18n/rankings.js',
   'js/i18n/piano-hero.js',
   'manifest.json',
@@ -54,7 +55,9 @@ const ASSETS = [
   'html/solmiladore.html',
   'html/solmiladorefa.html',
   'html/todas.html',
+  'html/dofa.html',
   'html/memory.html',
+  'html/instruments.html',
   'html/compas.html',
   'html/melody.html',
   'html/rhythm.html',
@@ -88,6 +91,7 @@ const ASSETS = [
   'js/quiz.js',
   'js/word-guess.js',
   'js/piano-hero.js',
+  'js/instruments.js',
   'js/game-over-overlay.js',
   'assets/icon-192.png',
   'assets/icon-512.png',
@@ -100,6 +104,11 @@ const ASSETS = [
   'assets/audio/error.mp3',
   'assets/audio/winner.mp3',
   'assets/audio/caja.mp3',
+  'assets/audio/cello.mp3',
+  'assets/audio/clarinet.mp3',
+  'assets/audio/oboe.mp3',
+  'assets/audio/fagot.mp3',
+  'assets/audio/trombone.mp3',
   'assets/piano/key01.ogg',
   'assets/piano/key02.ogg',
   'assets/piano/key03.ogg',
@@ -123,7 +132,21 @@ const ASSETS = [
   'assets/piano/key21.ogg',
   'assets/piano/key22.ogg',
   'assets/piano/key23.ogg',
-  'assets/piano/key24.ogg'
+  'assets/piano/key24.ogg',
+  'assets/image/orquesta/caja.png',
+  'assets/image/orquesta/clarinete.jpg',
+  'assets/image/orquesta/contrabajo.jpg',
+  'assets/image/orquesta/fagot.jpg',
+  'assets/image/orquesta/flauta.jpg',
+  'assets/image/orquesta/marimba.jpg',
+  'assets/image/orquesta/oboe.jpg',
+  'assets/image/orquesta/trombon.jpg',
+  'assets/image/orquesta/trompa.jpg',
+  'assets/image/orquesta/trompeta.png',
+  'assets/image/orquesta/tuba.jpg',
+  'assets/image/orquesta/viola.jpg',
+  'assets/image/orquesta/violin.jpg',
+  'assets/image/orquesta/violonchelo.jpg'
 ];
 
 function toScopeUrl(path) {

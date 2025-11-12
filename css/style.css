@@ -15,6 +15,11 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
+  overflow-x: hidden;
+}
+
+body.modal-open {
+  overflow: hidden;
 }
 
 body.about-page {
@@ -38,6 +43,20 @@ body.about-page {
   color: #475569;
   line-height: 1.4;
   text-align: center;
+}
+
+.about-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+}
+
+.about-lang {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .about-back {
@@ -112,6 +131,211 @@ body.about-page {
   font-size: 0.95rem;
   color: #475569;
 }
+
+.instrument-panel {
+  max-width: 520px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 22px 26px 32px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.instrument-card {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.instrument-image {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(236, 72, 153, 0.08));
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.instrument-image[data-instrument-image] {
+  cursor: zoom-in;
+}
+
+.instrument-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 1600;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.instrument-modal[aria-hidden="false"] {
+  display: flex;
+}
+
+.instrument-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.instrument-modal__content {
+  position: relative;
+  max-width: min(360px, 85vw);
+  width: 100%;
+  border-radius: 20px;
+  padding: 18px;
+  background: #fff;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.4);
+  text-align: center;
+  z-index: 1;
+}
+
+.instrument-modal__content img {
+  width: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+  max-height: 320px;
+  margin-bottom: 6px;
+}
+
+.instrument-modal__label {
+  margin: 0;
+  font-weight: 600;
+  color: #1f2a48;
+}
+
+.instrument-modal__close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  font-size: 1.6rem;
+  color: #334155;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.instrument-modal__close:focus-visible {
+  outline: 2px solid #2563eb;
+  border-radius: 999px;
+}
+.instrument-label {
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.instrument-name {
+  font-size: 2rem;
+  letter-spacing: 0.04em;
+  margin: 6px 0;
+  color: #1f2a48;
+  font-weight: 700;
+}
+
+.instrument-info {
+  color: #64748b;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.instrument-sound-btn {
+  margin-top: 12px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  padding: 0.65rem 1.3rem;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.instrument-sound-btn:hover,
+.instrument-sound-btn:focus-visible {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.instrument-sound-btn[disabled] {
+  background: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.instrument-families {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.family-btn {
+  padding: 12px 16px;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: #e2e8f0;
+  color: #1f2937;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.family-btn:focus-visible,
+.family-btn:hover {
+  border-color: #2563eb;
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+
+.family-btn.correct {
+  background: #dcfce7;
+  border-color: #16a34a;
+}
+
+.family-btn.wrong {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+.instrument-feedback {
+  min-height: 32px;
+  margin-bottom: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: #475569;
+}
+
+.instrument-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.instrument-stats span {
+  display: block;
+}
+
+.instrument-stats span:first-child {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1f2a48;
+}
+
+.instrument-controls {
+  text-align: center;
+}
+
 
 h1 {
   font-family: 'Baloo 2', 'Poppins', 'Segoe UI', sans-serif;

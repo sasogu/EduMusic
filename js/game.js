@@ -108,15 +108,71 @@
       activeHighlight: '#fde68a',
       freq: 493.88,
     },
+    do_high: {
+      labels: { es: "DO'", val: "DO'", en: "C'" },
+      label: "DO'",
+      offsetSteps: -5,
+      pianoIndex: 0,
+      key: 'd',
+      color: '#b45309',
+      highlight: '#fde68a',
+      activeHighlight: '#facc15',
+      freq: 523.25,
+    },
+    re_high: {
+      labels: { es: "RE'", val: "RE'", en: "D'" },
+      label: "RE'",
+      offsetSteps: -6,
+      pianoIndex: 1,
+      key: 'r',
+      color: '#9333ea',
+      highlight: '#ede9fe',
+      activeHighlight: '#ddd6fe',
+      freq: 587.33,
+    },
+    mi_high: {
+      labels: { es: "MI'", val: "MI'", en: "E'" },
+      label: "MI'",
+      offsetSteps: -7,
+      pianoIndex: 2,
+      key: 'm',
+      color: '#c62828',
+      highlight: '#fde4e4',
+      activeHighlight: '#ffc9c9',
+      freq: 659.25,
+    },
+    fa_high: {
+      labels: { es: "FA'", val: "FA'", en: "F'" },
+      label: "FA'",
+      offsetSteps: -8,
+      pianoIndex: 3,
+      key: 'f',
+      color: '#0ea5e9',
+      highlight: '#cff4ff',
+      activeHighlight: '#bae6fd',
+      freq: 698.46,
+    },
   };
 
   const WHITE_KEY_PITCHES = ['do', 're', 'mi', 'fa', 'sol', 'la', 'si'];
+  const PITCH_EQUIVALENCE = Object.freeze({
+    do_high: 'do',
+    re_high: 're',
+    mi_high: 'mi',
+    fa_high: 'fa',
+  });
 
   function getPitchMeta(pitch) {
     return NOTE_META[pitch] || null;
   }
   function sanitizeKey(str) {
     return (str || '').toString().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  }
+
+  function normalizePitch(pitch) {
+    if (!pitch) return '';
+    const key = pitch.toString().toLowerCase();
+    return PITCH_EQUIVALENCE[key] || key;
   }
 
   function getCurrentLang() {
@@ -242,10 +298,10 @@
   for (const pitch of GAME_CONFIG.pitches) {
     const meta = getPitchMeta(pitch);
     if (piano.pressedAt[pitch] == null) piano.pressedAt[pitch] = 0;
-    if (meta && Number.isInteger(meta.pianoIndex)) {
+    if (meta && Number.isInteger(meta.pianoIndex) && WHITE_KEY_TO_PITCH[meta.pianoIndex] == null) {
       WHITE_KEY_TO_PITCH[meta.pianoIndex] = pitch;
     }
-    if (meta && meta.key) {
+    if (meta && meta.key && KEYBOARD_MAP[meta.key] == null) {
       KEYBOARD_MAP[meta.key] = pitch;
     }
   }
@@ -654,7 +710,9 @@
     if (leadIndex === -1) return; // no notes to evaluate
 
     const lead = state.notes[leadIndex];
-    if (lead.pitch === pitch) {
+    const normalizedHit = normalizePitch(pitch);
+    const normalizedLead = normalizePitch(lead.pitch);
+    if (normalizedLead === normalizedHit) {
       // Correct: remove leading note and add score
       addBurst(lead.x, lead.y, lead.pitch);
       playPitch(lead.pitch);

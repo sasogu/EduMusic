@@ -82,9 +82,19 @@
       href: 'html/todas.html',
       i18n: 'gamehub.allnotes',
       fallback: {
-        title: 'Todas las notas',
-        desc: 'Atrapa la escala completa de DO mayor: Do a agudos y vuelve.',
-        small: 'Siete notas · Escala completa',
+        title: "De DO a DO'",
+        desc: "Sube desde el DO grave hasta DO' y refuerza el salto final.",
+        small: 'Ocho notas · Escala extendida',
+      },
+      tags: ['juego', 'melodia', 'avanzado'],
+    },
+    {
+      href: 'html/dofa.html',
+      i18n: 'gamehub.fullstaff',
+      fallback: {
+        title: "De DO a FA'",
+        desc: "Atrapa todas las notas del pentagrama: del DO grave al FA'.",
+        small: 'Once notas · Pentagrama completo',
       },
       tags: ['juego', 'melodia', 'avanzado'],
     },
