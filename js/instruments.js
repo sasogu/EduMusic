@@ -212,6 +212,12 @@
   const modalClosers = modal ? Array.from(modal.querySelectorAll('[data-image-close]')) : [];
   const audioPlayer = new Audio();
   audioPlayer.preload = 'auto';
+  function stopAudio() {
+    try {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+    } catch (_) {}
+  }
 
   function getLang() {
     return (window.i18n && typeof window.i18n.getLang === 'function')
@@ -257,6 +263,7 @@
 
   function renderInstrument() {
     if (!currentInstrument) return;
+    stopAudio();
     resetButtons();
     refs.name.textContent = translate(currentInstrument.name);
     refs.info.textContent = translate(currentInstrument.info);
@@ -269,6 +276,9 @@
         refs.image.src = buildInstrumentImage(label, currentInstrument.imageColor || '#cbd5e1');
       }
       refs.image.alt = label;
+      refs.image.onerror = () => {
+        refs.image.src = buildInstrumentImage(label, currentInstrument.imageColor || '#cbd5e1');
+      };
     }
     if (refs.soundBtn) {
       const hasSound = Boolean(currentInstrument.audioPath);
@@ -342,6 +352,15 @@
     refs.highscore.textContent = state.bestStreak;
     const livesEl = document.getElementById('livesCount');
     if (livesEl) livesEl.textContent = state.lives;
+  }
+
+  function updateScoreboardHeading() {
+    const text = window.i18n && typeof window.i18n.t === 'function'
+      ? window.i18n.t('rankings.instrumentfamilies')
+      : 'Familias instrumentales';
+    document.querySelectorAll('[data-scoreboard][data-heading-key="rankings.instrumentfamilies"]').forEach((el) => {
+      el.setAttribute('data-heading', text);
+    });
   }
 
   function storeHighScore() {
@@ -424,20 +443,17 @@
       window.i18n.onChange(() => {
         renderInstrument();
         updateStats();
+        updateScoreboardHeading();
       });
     }
 
-    if (restartBtn) {
-      restartBtn.addEventListener('click', () => {
-        resetToStart();
-      });
-    }
   }
 
   function init() {
     updateStats();
     bindEvents();
     pickInstrument();
+    updateScoreboardHeading();
   }
 
   if (document.readyState === 'loading') {

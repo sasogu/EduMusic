@@ -98,6 +98,16 @@
       },
       tags: ['juego', 'melodia', 'avanzado'],
     },
+    {
+      href: 'html/instruments.html',
+      i18n: 'gamehub.instruments',
+      fallback: {
+        title: 'Familias instrumentales',
+        desc: 'Reconoce las familias de la orquesta con audios e imágenes reales.',
+        small: 'Audición · Nivel avanzado',
+      },
+      tags: ['juego', 'audicion', 'avanzado'],
+    },
   ];
 
   function ready(fn) {
