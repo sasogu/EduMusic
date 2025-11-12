@@ -336,6 +336,26 @@ body.about-page {
   text-align: center;
 }
 
+.instrument-rankings {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.instrument-rankings__boards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.instrument-rankings__board {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
 
 h1 {
   font-family: 'Baloo 2', 'Poppins', 'Segoe UI', sans-serif;
