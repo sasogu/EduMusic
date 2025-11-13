@@ -141,8 +141,12 @@
       cardEntries.push({ element: card, tags, isVirtual: false });
       tags.forEach((tag) => allTags.add(tag));
     });
+    const existingBaseHrefs = new Set(
+      baseCards.map((card) => card.getAttribute('href')).filter(Boolean)
+    );
 
     VIRTUAL_CARDS.forEach((def) => {
+      if (existingBaseHrefs.has(def.href)) return;
       const tags = def.tags.filter((tag) => KNOWN_TAGS.has(tag));
       if (!tags.length) return;
       const el = document.createElement('a');
