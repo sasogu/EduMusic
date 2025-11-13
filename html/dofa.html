@@ -45,6 +45,9 @@
     <p data-i18n="game.fullstaff.instructions">
       Las notas (del DO grave hasta FA') cubren todo el pentagrama. Pulsa la tecla correspondiente antes de que salgan por la derecha para mantener tus vidas. A partir de 10 puntos desaparecen las etiquetas sobre las notas y a partir de 20 también las del piano. Teclado: D = Do/Do', R = Re/Re', M = Mi/Mi', F = Fa/Fa', S = Sol, L = La, B = Si.
     </p>
+    <p class="about-subtitle" style="max-width:640px;margin:0 auto 24px;">
+      A partir del Do' las plicas se dibujan hacia abajo y arrancan desde la izquierda de la cabeza de nota.
+    </p>
   </div>
   
   <div class="game-rankings">
@@ -93,6 +96,7 @@
       monoAtScore: 55,
       forceMono: window.FULLSTAFF_LEVEL === 'mono',
       level: window.FULLSTAFF_LEVEL,
+      pianoWhiteKeys: ['do', 're', 'mi', 'fa', 'sol', 'la', 'si', 'do_high', 're_high', 'mi_high', 'fa_high'],
     };
   </script>
   <footer class="page-footer" data-sw-status></footer>

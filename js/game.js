@@ -29,6 +29,7 @@
   if (!GAME_CONFIG.hintKey && configured.length === 2 && configured.includes('mi') && configured.includes('sol')) {
     GAME_CONFIG.hintKey = 'game.piano_hint.solmi';
   }
+  const SCORE_MULTIPLIER = GAME_CONFIG.forceMono ? 3 : 1;
 
   const NOTE_META = {
     mi: {
@@ -154,7 +155,6 @@
     },
   };
 
-  const WHITE_KEY_PITCHES = ['do', 're', 'mi', 'fa', 'sol', 'la', 'si'];
   const PITCH_EQUIVALENCE = Object.freeze({
     do_high: 'do',
     re_high: 're',
@@ -200,6 +200,58 @@
     return label || String(pitch || '').toUpperCase();
   }
 
+  const DEFAULT_PIANO_WHITE_KEYS = ['do', 're', 'mi', 'fa', 'sol', 'la', 'si'];
+  const DEFAULT_BLACK_DEFS = Object.freeze([
+    { over: 0, name: 'C#' }, // between DO(0) and RE(1)
+    { over: 1, name: 'D#' }, // between RE(1) and MI(2)
+    // no black between MI(2) and FA(3)
+    { over: 3, name: 'F#' }, // between FA(3) and SOL(4)
+    { over: 4, name: 'G#' }, // between SOL(4) and LA(5)
+    { over: 5, name: 'A#' }, // between LA(5) and SI(6)
+  ]);
+  const BLACK_INDEX_LABEL = {
+    0: 'C#',
+    1: 'D#',
+    3: 'F#',
+    4: 'G#',
+    5: 'A#',
+  };
+
+  function normalizeWhiteKeyConfig(value) {
+    if (!Array.isArray(value) || value.length === 0) return [];
+    const seen = new Set();
+    const normalized = [];
+    for (const raw of value) {
+      const entry = (raw || '').toString().trim().toLowerCase();
+      if (!entry || seen.has(entry)) continue;
+      seen.add(entry);
+      normalized.push(entry);
+    }
+    return normalized;
+  }
+
+  const configuredWhiteKeys = normalizeWhiteKeyConfig(CONFIG_INPUT.pianoWhiteKeys);
+  const PIANO_WHITE_KEYS = configuredWhiteKeys.length > 0
+    ? configuredWhiteKeys
+    : DEFAULT_PIANO_WHITE_KEYS.slice();
+  const WHITE_KEY_TO_PITCH = new Array(PIANO_WHITE_KEYS.length).fill(null);
+
+  function buildBlackDefs(whiteCount) {
+    if (whiteCount === DEFAULT_PIANO_WHITE_KEYS.length) {
+      return DEFAULT_BLACK_DEFS;
+    }
+    const patternSet = new Set([0, 1, 3, 4, 5]);
+    const defs = [];
+    for (let i = 0; i < Math.max(0, whiteCount - 1); i++) {
+      const mod = i % 7;
+      if (!patternSet.has(mod)) continue;
+      const label = BLACK_INDEX_LABEL[mod] || '♯';
+      const octave = Math.floor(i / 7) + 1;
+      defs.push({ over: i, name: `${label}${octave}` });
+    }
+    return defs;
+  }
+
   function formatNoteList(labels) {
     const clean = labels.filter(Boolean);
     if (!clean.length) return '';
@@ -222,7 +274,6 @@
     return readable ? `Pulsa ${readable} en el piano` : 'Pulsa las notas indicadas en el piano';
   }
 
-  const WHITE_KEY_TO_PITCH = {};
   const KEYBOARD_MAP = {};
 
   function shouldUseMonoPalette() {
@@ -280,17 +331,10 @@
   const piano = {
     top: 0,
     height: 120,
-    whiteCount: 7, // DO RE MI FA SOL LA SI
+    whiteCount: PIANO_WHITE_KEYS.length, // DO RE MI FA SOL LA SI by default
     keyW: 0,
     pressedAt: {},
-    blackDefs: [ // indices of white keys to the left of each black key
-      { over: 0, name: 'C#' }, // between DO(0) and RE(1)
-      { over: 1, name: 'D#' }, // between RE(1) and MI(2)
-      // no black between MI(2) and FA(3)
-      { over: 3, name: 'F#' }, // between FA(3) and SOL(4)
-      { over: 4, name: 'G#' }, // between SOL(4) and LA(5)
-      { over: 5, name: 'A#' }, // between LA(5) and SI(6)
-    ],
+    blackDefs: buildBlackDefs(PIANO_WHITE_KEYS.length),
     blackRects: [], // computed on resize
     blackPressedAt: {},
   };
@@ -298,8 +342,20 @@
   for (const pitch of GAME_CONFIG.pitches) {
     const meta = getPitchMeta(pitch);
     if (piano.pressedAt[pitch] == null) piano.pressedAt[pitch] = 0;
-    if (meta && Number.isInteger(meta.pianoIndex) && WHITE_KEY_TO_PITCH[meta.pianoIndex] == null) {
-      WHITE_KEY_TO_PITCH[meta.pianoIndex] = pitch;
+    let assigned = false;
+    for (let i = 0; i < WHITE_KEY_TO_PITCH.length; i++) {
+      if (WHITE_KEY_TO_PITCH[i]) continue;
+      if (PIANO_WHITE_KEYS[i] === pitch) {
+        WHITE_KEY_TO_PITCH[i] = pitch;
+        assigned = true;
+        break;
+      }
+    }
+    if (!assigned && meta && Number.isInteger(meta.pianoIndex)) {
+      const fallbackIndex = meta.pianoIndex;
+      if (fallbackIndex >= 0 && fallbackIndex < WHITE_KEY_TO_PITCH.length && !WHITE_KEY_TO_PITCH[fallbackIndex]) {
+        WHITE_KEY_TO_PITCH[fallbackIndex] = pitch;
+      }
     }
     if (meta && meta.key && KEYBOARD_MAP[meta.key] == null) {
       KEYBOARD_MAP[meta.key] = pitch;
@@ -514,7 +570,7 @@
   function drawStaff() {
     const w = canvas.clientWidth;
     ctx.save();
-    ctx.strokeStyle = '#cfd8e3';
+    ctx.strokeStyle = '#141415ff';
     ctx.lineWidth = 1;
     for (let i = 0; i < 5; i++) {
       const y = staff.lineYs[i];
@@ -561,7 +617,11 @@
     const top = piano.top;
     const h = piano.height;
     const keyW = piano.keyW;
-    const labels = WHITE_KEY_PITCHES.map(getPitchLabel);
+    const labels = [];
+    for (let i = 0; i < piano.whiteCount; i++) {
+      const layoutPitch = PIANO_WHITE_KEYS[i];
+      labels.push(layoutPitch ? getPitchLabel(layoutPitch) : '');
+    }
     const mono = shouldUseMonoPalette();
     ctx.save();
     // base
@@ -577,7 +637,7 @@
         const baseColor = meta.highlight || '#e6f2ff';
         const activeColor = meta.activeHighlight || meta.highlight || '#e6f2ff';
         if (mono) {
-          ctx.fillStyle = pressed ? '#d1d5db' : '#e2e8f0';
+          ctx.fillStyle = pressed ? '#f3f4f6' : '#ffffff';
         } else {
           ctx.fillStyle = pressed ? activeColor : baseColor;
         }
@@ -628,6 +688,10 @@
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const mono = shouldUseMonoPalette();
+    function shouldStemDown(pitch) {
+      const meta = getPitchMeta(pitch);
+      return meta && typeof meta.offsetSteps === 'number' && meta.offsetSteps <= -5;
+    }
     for (const n of state.notes) {
       // note head
       const meta = getPitchMeta(n.pitch);
@@ -640,9 +704,15 @@
       // opcional: plica para parecer más notación (a la derecha)
       ctx.strokeStyle = '#333';
       ctx.lineWidth = 2;
+      const stemLength = Math.floor(staff.spacing * 2);
       ctx.beginPath();
-      ctx.moveTo(n.x + n.r, n.y);
-      ctx.lineTo(n.x + n.r, n.y - Math.floor(staff.spacing * 2));
+      if (shouldStemDown(n.pitch)) {
+        ctx.moveTo(n.x - n.r, n.y);
+        ctx.lineTo(n.x - n.r, n.y + stemLength);
+      } else {
+        ctx.moveTo(n.x + n.r, n.y);
+        ctx.lineTo(n.x + n.r, n.y - stemLength);
+      }
       ctx.stroke();
       // Mostrar nombre solo hasta 10 puntos
       if (state.score < 10) {
@@ -717,7 +787,7 @@
       addBurst(lead.x, lead.y, lead.pitch);
       playPitch(lead.pitch);
       state.notes.splice(leadIndex, 1);
-      state.score += 1;
+      state.score += SCORE_MULTIPLIER;
       if (hud.scoreEl) hud.scoreEl.textContent = (window.i18n ? window.i18n.t('hud.points', { n: state.score }) : `Puntos: ${state.score}`);
     } else {
       // Wrong: lose a life
