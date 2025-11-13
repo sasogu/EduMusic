@@ -59,7 +59,7 @@
       'index.resources.title': 'Recursos de Juegos Musicales',
       'index.resources.desc': 'Explora enlaces a actividades musicales externas seleccionadas.',
       'index.resources.small': 'Incluye aprendomusica.com y otras propuestas educativas',
-      'index.instruments.title': 'Familias instrumentales',
+      'index.instruments.title': 'Familias de instrusmentos',
       'index.instruments.desc': 'Aprende a clasificar los instrumentos de la orquesta mediante un juego rápido.',
       'index.instruments.small': 'Memoria auditiva · Estadísticas de racha',
       'tags.filter.title': 'Filtrar por etiquetas',

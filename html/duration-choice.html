@@ -61,22 +61,29 @@
     </p>
   </section>
 
-  <section class="duration-scoreboards" style="max-width:720px;margin:18px auto;text-align:left;">
-    <section
-      data-scoreboard
-      data-game="duration-choice"
-      data-show-save-at="1"
-      data-heading="Ranking general"
-      style="margin-bottom:16px;"
-    ></section>
-    <section
-      data-scoreboard
-      data-game="duration-choice"
-      data-period="weekly"
-      data-heading="Ranking semanal"
-      data-show-save-at="1"
-    ></section>
-  </section>
+  <div class="game-rankings">
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.alltime">Ranking General</h3>
+      <section
+        data-scoreboard
+        data-game="duration-choice"
+        data-period="all-time"
+        data-heading-key="rankings.duration_choice"
+        data-heading="Duraciones largas y cortas"
+        data-show-save-at="1"
+      ></section>
+    </div>
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.weekly">Ranking Semanal</h3>
+      <section
+        data-scoreboard
+        data-game="duration-choice"
+        data-period="weekly"
+        data-heading-key="rankings.duration_choice"
+        data-heading="Duraciones largas y cortas"
+      ></section>
+    </div>
+  </div>
 
   <a href="../index.html" class="home-link" style="margin-top:12px;">
     <span class="home-icon" aria-hidden="true">⌂</span>

@@ -16,7 +16,7 @@
       'rankings.solmiladorefa': 'Sol, Mi, La, Do, Re y Fa',
       'rankings.allnotes': "De DO a DO'",
       'rankings.fullstaff': "De DO a FA'",
-      'rankings.instrumentfamilies': 'Familias instrumentales',
+      'rankings.instrumentfamilies': 'Familias de instrusmentos',
       'rankings.pitch_direction': 'Dirección del sonido',
       'rankings.rhythm': 'Ritmo: TA, SU y TITI',
       'rankings.rhythm_dictation': 'Dictado rítmico',

@@ -102,7 +102,7 @@
       href: 'html/instruments.html',
       i18n: 'gamehub.instruments',
       fallback: {
-        title: 'Familias instrumentales',
+        title: 'Familias de instrusmentos',
         desc: 'Reconoce las familias de la orquesta con audios e imágenes reales.',
         small: 'Audición · Nivel avanzado',
       },

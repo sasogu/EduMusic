@@ -52,7 +52,29 @@
     </p>
   </section>
 
-  <section data-scoreboard data-game="pitch-height" data-show-save-at="1" style="max-width:720px;margin:18px auto;text-align:left;"></section>
+  <div class="game-rankings">
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.alltime">Ranking General</h3>
+      <section
+        data-scoreboard
+        data-game="pitch-height"
+        data-period="all-time"
+        data-heading-key="rankings.pitch_direction"
+        data-heading="Dirección del sonido"
+        data-show-save-at="1"
+      ></section>
+    </div>
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.weekly">Ranking Semanal</h3>
+      <section
+        data-scoreboard
+        data-game="pitch-height"
+        data-period="weekly"
+        data-heading-key="rankings.pitch_direction"
+        data-heading="Dirección del sonido"
+      ></section>
+    </div>
+  </div>
 
   <a href="../index.html" class="home-link" style="margin-top:12px;">
     <span class="home-icon" aria-hidden="true">⌂</span>

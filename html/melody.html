@@ -36,7 +36,28 @@
 
     <div id="melodyStatus" role="status" aria-live="polite"></div>
   </div>
-  <section data-scoreboard data-game="melody" style="max-width: 900px; margin: 20px auto; text-align: left;"></section>
+  <div class="game-rankings">
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.alltime">Ranking General</h3>
+      <section
+        data-scoreboard
+        data-game="melody"
+        data-period="all-time"
+        data-heading-key="rankings.melody"
+        data-heading="Secuencia de melodías"
+      ></section>
+    </div>
+    <div class="game-ranking-section">
+      <h3 data-i18n="rankings.period.weekly">Ranking Semanal</h3>
+      <section
+        data-scoreboard
+        data-game="melody"
+        data-period="weekly"
+        data-heading-key="rankings.melody"
+        data-heading="Secuencia de melodías"
+      ></section>
+    </div>
+  </div>
   <a href="../index.html" class="home-link" style="margin:16px auto 0;">
     <span class="home-icon" aria-hidden="true">⌂</span>
     <span data-i18n="melody.back">Volver al inicio</span>

@@ -357,7 +357,7 @@
   function updateScoreboardHeading() {
     const text = window.i18n && typeof window.i18n.t === 'function'
       ? window.i18n.t('rankings.instrumentfamilies')
-      : 'Familias instrumentales';
+      : 'Familias de instrusmentos';
     document.querySelectorAll('[data-scoreboard][data-heading-key="rankings.instrumentfamilies"]').forEach((el) => {
       el.setAttribute('data-heading', text);
     });

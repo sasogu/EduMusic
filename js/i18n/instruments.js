@@ -1,7 +1,7 @@
 (() => {
   const payload = {
     es: {
-      'game.instruments.title': 'Familias instrumentales',
+      'game.instruments.title': 'Familias de instrusmentos',
       'game.instruments.instructions': 'Identifica rápidamente a qué familia pertenece cada instrumento para familiarizarte con la orquesta.',
       'game.instruments.prompt': '¿A qué familia pertenece?',
       'game.instruments.family.cuerdas': 'Cuerdas',

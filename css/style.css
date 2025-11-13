@@ -1302,6 +1302,7 @@ body.has-gameover-overlay {
   margin-top: 0;
   font-size: 0.85rem;
   padding-left: 1em;
+  text-align: left;
 }
 
 .rankings-card .scoreboard__list li {
@@ -1310,6 +1311,7 @@ body.has-gameover-overlay {
   font-size: 0.85rem;
   line-height: 1.4;
   word-break: break-word;
+  text-align: left;
 }
 
 .rankings-card .scoreboard__save {
