@@ -8,7 +8,7 @@
       'piano.selector.none': 'Selecciona una partitura',
       'piano.scores.enriqueta': 'En la tienda de Enriqueta',
       'piano.scores.frerejacques': 'Frère Jacques',
-      'piano.scores.bellaciao': 'Campanitas',
+      'piano.scores.bellaciao': 'Bella Ciao',
       'piano.scores.carabu': 'Carabú',
       'piano.score.hint': 'Si la partitura tarda en aparecer, comprueba tu conexión.',
       'piano.score.loading': 'Cargando partitura…',

@@ -1,7 +1,7 @@
 (function() {
   const KEYBOARD_POOL = [
     'a','w','s','e','d','f','t','g','y','h','u','j',
-    'k','o','l','p',';','[','\'',']','\\','1','2','3','4'
+    'k','o','l','p',';','\'','[',']','\\','1','2','3','4'
   ];
   const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
   const SHARP_NOTES = new Set(['C#','D#','F#','G#','A#']);
@@ -54,6 +54,10 @@
     if (!Number.isFinite(num)) return 0;
     return Math.min(1, Math.max(0, num));
   };
+  const NOTE_ALTERNATE_TRIGGERS = new Map([
+    ['E5', ['ñ']],
+    ['F5', ["'", '´', 'dead']]
+  ]);
   function computeGameVolume() {
     if (window.Sfx) {
       if (typeof window.Sfx.getGameVolume === 'function') {
@@ -230,6 +234,20 @@
     });
   }
 
+  function registerTrigger(key, btn) {
+    if (!key || !btn) return;
+    const normalized = String(key).toLowerCase();
+    if (!normalized) return;
+    keyBindings.set(normalized, btn);
+  }
+
+  function bindAlternateTriggers(noteId, btn) {
+    if (!noteId || !btn) return;
+    const alternates = NOTE_ALTERNATE_TRIGGERS.get(noteId);
+    if (!alternates || !alternates.length) return;
+    alternates.forEach((altKey) => registerTrigger(altKey, btn));
+  }
+
   function createKeyElement(options) {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -243,7 +261,7 @@
 
     if (options.trigger) {
       btn.dataset.trigger = options.trigger;
-      keyBindings.set(options.trigger, btn);
+      registerTrigger(options.trigger, btn);
     }
 
     btn.classList.add(options.type === 'black' ? 'piano-key--black' : 'piano-key--white');
@@ -341,6 +359,7 @@
           offset: idx
         });
         wrapper.appendChild(whiteKey);
+        bindAlternateTriggers(note, whiteKey);
         host.appendChild(wrapper);
         lastWhiteWrapper = wrapper;
       } else if (lastWhiteWrapper) {
@@ -353,6 +372,7 @@
           offset: idx
         });
         lastWhiteWrapper.appendChild(blackKey);
+        bindAlternateTriggers(note, blackKey);
       }
     });
   }
