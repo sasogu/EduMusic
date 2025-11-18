@@ -1,6 +1,8 @@
-const SW_VERSION = 'v1.2.75';
+const SW_VERSION = 'v1.1.6';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
+const SCOPE_URL = new URL(self.registration.scope);
+const SCOPE_PATH = SCOPE_URL.pathname.endsWith('/') ? SCOPE_URL.pathname : (SCOPE_URL.pathname + '/');
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
 const CRITICAL_SCRIPTS = new Set([
   'js/score-service.js',
@@ -26,7 +28,6 @@ const ASSETS = [
   'js/index-tags.js',
   'js/i18n/index.js',
   'js/i18n/gamehub.js',
-  'js/i18n/about.js',
   'js/i18n/memory.js',
   'js/i18n/hud.js',
   'js/i18n/game.js',
@@ -45,7 +46,6 @@ const ASSETS = [
   'js/i18n/duration-choice.js',
   'js/i18n/word-guess.js',
   'js/i18n/quiz.js',
-  'js/i18n/instruments.js',
   'js/i18n/rankings.js',
   'js/i18n/piano-hero.js',
   'manifest.json',
@@ -56,9 +56,7 @@ const ASSETS = [
   'html/solmiladore.html',
   'html/solmiladorefa.html',
   'html/todas.html',
-  'html/dofa.html',
   'html/memory.html',
-  'html/instruments.html',
   'html/compas.html',
   'html/melody.html',
   'html/rhythm.html',
@@ -92,7 +90,6 @@ const ASSETS = [
   'js/quiz.js',
   'js/word-guess.js',
   'js/piano-hero.js',
-  'js/instruments.js',
   'js/game-over-overlay.js',
   'assets/icon-192.png',
   'assets/icon-512.png',
@@ -105,11 +102,6 @@ const ASSETS = [
   'assets/audio/error.mp3',
   'assets/audio/winner.mp3',
   'assets/audio/caja.mp3',
-  'assets/audio/cello.mp3',
-  'assets/audio/clarinet.mp3',
-  'assets/audio/oboe.mp3',
-  'assets/audio/fagot.mp3',
-  'assets/audio/trombone.mp3',
   'assets/piano/key01.ogg',
   'assets/piano/key02.ogg',
   'assets/piano/key03.ogg',
@@ -133,26 +125,14 @@ const ASSETS = [
   'assets/piano/key21.ogg',
   'assets/piano/key22.ogg',
   'assets/piano/key23.ogg',
-  'assets/piano/key24.ogg',
-  'assets/image/orquesta/caja.png',
-  'assets/image/orquesta/clarinete.jpg',
-  'assets/image/orquesta/contrabajo.jpg',
-  'assets/image/orquesta/fagot.jpg',
-  'assets/image/orquesta/flauta.jpg',
-  'assets/image/orquesta/marimba.jpg',
-  'assets/image/orquesta/oboe.jpg',
-  'assets/image/orquesta/trombon.jpg',
-  'assets/image/orquesta/trompa.jpg',
-  'assets/image/orquesta/trompeta.png',
-  'assets/image/orquesta/tuba.jpg',
-  'assets/image/orquesta/viola.jpg',
-  'assets/image/orquesta/violin.jpg',
-  'assets/image/orquesta/violonchelo.jpg'
+  'assets/piano/key24.ogg'
 ];
 
 function toScopeUrl(path) {
   return new URL(path, self.registration.scope).toString();
 }
+const SCOPED_ASSETS = ASSETS.map(toScopeUrl);
+const OFFLINE_URL = toScopeUrl('offline.html');
 
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(CACHE);
@@ -198,8 +178,8 @@ async function networkFirst(request) {
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE).then(cache => {
-      const scopedAssets = ASSETS.map(toScopeUrl);
-      return cache.addAll(scopedAssets);
+      // Cache de forma explícita en el subdirectorio del SW (p. ej. /EduMusic/)
+      return cache.addAll(SCOPED_ASSETS);
     })
   );
   // Activate new SW immediately
@@ -245,10 +225,17 @@ self.addEventListener('fetch', event => {
           return resp;
         } catch {
           const cached = await caches.match(request);
-          return cached || fetch(request);
+          if (cached) return cached;
+          const offline = await caches.match(OFFLINE_URL);
+          return offline || fetch(request);
         }
       }
-      return staleWhileRevalidate(request);
+      try {
+        return await staleWhileRevalidate(request);
+      } catch {
+        const offline = await caches.match(OFFLINE_URL);
+        return offline || Response.error();
+      }
     })());
     return;
   }
@@ -258,9 +245,8 @@ self.addEventListener('fetch', event => {
     || url.pathname.endsWith('.js')
     || url.pathname.includes('/js/');
   if (isScript) {
-    const scopePath = new URL(self.registration.scope).pathname;
-    let relativePath = url.pathname.startsWith(scopePath)
-      ? url.pathname.slice(scopePath.length)
+    let relativePath = url.pathname.startsWith(SCOPE_PATH)
+      ? url.pathname.slice(SCOPE_PATH.length)
       : url.pathname;
     relativePath = relativePath.replace(/^\/+/, '');
     const isCriticalScript = CRITICAL_SCRIPTS.has(relativePath);
