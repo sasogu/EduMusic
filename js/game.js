@@ -645,8 +645,8 @@
       }
       ctx.strokeStyle = '#cbd5e1';
       ctx.strokeRect(x+0.5, top+0.5, keyW-1, h-1);
-      // label (oculto desde 20 puntos)
-      if (state.score < 20) {
+      // label (oculto desde 50 puntos)
+      if (state.score < 50) {
         ctx.fillStyle = meta ? '#0f172a' : '#475569';
         ctx.font = meta ? 'bold 14px system-ui, -apple-system, Segoe UI, Roboto, Arial' : '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
         ctx.textAlign = 'center';
