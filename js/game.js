@@ -29,7 +29,29 @@
   if (!GAME_CONFIG.hintKey && configured.length === 2 && configured.includes('mi') && configured.includes('sol')) {
     GAME_CONFIG.hintKey = 'game.piano_hint.solmi';
   }
-  const SCORE_MULTIPLIER = GAME_CONFIG.forceMono ? 3 : 1;
+  const LEVEL_RULES = {
+    color: {
+      pointsPerHit: 1,
+      lifeEveryPoints: 0,
+      showNoteLabels: (score) => score < 10,
+      showKeyLabels: (score) => score < 20,
+    },
+    mono: {
+      pointsPerHit: 3,
+      lifeEveryPoints: 0,
+      showNoteLabels: (score) => score < 10,
+      showKeyLabels: (score) => score < 20,
+    },
+    blind: {
+      pointsPerHit: 5,
+      lifeEveryPoints: 100,
+      showNoteLabels: () => false,
+      showKeyLabels: () => false,
+    },
+  };
+  const ACTIVE_RULES = LEVEL_RULES[GAME_CONFIG.level] || LEVEL_RULES.color;
+  const SCORE_PER_HIT = Number.isFinite(ACTIVE_RULES.pointsPerHit) ? ACTIVE_RULES.pointsPerHit : (GAME_CONFIG.forceMono ? 3 : 1);
+  const LIFE_BONUS_INTERVAL = Number.isFinite(ACTIVE_RULES.lifeEveryPoints) && ACTIVE_RULES.lifeEveryPoints > 0 ? ACTIVE_RULES.lifeEveryPoints : 0;
 
   const NOTE_META = {
     mi: {
@@ -279,6 +301,20 @@
   function shouldUseMonoPalette() {
     const threshold = Number.isFinite(GAME_CONFIG.monoAtScore) ? GAME_CONFIG.monoAtScore : 30;
     return Boolean(GAME_CONFIG.forceMono) || state.score >= threshold;
+  }
+
+  function shouldShowNoteLabels(score) {
+    if (ACTIVE_RULES && typeof ACTIVE_RULES.showNoteLabels === 'function') {
+      return ACTIVE_RULES.showNoteLabels(score);
+    }
+    return score < 10;
+  }
+
+  function shouldShowPianoLabels(score) {
+    if (ACTIVE_RULES && typeof ACTIVE_RULES.showKeyLabels === 'function') {
+      return ACTIVE_RULES.showKeyLabels(score);
+    }
+    return score < 20;
   }
 
   const canvas = document.getElementById('game');
@@ -646,7 +682,7 @@
       ctx.strokeStyle = '#cbd5e1';
       ctx.strokeRect(x+0.5, top+0.5, keyW-1, h-1);
       // label (oculto desde 100 puntos)
-      if (state.score < 100) {
+      if (shouldShowPianoLabels(state.score)) {
         ctx.fillStyle = meta ? '#0f172a' : '#475569';
         ctx.font = meta ? 'bold 14px system-ui, -apple-system, Segoe UI, Roboto, Arial' : '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
         ctx.textAlign = 'center';
@@ -715,7 +751,7 @@
       }
       ctx.stroke();
       // Mostrar nombre solo hasta 10 puntos
-      if (state.score < 10) {
+      if (shouldShowNoteLabels(state.score)) {
         ctx.fillStyle = '#111';
         ctx.fillText(meta ? getMetaLabel(meta) : n.pitch.toUpperCase(), n.x, n.y - Math.floor(staff.spacing * 2.4));
       }
@@ -763,6 +799,28 @@
     if (state.running && !state.paused && !state.over) requestAnimationFrame(loop);
   }
 
+  function maybeGrantBonusLife(prevScore, newScore) {
+    if (!LIFE_BONUS_INTERVAL) return;
+    const prevMilestone = Math.floor(prevScore / LIFE_BONUS_INTERVAL);
+    const newMilestone = Math.floor(newScore / LIFE_BONUS_INTERVAL);
+    const gained = newMilestone - prevMilestone;
+    if (gained > 0) {
+      state.lives += gained;
+      if (hud.livesEl) {
+        hud.livesEl.textContent = (window.i18n ? window.i18n.t('hud.lives', { n: state.lives }) : `Vidas: ${state.lives}`);
+      }
+    }
+  }
+
+  function addScore(points) {
+    const prev = state.score;
+    state.score += points;
+    if (hud.scoreEl) {
+      hud.scoreEl.textContent = (window.i18n ? window.i18n.t('hud.points', { n: state.score }) : `Puntos: ${state.score}`);
+    }
+    maybeGrantBonusLife(prev, state.score);
+  }
+
   function handleHit(pitch) {
     // Visual feedback first
     if (piano.pressedAt[pitch] != null) {
@@ -787,8 +845,7 @@
       addBurst(lead.x, lead.y, lead.pitch);
       playPitch(lead.pitch);
       state.notes.splice(leadIndex, 1);
-      state.score += SCORE_MULTIPLIER;
-      if (hud.scoreEl) hud.scoreEl.textContent = (window.i18n ? window.i18n.t('hud.points', { n: state.score }) : `Puntos: ${state.score}`);
+      addScore(SCORE_PER_HIT);
     } else {
       // Wrong: lose a life
       addCross(lead.x, lead.y);
