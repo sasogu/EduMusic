@@ -822,6 +822,13 @@
       const ptsLabel = (window.i18n && typeof window.i18n.t === 'function')
         ? window.i18n.t('game.rank.pts')
         : 'pts';
+      const formatDateEs = (d) => {
+        if (!(d instanceof Date)) return '';
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      };
       this.state.entries.forEach((entry) => {
         const li = createEl('li');
         const date = new Date(entry.ts || Date.now());
@@ -829,7 +836,8 @@
         const initials = (normalized && !GENERIC_ANON_INITIALS.has(normalized))
           ? normalized
           : DEFAULT_INITIALS;
-        li.textContent = `${initials} — ${entry.score} ${ptsLabel} (${date.toLocaleDateString()})`;
+        const dateLabel = formatDateEs(date);
+        li.textContent = `${initials} — ${entry.score} ${ptsLabel} (${dateLabel})`;
         this.dom.list.appendChild(li);
       });
       this.applyTranslations();

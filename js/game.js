@@ -400,10 +400,11 @@
 
   function resize() {
     const maxW = Math.min(window.innerWidth - 32, 900);
-    // Más alto para agrandar el pentagrama y piano inferior
     const maxH = Math.min(window.innerHeight - 100, 720);
     const cssW = Math.max(360, Math.floor(maxW));
-    const cssH = Math.max(420, Math.floor(maxH));
+    // Hacer el lienzo más apaisado: altura acotada por el ancho
+    const targetH = Math.floor(cssW * 0.65);
+    const cssH = Math.max(340, Math.min(targetH, Math.floor(maxH)));
     canvas.style.width = cssW + 'px';
     canvas.style.height = cssH + 'px';
     canvas.width = cssW * DPR;
@@ -557,8 +558,11 @@
     state.speedBase *= (1 + state.speedIncrease * dt);
 
     // spawn notes
+    // Más puntuación = intervalos más cortos entre notas
+    const spawnFactor = 1 + Math.min(1.6, state.score * 0.04);
+    const effectiveSpawnMs = Math.max(350, state.spawnEveryMs / spawnFactor);
     const now = performance.now();
-    if (now - state.lastSpawn > state.spawnEveryMs) spawnNote(now);
+    if (now - state.lastSpawn > effectiveSpawnMs) spawnNote(now);
 
     // move notes horizontally
     for (const n of state.notes) {
@@ -1041,9 +1045,9 @@
   }
   function playError() {
     ensureAudio();
-    // two short low beeps
-    tone(220, 120, 'square', 0.05);
-    setTimeout(() => tone(180, 120, 'triangle', 0.05), 70);
+    // two short low beeps (más fuertes)
+    tone(220, 140, 'square', 0.12);
+    setTimeout(() => tone(180, 140, 'triangle', 0.12), 70);
   }
 
   // Keyboard: S = Sol, M = Mi, P = pausa
@@ -1059,6 +1063,17 @@
       return;
     }
     const k = e.key.toLowerCase();
+    if (k === 'enter') {
+      e.preventDefault();
+      if (state.over) resetGame();
+      startGame();
+      return;
+    }
+    if (k === ' ' || k === 'spacebar') {
+      e.preventDefault();
+      pauseGame();
+      return;
+    }
     if (k === 'p') { e.preventDefault(); pauseGame(); return; }
     const mappedPitch = KEYBOARD_MAP[k];
     if (mappedPitch) {

@@ -15,6 +15,7 @@
       <select id="levelSelect">
         <option value="color" data-i18n="game.allnotes.level.basic">Nivel 1 · Colores</option>
         <option value="mono" data-i18n="game.allnotes.level.advanced">Nivel 2 · Notas negras</option>
+        <option value="blind" data-i18n="game.allnotes.level.expert">Nivel 3 · Sin nombres</option>
       </select>
     </div>
     <div>
@@ -66,7 +67,9 @@
   <script>
     (function() {
       const url = new URL(window.location.href);
-      const level = url.searchParams.get('level') === 'mono' ? 'mono' : 'color';
+      const allowed = ['color', 'mono', 'blind'];
+      const requested = url.searchParams.get('level');
+      const level = allowed.includes(requested) ? requested : 'color';
       window.ALL_NOTES_LEVEL = level;
       document.addEventListener('DOMContentLoaded', () => {
         const sel = document.getElementById('levelSelect');
@@ -91,7 +94,7 @@
       hintKey: 'game.piano_hint.allnotes',
       pitches: ['do', 're', 'mi', 'fa', 'sol', 'la', 'si', 'do_high'],
       monoAtScore: 45,
-      forceMono: window.ALL_NOTES_LEVEL === 'mono',
+      forceMono: window.ALL_NOTES_LEVEL !== 'color',
       level: window.ALL_NOTES_LEVEL,
       pianoWhiteKeys: ['do', 're', 'mi', 'fa', 'sol', 'la', 'si', 'do_high'],
     };
@@ -102,7 +105,7 @@
   <script src="../js/i18n/hud.js" defer></script>
   <script src="../js/i18n/rankings.js" defer></script>
   <script src="../js/i18n/game.js" defer></script>
-  <script src="../js/score-service.js" defer></script>
+  <script src="../js/score-service.js?v=2" defer></script>
   <script src="../js/game-over-overlay.js" defer></script>
   <script src="../js/game.js" defer></script>
 </body>

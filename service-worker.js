@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.3.3';
+const SW_VERSION = 'v1.3.10';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 const SCOPE_URL = new URL(self.registration.scope);
@@ -6,6 +6,7 @@ const SCOPE_PATH = SCOPE_URL.pathname.endsWith('/') ? SCOPE_URL.pathname : (SCOP
 let IS_FRESH_VERSION = false; // Se pone a true cuando cambia la versión
 const CRITICAL_SCRIPTS = new Set([
   'js/score-service.js',
+  'js/score-service.js?v=2',
 ]);
 
 const ASSETS = [
