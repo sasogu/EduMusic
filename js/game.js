@@ -34,7 +34,7 @@
       pointsPerHit: 1,
       lifeEveryPoints: 0,
       showNoteLabels: (score) => score < 10,
-      showKeyLabels: (score) => score < 20,
+      showKeyLabels: () => true, // nivel 1: siempre visibles
     },
     mono: {
       pointsPerHit: 3,
@@ -298,6 +298,11 @@
 
   const KEYBOARD_MAP = {};
 
+  function isLevelOneMode() {
+    const lvl = (GAME_CONFIG.level || '').toString().toLowerCase();
+    return lvl === 'color' || lvl === 'basic' || lvl === '1' || lvl === 'level1';
+  }
+
   function shouldUseMonoPalette() {
     const threshold = Number.isFinite(GAME_CONFIG.monoAtScore) ? GAME_CONFIG.monoAtScore : 30;
     return Boolean(GAME_CONFIG.forceMono) || state.score >= threshold;
@@ -311,6 +316,7 @@
   }
 
   function shouldShowPianoLabels(score) {
+    if (isLevelOneMode()) return true;
     if (ACTIVE_RULES && typeof ACTIVE_RULES.showKeyLabels === 'function') {
       return ACTIVE_RULES.showKeyLabels(score);
     }
@@ -662,6 +668,7 @@
       const layoutPitch = PIANO_WHITE_KEYS[i];
       labels.push(layoutPitch ? getPitchLabel(layoutPitch) : '');
     }
+    const showKeyboardLabels = shouldShowPianoLabels(state.score);
     const mono = shouldUseMonoPalette();
     ctx.save();
     // base
@@ -685,8 +692,8 @@
       }
       ctx.strokeStyle = '#cbd5e1';
       ctx.strokeRect(x+0.5, top+0.5, keyW-1, h-1);
-      // label (oculto desde 100 puntos)
-      if (shouldShowPianoLabels(state.score)) {
+      // label (nivel 1 siempre visible; otros modos siguen sus reglas)
+      if (showKeyboardLabels) {
         ctx.fillStyle = meta ? '#0f172a' : '#475569';
         ctx.font = meta ? 'bold 14px system-ui, -apple-system, Segoe UI, Roboto, Arial' : '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
         ctx.textAlign = 'center';
