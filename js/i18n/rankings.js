@@ -9,6 +9,7 @@
       'rankings.group.catch': 'Atrapa Notas',
       'rankings.group.eartraining': 'Oído y dictados',
       'rankings.group.challenges': 'Retos y memoria',
+      'rankings.group.minijocs': 'Minijocs',
       'rankings.solmi': 'Sol y Mi',
       'rankings.solmila': 'Sol, Mi y La',
       'rankings.solmilado': 'Sol, Mi, La y Do',
@@ -27,7 +28,10 @@
       'rankings.compas': 'Puzzle de compases',
       'rankings.quiz': 'Quiz musical',
       'rankings.wordguess': 'Palabras musicales',
-      'rankings.pianohero': 'Arcade Piano Hero'
+      'rankings.pianohero': 'Arcade Piano Hero',
+      'rankings.eduflappy': 'Edu Flappy Bird',
+      'rankings.edusnake': 'EduSnake',
+      'rankings.eduzop': 'EduZop'
     },
     val: {
       'rankings.title': 'Rànquings d\'EduMúsic',
@@ -38,6 +42,7 @@
       'rankings.group.catch': 'Atrapa Notes',
       'rankings.group.eartraining': 'Oïda i dictats',
       'rankings.group.challenges': 'Reptes i memòria',
+      'rankings.group.minijocs': 'Minijocs',
       'rankings.solmi': 'Sol i Mi',
       'rankings.solmila': 'Sol, Mi i La',
       'rankings.solmilado': 'Sol, Mi, La i Do',
@@ -56,7 +61,10 @@
       'rankings.compas': 'Puzzle de compassos',
       'rankings.quiz': 'Quiz musical',
       'rankings.wordguess': 'Paraules musicals',
-      'rankings.pianohero': 'Arcade Piano Hero'
+      'rankings.pianohero': 'Arcade Piano Hero',
+      'rankings.eduflappy': 'Edu Flappy Bird',
+      'rankings.edusnake': 'EduSnake',
+      'rankings.eduzop': 'EduZop'
     },
     en: {
       'rankings.title': 'EduMúsic Rankings',
@@ -67,6 +75,7 @@
       'rankings.group.catch': 'Catch the Notes',
       'rankings.group.eartraining': 'Ear training & dictations',
       'rankings.group.challenges': 'Challenges & memory',
+      'rankings.group.minijocs': 'Minigames',
       'rankings.solmi': 'G & E',
       'rankings.solmila': 'G, E and A',
       'rankings.solmilado': 'G, E, A and low C',
@@ -85,7 +94,10 @@
       'rankings.compas': 'Time signature puzzle',
       'rankings.quiz': 'Music quiz',
       'rankings.wordguess': 'Musical words',
-      'rankings.pianohero': 'Piano Hero arcade'
+      'rankings.pianohero': 'Piano Hero arcade',
+      'rankings.eduflappy': 'Edu Flappy Bird',
+      'rankings.edusnake': 'EduSnake',
+      'rankings.eduzop': 'EduZop'
     }
   };
 

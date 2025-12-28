@@ -31,6 +31,7 @@
     config: undefined,
     app: null,
     db: null,
+    firebaseNamespace: null,
     configScriptUrl: DEFAULT_CONFIG_URL,
     configScriptPromise: null,
 
@@ -52,6 +53,7 @@
       this.initPromise = null;
       this.app = null;
       this.db = null;
+      this.firebaseNamespace = null;
       this.configScriptPromise = null;
       debugLog('Firebase backend reset');
     },
@@ -126,25 +128,50 @@
       return ready;
     },
 
-    loadScript(src) {
+    loadScript(src, options = {}) {
       if (this.scriptPromises[src]) return this.scriptPromises[src];
       if (typeof document === 'undefined') {
         this.scriptPromises[src] = Promise.reject(new Error('Firebase SDK requires a DOM environment'));
         return this.scriptPromises[src];
       }
       this.scriptPromises[src] = new Promise((resolve, reject) => {
+        let restoreAmd = null;
+        if (options.disableAmd && typeof window !== 'undefined' && window.define) {
+          // IMPORTANT: Do not delete/undefine `window.define` on pages using RequireJS.
+          // Firebase compat uses UMD and will prefer AMD if `define.amd` is truthy.
+          // We temporarily disable ONLY the AMD marker so Firebase attaches to `window.firebase`.
+          let prevAmd;
+          try {
+            prevAmd = window.define.amd;
+          } catch (_) {
+            prevAmd = undefined;
+          }
+          restoreAmd = () => {
+            try {
+              window.define.amd = prevAmd;
+            } catch (_) {}
+          };
+          try {
+            window.define.amd = undefined;
+          } catch (_) {}
+        }
         const existing = document.querySelector(`script[src="${src}"]`);
         if (existing) {
           if (existing.dataset && existing.dataset.loaded === 'true') {
             debugLog('Script already loaded', src);
+            if (restoreAmd) restoreAmd();
             resolve();
             return;
           }
           existing.addEventListener('load', () => {
             debugLog('Script load event (existing)', src);
+            if (restoreAmd) restoreAmd();
             resolve();
           });
-          existing.addEventListener('error', () => reject(new Error(`Failed loading ${src}`)));
+          existing.addEventListener('error', () => {
+            if (restoreAmd) restoreAmd();
+            reject(new Error(`Failed loading ${src}`));
+          });
           return;
         }
         const el = document.createElement('script');
@@ -155,9 +182,13 @@
         el.addEventListener('load', () => {
           if (el.dataset) el.dataset.loaded = 'true';
           debugLog('Script load event', src);
+          if (restoreAmd) restoreAmd();
           resolve();
         });
-        el.addEventListener('error', () => reject(new Error(`Failed loading ${src}`)));
+        el.addEventListener('error', () => {
+          if (restoreAmd) restoreAmd();
+          reject(new Error(`Failed loading ${src}`));
+        });
         document.head.appendChild(el);
         debugLog('Script appended', src);
       });
@@ -165,10 +196,28 @@
     },
 
     async ensureScripts() {
+      if (this.firebaseNamespace && typeof this.firebaseNamespace.initializeApp === 'function') {
+        return;
+      }
+
+      // If Firebase is already present (e.g. preloaded before RequireJS), just reuse it.
+      if (typeof window !== 'undefined' && window.firebase && typeof window.firebase.initializeApp === 'function') {
+        this.firebaseNamespace = window.firebase;
+        debugLog('Firebase SDK already present on window');
+        return;
+      }
+
+      // RequireJS/AMD pages are sensitive: toggling AMD markers can break UMD libs (Kinetic/buzz).
+      // In that case, require an explicit preload of Firebase (see EduSnake) instead of dynamic load.
+      if (typeof window !== 'undefined' && window.requirejs && window.define && window.define.amd) {
+        console.warn('[ScoreService] RequireJS detected: Firebase must be preloaded (skipping dynamic SDK load)');
+        return;
+      }
       debugLog('Ensuring Firebase SDK scripts');
       for (const src of this.sdkUrls) {
-        await this.loadScript(src);
+        await this.loadScript(src, { disableAmd: true });
       }
+      this.firebaseNamespace = (typeof window !== 'undefined') ? (window.firebase || null) : null;
       debugLog('Firebase SDK scripts ready');
     },
 
@@ -184,7 +233,7 @@
         debugLog('Initialising Firebase');
         this.initPromise = (async () => {
           await this.ensureScripts();
-          const firebase = window.firebase;
+          const firebase = this.firebaseNamespace || (typeof window !== 'undefined' ? window.firebase : null);
           if (!firebase || typeof firebase.initializeApp !== 'function') {
             throw new Error('Firebase SDK not available on window');
           }
@@ -210,7 +259,7 @@
           }
           const db = firebase.firestore(app);
           try {
-            db.settings({ ignoreUndefinedProperties: true });
+            db.settings({ ignoreUndefinedProperties: true, merge: true });
           } catch (_) {}
           this.app = app;
           this.db = db;
@@ -684,6 +733,7 @@
         headingKey: options.headingKey || 'game.ranking',
         headingFallback: options.headingFallback || 'Ranking',
         showSaveAt: typeof options.showSaveAt === 'number' ? options.showSaveAt : 1,
+        disableSaveUi: !!options.disableSaveUi,
         period: options.period || 'all-time', // 'all-time' or 'weekly'
       };
       this.ids = {
@@ -723,6 +773,10 @@
     }
 
     toggleSaveBox(visible) {
+      if (this.options.disableSaveUi) {
+        this.dom.saveBox.style.display = 'none';
+        return;
+      }
       this.dom.saveBox.style.display = visible ? '' : 'none';
     }
 
@@ -904,6 +958,11 @@
       const gameId = options.gameId || element.getAttribute('data-game') || element.id;
       if (!gameId) return;
       const rankKey = options.rankKey || element.getAttribute('data-rank-key') || gameId;
+      const disableSaveUiAttr = (element.getAttribute('data-disable-save-ui') || '').toLowerCase();
+      const disableSaveUi = options.disableSaveUi === true
+        || disableSaveUiAttr === '1'
+        || disableSaveUiAttr === 'true'
+        || disableSaveUiAttr === 'yes';
       const board = new Board(this, element, {
         gameId,
         rankKey,
@@ -919,6 +978,7 @@
           options.showSaveAt,
           { allowZero: true, min: 0 },
         ),
+        disableSaveUi,
         period: element.getAttribute('data-period') || options.period || 'all-time',
       });
       this.boards.set(element, board);
@@ -1186,9 +1246,13 @@
 
   window.ScoreService = ScoreService;
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => ScoreService.scanDom());
-  } else {
-    ScoreService.scanDom();
+  const autoScanDisabled = (typeof window !== 'undefined')
+    && window.EDUMUSIC_SCORE_AUTOSCAN === false;
+  if (!autoScanDisabled) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => ScoreService.scanDom());
+    } else {
+      ScoreService.scanDom();
+    }
   }
 })();
