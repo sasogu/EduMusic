@@ -432,8 +432,9 @@
           const ts = new Date(entry.ts);
           return ts >= weekStart;
         });
-        filtered.sort((a, b) => b.score - a.score || new Date(a.ts) - new Date(b.ts));
-        const top = filtered.slice(0, limit);
+        filtered.sort(sortByScoreThenTs);
+        const unique = dedupeByInitialsSorted(filtered);
+        const top = unique.slice(0, limit);
         debugLog('fetchEntries: weekly post-process', filtered.length, '->', top.length);
         return top;
       };
@@ -459,7 +460,15 @@
           rawEntries: entries.length,
           weeklyFilter,
         });
-        const result = weeklyFilter ? processWeeklyEntries(entries) : entries;
+        // Para all-time, aunque la query venga ordenada/limitada, normalizamos el orden y
+        // aplicamos deduplicación por iniciales para cumplir la regla global.
+        let result;
+        if (weeklyFilter) {
+          result = processWeeklyEntries(entries);
+        } else {
+          entries.sort(sortByScoreThenTs);
+          result = dedupeByInitialsSorted(entries).slice(0, limit);
+        }
         debugLog('fetchEntries: runQuery result size', {
           label,
           returned: Array.isArray(result) ? result.length : 0,
@@ -590,6 +599,30 @@
     const upper = raw.toString().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const filtered = upper.replace(/[^A-Z0-9]/g, '');
     return filtered.slice(0, 3);
+  }
+
+  function sortByScoreThenTs(a, b) {
+    const scoreA = Number(a && a.score != null ? a.score : 0) || 0;
+    const scoreB = Number(b && b.score != null ? b.score : 0) || 0;
+    if (scoreB !== scoreA) return scoreB - scoreA;
+    const tsA = new Date(a && a.ts ? a.ts : 0);
+    const tsB = new Date(b && b.ts ? b.ts : 0);
+    return tsA - tsB;
+  }
+
+  // De-duplicación por iniciales: una entrada por combinación (p.ej. "AMO").
+  // IMPORTANTE: se asume que la lista ya está ordenada de mejor a peor.
+  function dedupeByInitialsSorted(entries) {
+    const seen = new Set();
+    const out = [];
+    const list = Array.isArray(entries) ? entries : [];
+    for (const item of list) {
+      const key = normalizeInitials(item && item.name != null ? item.name : '') || DEFAULT_INITIALS;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(item);
+    }
+    return out;
   }
 
   function ensureInitials(raw, fallbackRaw) {
@@ -1141,11 +1174,12 @@
       };
       existing.push(candidate);
 
-      existing.sort((a, b) => b.score - a.score || new Date(a.ts) - new Date(b.ts));
+      existing.sort(sortByScoreThenTs);
+      const unique = dedupeByInitialsSorted(existing);
       const cap = typeof board.options.maxEntries === 'number' && board.options.maxEntries > 0
         ? board.options.maxEntries
         : DEFAULT_MAX_ENTRIES;
-      const top = existing.slice(0, cap);
+      const top = unique.slice(0, cap);
       const included = top.some((item) => item.__candidate === true);
       const cleanTop = top.map((item) => {
         const clone = { ...item };
