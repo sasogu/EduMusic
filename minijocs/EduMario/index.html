@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>EduMario - Phaser</title>
+        <link rel="stylesheet" href="./styles.css">
+        <script src="./phaser.min.js"></script>
+    </head>
+    <body>
+        <div id="game-container"></div>
+        <div id="edumario-scoreboards" style="display:none;" aria-hidden="true">
+            <section data-scoreboard data-game="edumario" data-rank-key="edumario" data-period="all-time" data-heading="EduMario"></section>
+            <section data-scoreboard data-game="edumario" data-rank-key="edumario" data-period="weekly" data-heading="EduMario"></section>
+        </div>
+        <script src="../../js/score-service.js?v=2"></script>
+        <script src="./game.js"></script>
+    </body>
+</html>

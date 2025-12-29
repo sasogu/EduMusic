@@ -31,7 +31,8 @@
       'rankings.pianohero': 'Arcade Piano Hero',
       'rankings.eduflappy': 'Edu Flappy Bird',
       'rankings.edusnake': 'EduSnake',
-      'rankings.eduzop': 'EduZop'
+      'rankings.eduzop': 'EduZop',
+      'rankings.edumario': 'EduMario'
     },
     val: {
       'rankings.title': 'Rànquings d\'EduMúsic',
@@ -64,7 +65,8 @@
       'rankings.pianohero': 'Arcade Piano Hero',
       'rankings.eduflappy': 'Edu Flappy Bird',
       'rankings.edusnake': 'EduSnake',
-      'rankings.eduzop': 'EduZop'
+      'rankings.eduzop': 'EduZop',
+      'rankings.edumario': 'EduMario'
     },
     en: {
       'rankings.title': 'EduMúsic Rankings',
@@ -97,7 +99,8 @@
       'rankings.pianohero': 'Piano Hero arcade',
       'rankings.eduflappy': 'Edu Flappy Bird',
       'rankings.edusnake': 'EduSnake',
-      'rankings.eduzop': 'EduZop'
+      'rankings.eduzop': 'EduZop',
+      'rankings.edumario': 'EduMario'
     }
   };
 
