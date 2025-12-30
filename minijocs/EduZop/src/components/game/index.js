@@ -203,7 +203,7 @@ module.exports = Game = (function() {
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><ellipse cx="26" cy="42" rx="10" ry="7" fill="' + noteColor + '"/><rect x="34" y="12" width="4" height="30" fill="' + noteColor + '"/><path d="M38 12 Q52 18 44 30" stroke="' + noteColor + '" stroke-width="4" fill="none"/></svg>',
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><ellipse cx="26" cy="42" rx="10" ry="7" fill="none" stroke="' + noteColor + '" stroke-width="4"/><rect x="34" y="12" width="4" height="30" fill="' + noteColor + '"/></svg>',
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><ellipse cx="26" cy="42" rx="10" ry="7" fill="' + noteColor + '"/><rect x="34" y="12" width="4" height="30" fill="' + noteColor + '"/></svg>',
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><ellipse cx="26" cy="42" rx="10" ry="7" fill="' + noteColor + '"/><rect x="34" y="12" width="4" height="30" fill="' + noteColor + '"/><path d="M38 12 Q52 18 44 26" stroke="' + noteColor + '" stroke-width="4" fill="none"/><path d="M38 20 Q52 26 44 34" stroke="' + noteColor + '" stroke-width="4" fill="none"/></svg>'
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><ellipse cx="26" cy="42" rx="10" ry="7" fill="none" stroke="' + noteColor + '" stroke-width="4"/></svg>'
       ]
     }
     noteSvgsLight = makeNoteSvgs('#ffffff')
@@ -296,6 +296,11 @@ module.exports = Game = (function() {
             isSelecting = false
             squareColor = null
             Score.save(score)
+            try {
+              if (typeof window !== 'undefined' && window.ScoreService && typeof window.ScoreService.showSave === 'function') {
+                window.ScoreService.showSave('eduzop', score)
+              }
+            } catch (e) {}
             if (gameInstance.timeInterval) {
               clearInterval(gameInstance.timeInterval)
               gameInstance.timeInterval = null
