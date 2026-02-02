@@ -3,41 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JClic · Actividades interactivas</title>
+  <title data-i18n="jclic.list.title">JClic · Actividades interactivas</title>
+  <link rel="manifest" href="../manifest.json">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="icon" href="../assets/icon-192.png" type="image/png">
 </head>
 <body>
   <header style="text-align:center;margin:2em 0 1em 0;">
-    <h1>JClic</h1>
-    <p>Actividades interactivas para reforzar contenidos musicales.</p>
+    <h1 data-i18n="jclic.list.heading">JClic</h1>
+    <p data-i18n="jclic.list.subtitle">Actividades interactivas para reforzar contenidos musicales.</p>
     <a href="../index.html" class="home-link" style="margin-top:12px;display:inline-block;">
       <span class="home-icon" aria-hidden="true">⌂</span>
-      Volver al inicio
+      <span data-i18n="jclic.backHome">Volver al inicio</span>
     </a>
   </header>
   <main style="max-width:900px;margin:0 auto;">
     <section>
-      <h2 style="margin-top:2em;">Nivel inicial</h2>
+      <h2 style="margin-top:2em;" data-i18n="jclic.level.initial">Nivel inicial</h2>
       <div class="activity-grid">
   <a href="jclic/jclic-carnaval.html" class="activity-card" data-tags="jclic,carnaval,inicial" data-theme="jclic" data-emoji="🦁">
-          <h2>Carnaval de los animales (JClic)</h2>
-          <p>Actividad interactiva sobre "El Carnaval de los animales" de Saint-Saëns.</p>
-          <small>Proyecto JClic · clic.xtec.cat</small>
+          <h2 data-i18n="jclic.card.carnaval.title">Carnaval de los animales (JClic)</h2>
+          <p data-i18n="jclic.card.carnaval.desc">Actividad interactiva sobre "El Carnaval de los animales" de Saint-Saëns.</p>
+          <small data-i18n="jclic.card.carnaval.meta">Proyecto JClic · clic.xtec.cat</small>
         </a>
       </div>
     </section>
     <section>
-      <h2 style="margin-top:2em;">Nivel avanzado</h2>
+      <h2 style="margin-top:2em;" data-i18n="jclic.level.advanced">Nivel avanzado</h2>
       <div class="activity-grid">
   <a href="jclic/jclic-rock1.html" class="activity-card" data-tags="jclic,rockcast,avanzado" data-theme="jclic" data-emoji="🎸">
-          <h2>Rockcast: El rock y sus instrumentos (JClic)</h2>
-          <p>Actividad interactiva sobre el rock y los instrumentos musicales. Recurso JClic externo.</p>
-          <small>Proyecto JClic · clic.xtec.cat</small>
+          <h2 data-i18n="jclic.card.rock1.title">Rockcast: El rock y sus instrumentos (JClic)</h2>
+          <p data-i18n="jclic.card.rock1.desc">Actividad interactiva sobre el rock y los instrumentos musicales. Recurso JClic externo.</p>
+          <small data-i18n="jclic.card.rock1.meta">Proyecto JClic · clic.xtec.cat</small>
         </a>
       </div>
     </section>
   </main>
   <footer class="page-footer" data-sw-status></footer>
+  <script src="../js/app.js" defer></script>
+  <script src="../js/audio-settings.js" defer></script>
+  <script src="../js/i18n/jclic.js" defer></script>
 </body>
 </html>
