@@ -2,6 +2,10 @@
 (function() {
   const payload = {
     es: {
+      'jclic.viewer.title': 'JClic · Actividad',
+      'jclic.viewer.intro': 'Actividad interactiva de JClic incrustada desde clic.xtec.cat. Requiere conexión a Internet.',
+      'jclic.viewer.open': 'Abrir en nueva pestaña',
+      'jclic.viewer.note': 'Si el contenido no se muestra dentro de la página (por bloqueo del navegador), usa “Abrir en nueva pestaña”.',
       'jclic.list.title': 'JClic · Actividades interactivas',
       'jclic.list.heading': 'JClic',
       'jclic.list.subtitle': 'Actividades interactivas para reforzar contenidos musicales.',
@@ -11,6 +15,9 @@
       'jclic.card.carnaval.title': 'Carnaval de los animales (JClic)',
       'jclic.card.carnaval.desc': 'Actividad interactiva sobre "El Carnaval de los animales" de Saint-Saëns.',
       'jclic.card.carnaval.meta': 'Proyecto JClic · clic.xtec.cat',
+      'jclic.card.pedrolob.title': 'Pedro y el lobo (JClic)',
+      'jclic.card.pedrolob.desc': 'Actividad interactiva basada en la obra "Pedro y el lobo" de Prokófiev.',
+      'jclic.card.pedrolob.meta': 'Proyecto JClic · clic.xtec.cat',
       'jclic.card.rock1.title': 'Rockcast: El rock y sus instrumentos (JClic)',
       'jclic.card.rock1.desc': 'Actividad interactiva sobre el rock y los instrumentos musicales. Recurso JClic externo.',
       'jclic.card.rock1.meta': 'Proyecto JClic · clic.xtec.cat',
@@ -25,6 +32,10 @@
       'jclic.rock1.note': 'Si el contenido no se muestra dentro de la página (por bloqueo del navegador), usa “Abrir en nueva pestaña”.'
     },
     val: {
+      'jclic.viewer.title': 'JClic · Activitat',
+      'jclic.viewer.intro': 'Activitat interactiva de JClic incrustada des de clic.xtec.cat. Requereix connexió a Internet.',
+      'jclic.viewer.open': 'Obrir en una pestanya nova',
+      'jclic.viewer.note': 'Si el contingut no es mostra dins de la pàgina (per bloqueig del navegador), usa “Obrir en una pestanya nova”.',
       'jclic.list.title': 'JClic · Activitats interactives',
       'jclic.list.heading': 'JClic',
       'jclic.list.subtitle': 'Activitats interactives per reforçar continguts musicals.',
@@ -34,6 +45,9 @@
       'jclic.card.carnaval.title': 'Carnaval dels animals (JClic)',
       'jclic.card.carnaval.desc': 'Activitat interactiva sobre "El Carnaval dels animals" de Saint-Saëns.',
       'jclic.card.carnaval.meta': 'Projecte JClic · clic.xtec.cat',
+      'jclic.card.pedrolob.title': 'Pere i el llop (JClic)',
+      'jclic.card.pedrolob.desc': 'Activitat interactiva basada en l\'obra "Pere i el llop" de Prokófiev.',
+      'jclic.card.pedrolob.meta': 'Projecte JClic · clic.xtec.cat',
       'jclic.card.rock1.title': 'Rockcast: El rock i els seus instruments (JClic)',
       'jclic.card.rock1.desc': 'Activitat interactiva sobre el rock i els seus instruments musicals. Recurs JClic extern.',
       'jclic.card.rock1.meta': 'Projecte JClic · clic.xtec.cat',
@@ -48,6 +62,10 @@
       'jclic.rock1.note': 'Si el contingut no es mostra dins de la pàgina (per bloqueig del navegador), usa “Obrir en una pestanya nova”.'
     },
     en: {
+      'jclic.viewer.title': 'JClic · Activity',
+      'jclic.viewer.intro': 'Interactive JClic activity embedded from clic.xtec.cat. Internet connection required.',
+      'jclic.viewer.open': 'Open in a new tab',
+      'jclic.viewer.note': 'If the content does not appear inside the page (browser blocking), use “Open in a new tab”.',
       'jclic.list.title': 'JClic · Interactive activities',
       'jclic.list.heading': 'JClic',
       'jclic.list.subtitle': 'Interactive activities to reinforce music learning.',
@@ -57,6 +75,9 @@
       'jclic.card.carnaval.title': 'Carnival of the Animals (JClic)',
       'jclic.card.carnaval.desc': 'Interactive activity about "The Carnival of the Animals" by Saint-Saëns.',
       'jclic.card.carnaval.meta': 'JClic project · clic.xtec.cat',
+      'jclic.card.pedrolob.title': 'Peter and the Wolf (JClic)',
+      'jclic.card.pedrolob.desc': 'Interactive activity based on "Peter and the Wolf" by Prokofiev.',
+      'jclic.card.pedrolob.meta': 'JClic project · clic.xtec.cat',
       'jclic.card.rock1.title': 'Rockcast: Rock and its instruments (JClic)',
       'jclic.card.rock1.desc': 'Interactive activity about rock and its instruments. External JClic resource.',
       'jclic.card.rock1.meta': 'JClic project · clic.xtec.cat',
