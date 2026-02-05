@@ -842,21 +842,41 @@ class EduMarioScene extends Phaser.Scene {
         this.add.text(170, buttonY, '>', { fontSize: '24px', color: '#f8fafc' }).setOrigin(0.5);
         this.add.text(GAME_WIDTH - 90, buttonY, this.t('controls.jump'), { fontSize: '18px', color: '#f8fafc' }).setOrigin(0.5);
 
-        const setButtonState = (flag, value) => {
-            this[flag] = value;
+        const bindHoldButton = (button, flag) => {
+            // En táctil es fácil que el dedo “se salga” unos píxeles y dispare pointerout.
+            // Para que se comporte como una tecla (mantener mientras se pulsa),
+            // mantenemos el estado hasta que el mismo puntero levanta.
+            button.setData('activePointerId', null);
+
+            const press = (pointer) => {
+                this[flag] = true;
+                button.setData('activePointerId', pointer?.id ?? null);
+            };
+
+            const release = (pointer) => {
+                const activeId = button.getData('activePointerId');
+                const pointerId = pointer?.id ?? null;
+                if (activeId === null || pointerId === activeId) {
+                    this[flag] = false;
+                    button.setData('activePointerId', null);
+                }
+            };
+
+            button.on('pointerdown', press);
+            button.on('pointerup', release);
+            button.on('pointerupoutside', release);
+
+            // Fallback: si el puntero se levanta fuera del botón, liberamos igualmente.
+            this.input.on('pointerup', release);
+            this.input.on('gameout', () => {
+                this[flag] = false;
+                button.setData('activePointerId', null);
+            });
         };
 
-        leftButton.on('pointerdown', () => setButtonState('touchLeft', true));
-        leftButton.on('pointerup', () => setButtonState('touchLeft', false));
-        leftButton.on('pointerout', () => setButtonState('touchLeft', false));
-
-        rightButton.on('pointerdown', () => setButtonState('touchRight', true));
-        rightButton.on('pointerup', () => setButtonState('touchRight', false));
-        rightButton.on('pointerout', () => setButtonState('touchRight', false));
-
-        jumpButton.on('pointerdown', () => setButtonState('touchJump', true));
-        jumpButton.on('pointerup', () => setButtonState('touchJump', false));
-        jumpButton.on('pointerout', () => setButtonState('touchJump', false));
+        bindHoldButton(leftButton, 'touchLeft');
+        bindHoldButton(rightButton, 'touchRight');
+        bindHoldButton(jumpButton, 'touchJump');
     }
 
     createColliders() {
