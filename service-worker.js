@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.3.12';
+const SW_VERSION = 'v1.3.13';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 const SCOPE_URL = new URL(self.registration.scope);
@@ -24,6 +24,7 @@ const ASSETS = [
   'css/word-guess.css',
   'css/quiz.css',
   'css/piano-hero.css',
+  'css/cajaritmos.css',
   'js/app.js',
   'js/audio-settings.js',
   'js/index-tags.js',
@@ -51,6 +52,7 @@ const ASSETS = [
   'js/i18n/rankings.js',
   'js/i18n/piano-hero.js',
   'js/i18n/minijocs.js',
+  'js/i18n/cajaritmos.js',
   'manifest.json',
   'html/game.html',
   'html/solmi.html',
@@ -61,6 +63,7 @@ const ASSETS = [
   'html/todas.html',
   'html/memory.html',
   'html/compas.html',
+  'html/cajaritmos.html',
   'html/melody.html',
   'html/rhythm.html',
   'html/rhythm-dictation.html',
@@ -81,6 +84,7 @@ const ASSETS = [
   'js/game.js',
   'js/memory.js',
   'js/compas.js',
+  'js/cajaritmos.js',
   'js/melody.js',
   'js/rhythm.js',
   'js/rhythm-dictation.js',

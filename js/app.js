@@ -290,9 +290,13 @@ function ensureSwFooter() {
     nodes.forEach((el) => {
       const key = el.getAttribute('data-i18n');
       const attr = el.getAttribute('data-i18n-attr');
+      const isHtml = el.hasAttribute('data-i18n-html');
       const text = t(key);
       if (attr) {
         el.setAttribute(attr, text);
+      } else if (isHtml) {
+        // Only use with trusted strings from our own bundles.
+        el.innerHTML = text;
       } else {
         el.textContent = text;
       }
