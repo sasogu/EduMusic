@@ -1,6 +1,53 @@
 const GAME_WIDTH = 960;
 const GAME_HEIGHT = 540;
 
+const PERF = (() => {
+    // Modo rendimiento:
+    // - Override por URL: ?perf=low | ?perf=normal
+    // - Persistencia: localStorage 'edu-mario-perf'
+    const normalize = (raw) => {
+        const value = String(raw || '').toLowerCase().trim();
+        if (!value) {
+            return '';
+        }
+        if (value === 'low' || value === 'lite') {
+            return 'low';
+        }
+        if (value === 'normal' || value === 'default') {
+            return 'normal';
+        }
+        return '';
+    };
+
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const fromUrl = normalize(params.get('perf'));
+        if (fromUrl) {
+            try {
+                window.localStorage.setItem('edu-mario-perf', fromUrl);
+            } catch {
+                // ignore
+            }
+            return fromUrl;
+        }
+
+        const stored = normalize(window.localStorage.getItem('edu-mario-perf'));
+        if (stored) {
+            return stored;
+        }
+    } catch {
+        // ignore
+    }
+
+    return 'normal';
+})();
+
+const IS_LOW_PERF = PERF === 'low';
+const TARGET_FPS = IS_LOW_PERF ? 30 : 60;
+const MAX_ENEMIES = IS_LOW_PERF ? 8 : 18;
+const PARALLAX_EVERY_N_FRAMES = IS_LOW_PERF ? 3 : 1;
+const ENEMY_FLIP_EVERY_N_FRAMES = IS_LOW_PERF ? 3 : 1;
+
 const PLAYER_SPEED = 180;
 const PLAYER_JUMP_VELOCITY = -780;
 const ENEMY_STOMP_BOUNCE = -520;
@@ -27,7 +74,10 @@ const TRANSLATIONS = {
         hud: {
             score: 'Puntos: {score}',
             attempts: 'Intentos: {attempts}',
-            lives: 'Vidas: {lives}'
+            lives: 'Vidas: {lives}',
+            perf: 'Rendimiento: {state}',
+            perfOn: 'ON',
+            perfOff: 'OFF'
         },
         controls: {
             jump: 'Saltar'
@@ -52,7 +102,10 @@ const TRANSLATIONS = {
         hud: {
             score: 'Punts: {score}',
             attempts: 'Intents: {attempts}',
-            lives: 'Vides: {lives}'
+            lives: 'Vides: {lives}',
+            perf: 'Rendiment: {state}',
+            perfOn: 'ON',
+            perfOff: 'OFF'
         },
         controls: {
             jump: 'Saltar'
@@ -77,7 +130,10 @@ const TRANSLATIONS = {
         hud: {
             score: 'Points: {score}',
             attempts: 'Attempts: {attempts}',
-            lives: 'Lives: {lives}'
+            lives: 'Lives: {lives}',
+            perf: 'Performance: {state}',
+            perfOn: 'ON',
+            perfOff: 'OFF'
         },
         controls: {
             jump: 'Jump'
@@ -116,11 +172,13 @@ class EduMarioScene extends Phaser.Scene {
         this.lives = 3;
         this.nextEnemyMilestone = 20;
         this.nextLifeMilestone = 50;
+        this.nextRandomEnemyAt = 0;
         this.keyResolveLockUntil = 0;
         this.hitLock = false;
         this.touchLeft = false;
         this.touchRight = false;
         this.touchJump = false;
+        this.touchJumpWasDown = false;
         this.jumpCutApplied = false;
         this.audioArmed = false;
 
@@ -132,6 +190,8 @@ class EduMarioScene extends Phaser.Scene {
         this.gameOverKeyHandler = null;
 
         this.skyMode = 'normal';
+
+        this.parallaxTick = 0;
     }
 
     preload() {
@@ -162,13 +222,17 @@ class EduMarioScene extends Phaser.Scene {
 
         this.setupI18n();
 
-        // Fondo con parallax: evita estirar el arte y da más vida al escenario.
+        // Fondo con parallax (en low-perf reducimos capas).
         this.bgBack = this.add.tileSprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 'bg-back');
 
-        // Montañas solo abajo (una fila), ocupando todo el ancho.
-        const midSource = this.textures.get('bg-mid')?.getSourceImage();
-        const midHeight = midSource?.height || Math.floor(GAME_HEIGHT * 0.35);
-        this.bgMid = this.add.tileSprite(GAME_WIDTH / 2, GAME_HEIGHT - midHeight / 2, GAME_WIDTH, midHeight, 'bg-mid');
+        if (!IS_LOW_PERF) {
+            // Montañas solo abajo (una fila), ocupando todo el ancho.
+            const midSource = this.textures.get('bg-mid')?.getSourceImage();
+            const midHeight = midSource?.height || Math.floor(GAME_HEIGHT * 0.35);
+            this.bgMid = this.add.tileSprite(GAME_WIDTH / 2, GAME_HEIGHT - midHeight / 2, GAME_WIDTH, midHeight, 'bg-mid');
+        } else {
+            this.bgMid = null;
+        }
 
         this.createUi();
         this.createTextures();
@@ -192,11 +256,13 @@ class EduMarioScene extends Phaser.Scene {
         this.lives = 3;
         this.nextEnemyMilestone = 20;
         this.nextLifeMilestone = 50;
+        this.nextRandomEnemyAt = 0;
         this.keyResolveLockUntil = 0;
         this.hitLock = false;
         this.touchLeft = false;
         this.touchRight = false;
         this.touchJump = false;
+        this.touchJumpWasDown = false;
         this.jumpCutApplied = false;
 
         this.isGameOver = false;
@@ -205,6 +271,8 @@ class EduMarioScene extends Phaser.Scene {
         this.submittedScore = false;
 
         this.skyMode = 'normal';
+
+        this.parallaxTick = 0;
     }
 
     maybeUpdateBackgroundByScore() {
@@ -421,6 +489,30 @@ class EduMarioScene extends Phaser.Scene {
             fontSize: '18px',
             color: '#0f172a'
         }).setOrigin(1, 0);
+
+        const perfState = IS_LOW_PERF ? this.t('hud.perfOn') : this.t('hud.perfOff');
+        this.perfText = this.add.text(GAME_WIDTH - 20, 40, this.t('hud.perf', { state: perfState }), {
+            fontSize: '14px',
+            color: '#0f172a'
+        }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
+
+        this.perfText.on('pointerdown', () => {
+            const next = IS_LOW_PERF ? 'normal' : 'low';
+            try {
+                window.localStorage.setItem('edu-mario-perf', next);
+            } catch {
+                // ignore
+            }
+
+            // Recargamos para que FPS/resolution/render se apliquen desde config.
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('perf', next);
+                window.location.href = url.toString();
+            } catch {
+                window.location.reload();
+            }
+        });
     }
 
     createGameOverUi() {
@@ -939,6 +1031,37 @@ class EduMarioScene extends Phaser.Scene {
         }
     }
 
+    maybeSpawnRandomEnemies() {
+        // A partir de 10 puntos, añade enemigos aleatorios de vez en cuando.
+        // Importante: controlamos un cooldown para que no se convierta en una lluvia de enemigos.
+        if (this.score < 10) {
+            return;
+        }
+
+        const now = this.time?.now ?? Date.now();
+        if (now < this.nextRandomEnemyAt) {
+            return;
+        }
+
+        // Probabilidad suave que sube un poco con la puntuación.
+        // En low-perf y/o equipos lentos, mantenemos la presión más baja.
+        const base = IS_LOW_PERF ? 0.18 : 0.25;
+        const extra = Math.min(0.12, Math.floor(this.score / 20) * 0.03);
+        const chance = Math.min(0.4, base + extra);
+
+        if (Math.random() < chance) {
+            const x = Phaser.Math.Between(80, GAME_WIDTH - 80);
+            this.spawnEnemy(x);
+
+            const minDelay = IS_LOW_PERF ? 1800 : 1200;
+            const maxDelay = IS_LOW_PERF ? 3200 : 2400;
+            this.nextRandomEnemyAt = now + Phaser.Math.Between(minDelay, maxDelay);
+        } else {
+            // Reintento pronto pero no cada frame.
+            this.nextRandomEnemyAt = now + (IS_LOW_PERF ? 550 : 380);
+        }
+    }
+
     maybeGrantExtraLives() {
         // Cada 50 puntos: suma 1 vida.
         while (this.score >= this.nextLifeMilestone) {
@@ -1036,6 +1159,7 @@ class EduMarioScene extends Phaser.Scene {
             this.maybeUpdateBackgroundByScore();
 
             this.maybeSpawnMilestoneEnemies();
+            this.maybeSpawnRandomEnemies();
             this.maybeGrantExtraLives();
             this.pickNewTarget();
         } else {
@@ -1050,13 +1174,34 @@ class EduMarioScene extends Phaser.Scene {
     }
 
     spawnEnemy(spawnNearX) {
+        // En equipos lentos, el exceso de cuerpos de físicas degrada rápido.
+        const activeCount = this.enemies?.countActive(true) ?? 0;
+        if (activeCount >= MAX_ENEMIES) {
+            let oldest = null;
+            let oldestAt = Infinity;
+            for (const child of this.enemies.getChildren()) {
+                if (!child?.active) {
+                    continue;
+                }
+                const at = child.getData('spawnAt') ?? 0;
+                if (at < oldestAt) {
+                    oldestAt = at;
+                    oldest = child;
+                }
+            }
+            oldest?.destroy();
+        }
+
         const x = Phaser.Math.Clamp(spawnNearX + Phaser.Math.Between(-140, 140), 40, GAME_WIDTH - 40);
         const y = (this.groundTopY ?? (GAME_HEIGHT - 48)) - 18;
 
         const enemy = this.enemies.create(x, y, 'sunnyAtlas', 'opossum/opossum-1');
+        enemy.setData('spawnAt', this.time?.now ?? Date.now());
         enemy.setCollideWorldBounds(true);
         enemy.setBounce(1, 0);
         enemy.setVelocityX(Phaser.Math.Between(-80, 80) || 80);
+        // El spritesheet base parece mirar a la izquierda; invertimos al moverse a la derecha.
+        enemy.flipX = enemy.body.velocity.x > 0;
         enemy.play('opossum-walk');
     }
 
@@ -1098,18 +1243,46 @@ class EduMarioScene extends Phaser.Scene {
             return;
         }
 
-        if (this.bgBack) {
-            this.bgBack.tilePositionX = this.player.x * 0.06;
+        // Reducimos escrituras por frame en equipos lentos.
+        this.parallaxTick += 1;
+        if (PARALLAX_EVERY_N_FRAMES <= 1 || (this.parallaxTick % PARALLAX_EVERY_N_FRAMES) === 0) {
+            if (this.bgBack) {
+                this.bgBack.tilePositionX = this.player.x * 0.06;
+            }
+            if (this.bgMid) {
+                this.bgMid.tilePositionX = this.player.x * 0.12;
+            }
         }
-        if (this.bgMid) {
-            this.bgMid.tilePositionX = this.player.x * 0.12;
+
+        // Asegura que los enemigos “se den la vuelta” al cambiar de dirección.
+        // (Arcade cambia la velocidad, pero el sprite no se voltea solo.)
+        if (ENEMY_FLIP_EVERY_N_FRAMES <= 1 || (this.parallaxTick % ENEMY_FLIP_EVERY_N_FRAMES) === 0) {
+            if (this.enemies) {
+                for (const enemy of this.enemies.getChildren()) {
+                    if (!enemy?.active || !enemy.body) {
+                        continue;
+                    }
+                    const vx = enemy.body.velocity?.x ?? 0;
+                    if (vx < -1) {
+                        enemy.flipX = false;
+                    } else if (vx > 1) {
+                        enemy.flipX = true;
+                    }
+                }
+            }
         }
 
         const moveLeft = this.cursors.left.isDown || this.touchLeft;
         const moveRight = this.cursors.right.isDown || this.touchRight;
+
+        // En táctil necesitamos distinguir entre “acaba de pulsar” y “mantiene pulsado”.
+        // Si tratamos touchJump como JustDown, el salto se recorta inmediatamente y no llega a las notas.
+        const touchJumpJustDown = this.touchJump && !this.touchJumpWasDown;
+        this.touchJumpWasDown = this.touchJump;
+
         const wantsJump = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
             Phaser.Input.Keyboard.JustDown(this.jumpKey) ||
-            this.touchJump;
+            touchJumpJustDown;
 
         const jumpHeld = this.cursors.up.isDown || this.jumpKey.isDown || this.touchJump;
 
@@ -1125,7 +1298,6 @@ class EduMarioScene extends Phaser.Scene {
 
         if (wantsJump && this.player.body.blocked.down) {
             this.player.setVelocityY(PLAYER_JUMP_VELOCITY);
-            this.touchJump = false;
             this.jumpCutApplied = false;
         }
 
@@ -1156,11 +1328,22 @@ const config = {
     height: GAME_HEIGHT,
     parent: 'game-container',
     backgroundColor: '#bcd7ff',
+    render: {
+        pixelArt: IS_LOW_PERF,
+        antialias: !IS_LOW_PERF,
+        roundPixels: IS_LOW_PERF
+    },
+    fps: {
+        target: TARGET_FPS,
+        forceSetTimeOut: IS_LOW_PERF
+    },
+    resolution: IS_LOW_PERF ? 1 : (window.devicePixelRatio || 1),
     physics: {
         default: 'arcade',
         arcade: {
             gravity: { y: 1400 },
-            debug: false
+            debug: false,
+            fps: TARGET_FPS
         }
     },
     scale: {
