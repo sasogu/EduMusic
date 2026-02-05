@@ -55,6 +55,18 @@ const JUMP_CUT_MULTIPLIER = 0.35;
 const ENEMY_STOMP_EPSILON = 16;
 const ENEMY_STOMP_VY_THRESHOLD = -120;
 
+// Combo / power-ups
+const COMBO_START_AT_STREAK = 3; // a partir de 3 aciertos seguidos
+const COMBO_STEP_EVERY = 2; // 3->x2, 5->x3, 7->x4...
+const COMBO_MAX_MULTIPLIER = 4;
+const POWERUP_SPAWN_EVERY_STREAK = 4; // cada 4 aciertos seguidos spawnea un power-up
+const POWERUP_MAX_ACTIVE = 1;
+const STAR_INVINCIBLE_MS = 5000;
+
+// Dificultad adaptativa
+const ADAPTIVE_WINDOW = 12; // nº de eventos recientes (acierto/fallo)
+const HINTS_DISABLE_SCORE = 100; // a partir de aquí se ocultan ayudas visuales
+
 const PIANO_KEY_SOUND_COOLDOWN_MS = 140;
 // key05.ogg = Do grave. Mapeo diatónico (Do..Fa↑) sobre un piano cromático.
 const PIANO_SAMPLE_NUMBERS_BY_NOTE_INDEX = [5, 7, 9, 10, 12, 14, 16, 17, 19, 21, 22];
@@ -75,6 +87,10 @@ const TRANSLATIONS = {
             score: 'Puntos: {score}',
             attempts: 'Intentos: {attempts}',
             lives: 'Vidas: {lives}',
+            combo: 'Racha: {streak}',
+            mult: 'x{mult}',
+            shield: 'Escudo: {charges}',
+            target: 'Objetivo: {note}',
             perf: 'Rendimiento: {state}',
             perfOn: 'ON',
             perfOff: 'OFF'
@@ -87,7 +103,10 @@ const TRANSLATIONS = {
             tryAgain: 'Intenta otra',
             enemyHit: 'Te ha tocado un enemigo',
             stomp: '¡Pisotón!',
-            extraLife: '+1 vida'
+            extraLife: '+1 vida',
+            shieldOn: '¡Escudo!',
+            starOn: '¡Invencible!',
+            blocked: '¡Bloqueado!'
         },
         gameOver: {
             title: 'GAME OVER',
@@ -103,6 +122,10 @@ const TRANSLATIONS = {
             score: 'Punts: {score}',
             attempts: 'Intents: {attempts}',
             lives: 'Vides: {lives}',
+            combo: 'Ratxa: {streak}',
+            mult: 'x{mult}',
+            shield: 'Escut: {charges}',
+            target: 'Objectiu: {note}',
             perf: 'Rendiment: {state}',
             perfOn: 'ON',
             perfOff: 'OFF'
@@ -115,7 +138,10 @@ const TRANSLATIONS = {
             tryAgain: 'Torna-ho a provar',
             enemyHit: 'Un enemic t\'ha tocat',
             stomp: 'Trepitjada!',
-            extraLife: '+1 vida'
+            extraLife: '+1 vida',
+            shieldOn: 'Escut!',
+            starOn: 'Invencible!',
+            blocked: 'Bloquejat!'
         },
         gameOver: {
             title: 'GAME OVER',
@@ -131,6 +157,10 @@ const TRANSLATIONS = {
             score: 'Points: {score}',
             attempts: 'Attempts: {attempts}',
             lives: 'Lives: {lives}',
+            combo: 'Streak: {streak}',
+            mult: 'x{mult}',
+            shield: 'Shield: {charges}',
+            target: 'Target: {note}',
             perf: 'Performance: {state}',
             perfOn: 'ON',
             perfOff: 'OFF'
@@ -143,7 +173,10 @@ const TRANSLATIONS = {
             tryAgain: 'Try again',
             enemyHit: 'An enemy hit you',
             stomp: 'Stomp!',
-            extraLife: '+1 life'
+            extraLife: '+1 life',
+            shieldOn: 'Shield!',
+            starOn: 'Invincible!',
+            blocked: 'Blocked!'
         },
         gameOver: {
             title: 'GAME OVER',
@@ -170,6 +203,16 @@ class EduMarioScene extends Phaser.Scene {
         this.score = 0;
         this.attempts = 0;
         this.lives = 3;
+
+        this.comboStreak = 0;
+        this.comboMultiplier = 1;
+        this.invincibleUntil = 0;
+        this.invincibleTintActive = false;
+        this.shieldCharges = 0;
+
+        this.adaptiveEvents = [];
+        this.adaptiveMode = 'normal'; // 'assist' | 'normal' | 'challenge'
+        this.hintTween = null;
         this.nextEnemyMilestone = 20;
         this.nextLifeMilestone = 50;
         this.nextRandomEnemyAt = 0;
@@ -239,12 +282,63 @@ class EduMarioScene extends Phaser.Scene {
         this.createPlatforms();
         this.createPlayer();
         this.createEnemies();
+        this.createPowerUps();
         this.createControls();
         this.createColliders();
         this.setupAudio();
         this.loadHighScores();
+        this.syncRemoteRankingsInBackground();
         this.createGameOverUi();
         this.pickNewTarget();
+    }
+
+    async syncRemoteRankingsInBackground() {
+        const svc = window.ScoreService;
+        if (!svc || typeof svc.getBoardsByGame !== 'function' || typeof svc.loadEntries !== 'function') {
+            return;
+        }
+
+        try {
+            // Asegura que los boards (incluso ocultos) estén montados.
+            if (typeof svc.getBoardByGame === 'function' && !svc.getBoardByGame(SCORE_GAME_ID)
+                && typeof svc.scanDom === 'function') {
+                svc.scanDom();
+            }
+        } catch (_) {
+            // ignore
+        }
+
+        let boards;
+        try {
+            boards = svc.getBoardsByGame(SCORE_GAME_ID) || [];
+        } catch (_) {
+            boards = [];
+        }
+        if (!boards.length) {
+            return;
+        }
+
+        const allTimeBoard = boards.find((b) => (b?.options?.period || 'all-time') === 'all-time') || boards[0];
+        const weeklyBoard = boards.find((b) => (b?.options?.period || 'all-time') === 'weekly') || null;
+
+        try {
+            await svc.loadEntries(allTimeBoard, 'all-time');
+        } catch (_) {
+            // ignore
+        }
+        if (weeklyBoard) {
+            try {
+                await svc.loadEntries(weeklyBoard, 'weekly');
+            } catch (_) {
+                // ignore
+            }
+        }
+
+        // Recarga desde local (que ya puede incluir el remoto persistido).
+        this.loadHighScores();
+        if (this.isGameOver && this.submittedScore && this.gameOverUi?.ranking) {
+            this.gameOverUi.ranking.setText(this.formatHighScores());
+        }
     }
 
     resetRunState() {
@@ -254,6 +348,16 @@ class EduMarioScene extends Phaser.Scene {
         this.score = 0;
         this.attempts = 0;
         this.lives = 3;
+
+        this.comboStreak = 0;
+        this.comboMultiplier = 1;
+        this.invincibleUntil = 0;
+        this.invincibleTintActive = false;
+        this.shieldCharges = 0;
+
+        this.adaptiveEvents = [];
+        this.adaptiveMode = 'normal';
+        this.hintTween = null;
         this.nextEnemyMilestone = 20;
         this.nextLifeMilestone = 50;
         this.nextRandomEnemyAt = 0;
@@ -475,6 +579,11 @@ class EduMarioScene extends Phaser.Scene {
             color: '#0f172a'
         }).setOrigin(0.5, 0.5);
 
+        this.targetHintText = this.add.text(staffX, staffY + staffSpacing * 5.4, '', {
+            fontSize: '18px',
+            color: '#0f172a'
+        }).setOrigin(0.5, 0.5);
+
         this.scoreText = this.add.text(20, 16, this.t('hud.score', { score: this.score }), {
             fontSize: '18px',
             color: '#0f172a'
@@ -482,6 +591,21 @@ class EduMarioScene extends Phaser.Scene {
 
         this.livesText = this.add.text(20, 40, this.t('hud.lives', { lives: this.lives }), {
             fontSize: '18px',
+            color: '#0f172a'
+        });
+
+        this.comboText = this.add.text(20, 64, this.t('hud.combo', { streak: this.comboStreak }), {
+            fontSize: '16px',
+            color: '#0f172a'
+        });
+
+        this.multText = this.add.text(20, 84, this.t('hud.mult', { mult: this.comboMultiplier }), {
+            fontSize: '16px',
+            color: '#0f172a'
+        });
+
+        this.shieldText = this.add.text(20, 104, this.t('hud.shield', { charges: this.shieldCharges }), {
+            fontSize: '16px',
             color: '#0f172a'
         });
 
@@ -513,6 +637,264 @@ class EduMarioScene extends Phaser.Scene {
                 window.location.reload();
             }
         });
+
+        this.updateHints();
+    }
+
+    updateComboUi() {
+        if (this.comboText) {
+            this.comboText.setText(this.t('hud.combo', { streak: this.comboStreak }));
+        }
+        if (this.multText) {
+            this.multText.setText(this.t('hud.mult', { mult: this.comboMultiplier }));
+        }
+        if (this.shieldText) {
+            this.shieldText.setText(this.t('hud.shield', { charges: this.shieldCharges }));
+        }
+    }
+
+    recordAdaptiveEvent(isCorrect) {
+        this.adaptiveEvents.push(!!isCorrect);
+        if (this.adaptiveEvents.length > ADAPTIVE_WINDOW) {
+            this.adaptiveEvents.splice(0, this.adaptiveEvents.length - ADAPTIVE_WINDOW);
+        }
+    }
+
+    getAdaptiveStats() {
+        const list = Array.isArray(this.adaptiveEvents) ? this.adaptiveEvents : [];
+        const total = list.length;
+        const correct = list.filter(Boolean).length;
+        const accuracy = total ? (correct / total) : 1;
+
+        let wrongStreak = 0;
+        for (let i = list.length - 1; i >= 0; i -= 1) {
+            if (list[i]) break;
+            wrongStreak += 1;
+        }
+
+        return { total, correct, accuracy, wrongStreak };
+    }
+
+    updateAdaptiveDifficulty() {
+        const { total, accuracy, wrongStreak } = this.getAdaptiveStats();
+        if (total < 6) {
+            // Al principio no tocamos demasiado.
+            return;
+        }
+
+        // A partir de cierta puntuación, evitamos volver a mostrar ayudas.
+        if ((this.score || 0) >= HINTS_DISABLE_SCORE) {
+            const was = this.adaptiveMode;
+            this.adaptiveMode = 'challenge';
+            if (this.adaptiveMode !== was) {
+                this.updateHints();
+            }
+            return;
+        }
+
+        const was = this.adaptiveMode;
+
+        // Regla sencilla:
+        // - Si se atasca: ayuda.
+        // - Si va sobrado: reto.
+        // - Si no: normal.
+        if (wrongStreak >= 3 || accuracy <= 0.55 || this.lives <= 1) {
+            this.adaptiveMode = 'assist';
+        } else if (accuracy >= 0.85 && this.comboStreak >= 5 && this.lives >= 2) {
+            this.adaptiveMode = 'challenge';
+        } else {
+            this.adaptiveMode = 'normal';
+        }
+
+        if (this.adaptiveMode !== was) {
+            this.updateHints();
+        }
+    }
+
+    updateHints() {
+        // Pistas:
+        // - assist: muestra texto objetivo + flecha a la tecla.
+        // - normal: solo punto en pentagrama.
+        // - challenge: igual que normal (sin ayudas extra).
+        const show = (this.adaptiveMode === 'assist') && ((this.score || 0) < HINTS_DISABLE_SCORE);
+        if (this.targetHintText) {
+            if (show) {
+                this.targetHintText.setText(this.t('hud.target', { note: this.notes?.[this.targetIndex] || '' }));
+                this.targetHintText.setVisible(true);
+            } else {
+                this.targetHintText.setText('');
+                this.targetHintText.setVisible(false);
+            }
+        }
+
+        if (this.hintArrow) {
+            this.hintArrow.setVisible(show);
+        }
+
+        if (this.hintTween) {
+            this.hintTween.stop();
+            this.hintTween = null;
+        }
+        if (show && this.hintArrow) {
+            this.hintTween = this.tweens.add({
+                targets: this.hintArrow,
+                y: this.hintArrow.y - 6,
+                duration: 520,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut',
+            });
+        }
+
+        this.positionHintArrow();
+    }
+
+    positionHintArrow() {
+        if (!this.hintArrow || !this.keys) {
+            return;
+        }
+        if (!this.hintArrow.visible) {
+            return;
+        }
+        const children = this.keys.getChildren ? this.keys.getChildren() : [];
+        const keySprite = children.find((k) => (k && k.getData && k.getData('noteIndex')) === this.targetIndex);
+        if (!keySprite) {
+            return;
+        }
+        const keyY = this.keyY ?? 310;
+        this.hintArrow.setPosition(keySprite.x, keyY - 28);
+    }
+
+    getEnemySpawnTuning() {
+        // Ajusta la presión según el modo.
+        if (this.adaptiveMode === 'assist') {
+            return {
+                chanceMul: 0.6,
+                minDelay: IS_LOW_PERF ? 2200 : 1500,
+                maxDelay: IS_LOW_PERF ? 3600 : 2800,
+                maxEnemies: Math.max(4, Math.floor(MAX_ENEMIES * 0.65)),
+                speedMin: 55,
+                speedMax: 75,
+            };
+        }
+        if (this.adaptiveMode === 'challenge') {
+            return {
+                chanceMul: 1.25,
+                minDelay: IS_LOW_PERF ? 1500 : 1000,
+                maxDelay: IS_LOW_PERF ? 2700 : 2000,
+                maxEnemies: Math.min(MAX_ENEMIES + 6, IS_LOW_PERF ? 12 : 26),
+                speedMin: 85,
+                speedMax: 110,
+            };
+        }
+        return {
+            chanceMul: 1,
+            minDelay: IS_LOW_PERF ? 1800 : 1200,
+            maxDelay: IS_LOW_PERF ? 3200 : 2400,
+            maxEnemies: MAX_ENEMIES,
+            speedMin: 70,
+            speedMax: 90,
+        };
+    }
+
+    resetCombo() {
+        this.comboStreak = 0;
+        this.comboMultiplier = 1;
+        this.updateComboUi();
+    }
+
+    bumpComboOnCorrect() {
+        this.comboStreak += 1;
+
+        // Multiplicador discreto: 1x, 2x, 3x, 4x...
+        if (this.comboStreak < COMBO_START_AT_STREAK) {
+            this.comboMultiplier = 1;
+        } else {
+            const extra = 1 + Math.floor((this.comboStreak - COMBO_START_AT_STREAK) / COMBO_STEP_EVERY);
+            this.comboMultiplier = Math.min(COMBO_MAX_MULTIPLIER, 1 + extra);
+        }
+
+        this.updateComboUi();
+    }
+
+    createPowerUps() {
+        this.powerUps = this.physics.add.group();
+    }
+
+    spawnPowerUp(type, spawnNearX) {
+        if (!this.powerUps) {
+            return;
+        }
+
+        // Mantener pocos objetos activos.
+        const activeCount = this.powerUps.countActive(true);
+        if (activeCount >= POWERUP_MAX_ACTIVE) {
+            for (const child of this.powerUps.getChildren()) {
+                if (child?.active) {
+                    child.destroy();
+                }
+            }
+        }
+
+        const x = Phaser.Math.Clamp(spawnNearX + Phaser.Math.Between(-180, 180), 60, GAME_WIDTH - 60);
+        const y = 240;
+
+        const texture = type === 'star' ? 'power-star' : 'power-shield';
+        const pu = this.powerUps.create(x, y, texture);
+        pu.setData('powerType', type);
+        pu.setDepth(10);
+        pu.setCollideWorldBounds(true);
+        pu.setBounce(0.2, 0.2);
+        pu.setVelocity(Phaser.Math.Between(-20, 20), Phaser.Math.Between(-10, 10));
+
+        // Despawn suave si nadie lo recoge.
+        const bornAt = this.time?.now ?? Date.now();
+        pu.setData('bornAt', bornAt);
+        this.time.delayedCall(8000, () => {
+            if (pu?.active) {
+                pu.destroy();
+            }
+        });
+    }
+
+    maybeSpawnPowerUpOnStreak() {
+        if (this.comboStreak <= 0) {
+            return;
+        }
+        if ((this.comboStreak % POWERUP_SPAWN_EVERY_STREAK) !== 0) {
+            return;
+        }
+
+        // Alterna: 4->escudo, 8->estrella, 12->escudo...
+        const type = (this.comboStreak % (POWERUP_SPAWN_EVERY_STREAK * 2) === 0) ? 'star' : 'shield';
+        this.spawnPowerUp(type, this.player?.x ?? (GAME_WIDTH / 2));
+    }
+
+    applyPowerUp(type) {
+        const now = this.time?.now ?? Date.now();
+
+        if (type === 'star') {
+            this.invincibleUntil = Math.max(this.invincibleUntil || 0, now + STAR_INVINCIBLE_MS);
+            this.feedbackText?.setText(this.t('feedback.starOn'));
+            this.playSuccessSound();
+            return;
+        }
+
+        if (type === 'shield') {
+            this.shieldCharges = Math.min(1, (this.shieldCharges || 0) + 1);
+            this.feedbackText?.setText(this.t('feedback.shieldOn'));
+            this.playSuccessSound();
+            this.updateComboUi();
+        }
+    }
+
+    handlePowerUpOverlap(player, powerUp) {
+        if (!powerUp?.active) {
+            return;
+        }
+        const type = powerUp.getData('powerType');
+        powerUp.destroy();
+        this.applyPowerUp(type);
     }
 
     createGameOverUi() {
@@ -794,6 +1176,44 @@ class EduMarioScene extends Phaser.Scene {
         groundGraphics.fillRect(0, 0, 32, 32);
         groundGraphics.generateTexture('ground-body', 32, 32);
         groundGraphics.destroy();
+
+        const makeStarPoints = (cx, cy, spikes, outerRadius, innerRadius) => {
+            const points = [];
+            const step = Math.PI / spikes;
+            let rot = -Math.PI / 2;
+            for (let i = 0; i < spikes * 2; i += 1) {
+                const r = (i % 2 === 0) ? outerRadius : innerRadius;
+                points.push({ x: cx + Math.cos(rot) * r, y: cy + Math.sin(rot) * r });
+                rot += step;
+            }
+            return points;
+        };
+
+        const starG = this.make.graphics({ x: 0, y: 0, add: false });
+        starG.fillStyle(0xfbbf24, 1);
+        starG.lineStyle(2, 0xb45309, 1);
+        const starPoints = makeStarPoints(16, 16, 5, 14, 6);
+        starG.fillPoints(starPoints, true);
+        starG.strokePoints(starPoints, true);
+        starG.generateTexture('power-star', 32, 32);
+        starG.destroy();
+
+        const shieldG = this.make.graphics({ x: 0, y: 0, add: false });
+        shieldG.fillStyle(0x60a5fa, 1);
+        shieldG.lineStyle(2, 0x1d4ed8, 1);
+        // Forma simple (polígono) para máxima compatibilidad.
+        const shieldPoints = [
+            { x: 16, y: 2 },
+            { x: 28, y: 8 },
+            { x: 26, y: 20 },
+            { x: 16, y: 30 },
+            { x: 6, y: 20 },
+            { x: 4, y: 8 }
+        ];
+        shieldG.fillPoints(shieldPoints, true);
+        shieldG.strokePoints(shieldPoints, true);
+        shieldG.generateTexture('power-shield', 32, 32);
+        shieldG.destroy();
     }
 
     createPlatforms() {
@@ -812,6 +1232,7 @@ class EduMarioScene extends Phaser.Scene {
         this.keys = this.physics.add.staticGroup();
 
         const keyY = 310;
+        this.keyY = keyY;
         const startX = 100;
         const endX = GAME_WIDTH - 100;
         const spacing = (endX - startX) / (this.notes.length - 1);
@@ -829,6 +1250,13 @@ class EduMarioScene extends Phaser.Scene {
                 fontSize: '14px',
                 color: '#0f172a'
             }).setOrigin(0.5, 0.5);
+        }
+
+        // Flecha de pista (se muestra solo en modo assist)
+        if (!this.hintArrow) {
+            this.hintArrow = this.add.triangle(0, 0, 0, 18, 10, 0, 20, 18, 0x2563eb, 0.9).setOrigin(0.5);
+            this.hintArrow.setDepth(20);
+            this.hintArrow.setVisible(false);
         }
     }
 
@@ -923,16 +1351,46 @@ class EduMarioScene extends Phaser.Scene {
         this.jumpKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.input.addPointer(2);
 
-        const buttonY = GAME_HEIGHT - 70;
+        // Controles táctiles: mantener el ancho cómodo y reducir altura para tapar menos.
+        const buttonHeight = 38;
+        const lrWidth = 70;
+        const jumpWidth = 90;
         const buttonAlpha = 0.6;
 
-        const leftButton = this.add.rectangle(80, buttonY, 70, 50, 0x0f172a, buttonAlpha).setInteractive();
-        const rightButton = this.add.rectangle(170, buttonY, 70, 50, 0x0f172a, buttonAlpha).setInteractive();
-        const jumpButton = this.add.rectangle(GAME_WIDTH - 90, buttonY, 90, 50, 0x0f172a, buttonAlpha).setInteractive();
+        const leftX = 70;
+        const rightX = 140;
+        const jumpX = GAME_WIDTH - 70;
 
-        this.add.text(80, buttonY, '<', { fontSize: '24px', color: '#f8fafc' }).setOrigin(0.5);
-        this.add.text(170, buttonY, '>', { fontSize: '24px', color: '#f8fafc' }).setOrigin(0.5);
-        this.add.text(GAME_WIDTH - 90, buttonY, this.t('controls.jump'), { fontSize: '18px', color: '#f8fafc' }).setOrigin(0.5);
+        const leftButton = this.add.rectangle(leftX, 0, lrWidth, buttonHeight, 0x0f172a, buttonAlpha).setInteractive();
+        const rightButton = this.add.rectangle(rightX, 0, lrWidth, buttonHeight, 0x0f172a, buttonAlpha).setInteractive();
+        const jumpButton = this.add.rectangle(jumpX, 0, jumpWidth, buttonHeight, 0x0f172a, buttonAlpha).setInteractive();
+
+        const leftText = this.add.text(leftX, 0, '<', { fontSize: '20px', color: '#f8fafc' }).setOrigin(0.5);
+        const rightText = this.add.text(rightX, 0, '>', { fontSize: '20px', color: '#f8fafc' }).setOrigin(0.5);
+        const jumpText = this.add.text(jumpX, 0, this.t('controls.jump'), { fontSize: '15px', color: '#f8fafc' }).setOrigin(0.5);
+
+        this.touchUi = {
+            buttonHeight,
+            leftX,
+            rightX,
+            jumpX,
+            leftButton,
+            rightButton,
+            jumpButton,
+            leftText,
+            rightText,
+            jumpText,
+        };
+
+        this.positionTouchControls();
+
+        // En algunos móviles (rotación / barras de gestos) el safe-area cambia.
+        // Reposicionamos controles en resize.
+        try {
+            this.scale?.on('resize', () => this.positionTouchControls());
+        } catch {
+            // ignore
+        }
 
         const bindHoldButton = (button, flag) => {
             // En táctil es fácil que el dedo “se salga” unos píxeles y dispare pointerout.
@@ -971,6 +1429,60 @@ class EduMarioScene extends Phaser.Scene {
         bindHoldButton(jumpButton, 'touchJump');
     }
 
+    getSafeAreaInsetBottomPx() {
+        // Leemos env(safe-area-inset-bottom) vía un elemento “probe”.
+        // Si el navegador no soporta env/constant, devolverá 0.
+        try {
+            if (typeof document === 'undefined') {
+                return 0;
+            }
+            const probe = document.createElement('div');
+            probe.style.cssText = [
+                'position:fixed',
+                'left:0',
+                'bottom:0',
+                'height:0',
+                'width:0',
+                'padding-bottom:constant(safe-area-inset-bottom)',
+                'padding-bottom:env(safe-area-inset-bottom)',
+                'visibility:hidden',
+                'pointer-events:none',
+            ].join(';');
+            document.body.appendChild(probe);
+            const computed = window.getComputedStyle(probe);
+            const px = parseFloat(computed.paddingBottom) || 0;
+            probe.remove();
+            return Number.isFinite(px) ? px : 0;
+        } catch {
+            return 0;
+        }
+    }
+
+    positionTouchControls() {
+        if (!this.touchUi) {
+            return;
+        }
+
+        const safeBottom = this.getSafeAreaInsetBottomPx();
+        // Deja un pequeño “aire” adicional para que el gesto de home no moleste.
+        const bottomMargin = Math.max(0, safeBottom + 6);
+        const buttonHeight = this.touchUi.buttonHeight || 50;
+        const rawY = GAME_HEIGHT - (buttonHeight / 2) - bottomMargin;
+        const buttonY = Phaser.Math.Clamp(rawY, buttonHeight / 2, GAME_HEIGHT - (buttonHeight / 2));
+
+        const leftX = this.touchUi.leftX ?? 70;
+        const rightX = this.touchUi.rightX ?? 140;
+        const jumpX = this.touchUi.jumpX ?? (GAME_WIDTH - 70);
+
+        this.touchUi.leftButton.setPosition(leftX, buttonY);
+        this.touchUi.rightButton.setPosition(rightX, buttonY);
+        this.touchUi.jumpButton.setPosition(jumpX, buttonY);
+
+        this.touchUi.leftText.setPosition(leftX, buttonY);
+        this.touchUi.rightText.setPosition(rightX, buttonY);
+        this.touchUi.jumpText.setPosition(jumpX, buttonY);
+    }
+
     createColliders() {
         this.physics.add.collider(this.player, this.ground);
         this.physics.add.collider(this.player, this.keys, this.handleKeyHit, null, this);
@@ -978,6 +1490,12 @@ class EduMarioScene extends Phaser.Scene {
         this.physics.add.collider(this.enemies, this.ground);
         this.physics.add.collider(this.enemies, this.keys);
         this.physics.add.overlap(this.player, this.enemies, this.handlePlayerEnemyOverlap, null, this);
+
+        if (this.powerUps) {
+            this.physics.add.collider(this.powerUps, this.ground);
+            this.physics.add.collider(this.powerUps, this.keys);
+            this.physics.add.overlap(this.player, this.powerUps, this.handlePowerUpOverlap, null, this);
+        }
     }
 
     getAllowedNoteIndices() {
@@ -1043,19 +1561,19 @@ class EduMarioScene extends Phaser.Scene {
             return;
         }
 
+        const tuning = this.getEnemySpawnTuning();
+
         // Probabilidad suave que sube un poco con la puntuación.
         // En low-perf y/o equipos lentos, mantenemos la presión más baja.
         const base = IS_LOW_PERF ? 0.18 : 0.25;
         const extra = Math.min(0.12, Math.floor(this.score / 20) * 0.03);
-        const chance = Math.min(0.4, base + extra);
+        const chance = Math.min(0.45, (base + extra) * tuning.chanceMul);
 
         if (Math.random() < chance) {
             const x = Phaser.Math.Between(80, GAME_WIDTH - 80);
             this.spawnEnemy(x);
 
-            const minDelay = IS_LOW_PERF ? 1800 : 1200;
-            const maxDelay = IS_LOW_PERF ? 3200 : 2400;
-            this.nextRandomEnemyAt = now + Phaser.Math.Between(minDelay, maxDelay);
+            this.nextRandomEnemyAt = now + Phaser.Math.Between(tuning.minDelay, tuning.maxDelay);
         } else {
             // Reintento pronto pero no cada frame.
             this.nextRandomEnemyAt = now + (IS_LOW_PERF ? 550 : 380);
@@ -1091,7 +1609,7 @@ class EduMarioScene extends Phaser.Scene {
             return;
         }
 
-        this.handleEnemyHit();
+        this.handleEnemyHit(enemy);
     }
 
     pickNewTarget() {
@@ -1106,6 +1624,9 @@ class EduMarioScene extends Phaser.Scene {
         const dotY = this.notePositions[this.targetIndex];
         this.noteDot.y = dotY;
         this.updateLedger(dotY);
+
+        // Actualiza hints cuando cambia el objetivo.
+        this.updateHints();
     }
 
     updateLedger(dotY) {
@@ -1149,12 +1670,17 @@ class EduMarioScene extends Phaser.Scene {
 
         const hitIndex = key.getData('noteIndex');
         if (hitIndex === this.targetIndex) {
-            this.score += 1;
+            this.recordAdaptiveEvent(true);
+            this.bumpComboOnCorrect();
+            const points = Math.max(1, Number(this.comboMultiplier) || 1);
+            this.score += points;
             this.scoreText.setText(this.t('hud.score', { score: this.score }));
             this.feedbackText.setText(this.t('feedback.correct'));
             this.playSuccessSound();
             key.setTint(0x34d399);
             this.time.delayedCall(120, () => key.clearTint());
+
+            this.maybeSpawnPowerUpOnStreak();
 
             this.maybeUpdateBackgroundByScore();
 
@@ -1162,7 +1688,10 @@ class EduMarioScene extends Phaser.Scene {
             this.maybeSpawnRandomEnemies();
             this.maybeGrantExtraLives();
             this.pickNewTarget();
+
+            this.updateAdaptiveDifficulty();
         } else {
+            this.recordAdaptiveEvent(false);
             this.attempts += 1;
             this.attemptsText.setText(this.t('hud.attempts', { attempts: this.attempts }));
             this.feedbackText.setText(this.t('feedback.tryAgain'));
@@ -1170,13 +1699,18 @@ class EduMarioScene extends Phaser.Scene {
             key.setTint(0xf87171);
             this.time.delayedCall(120, () => key.clearTint());
             this.spawnEnemy(key.x);
+
+            this.resetCombo();
+
+            this.updateAdaptiveDifficulty();
         }
     }
 
     spawnEnemy(spawnNearX) {
+        const tuning = this.getEnemySpawnTuning();
         // En equipos lentos, el exceso de cuerpos de físicas degrada rápido.
         const activeCount = this.enemies?.countActive(true) ?? 0;
-        if (activeCount >= MAX_ENEMIES) {
+        if (activeCount >= tuning.maxEnemies) {
             let oldest = null;
             let oldestAt = Infinity;
             for (const child of this.enemies.getChildren()) {
@@ -1199,17 +1733,58 @@ class EduMarioScene extends Phaser.Scene {
         enemy.setData('spawnAt', this.time?.now ?? Date.now());
         enemy.setCollideWorldBounds(true);
         enemy.setBounce(1, 0);
-        enemy.setVelocityX(Phaser.Math.Between(-80, 80) || 80);
+        const speed = Phaser.Math.Between(tuning.speedMin, tuning.speedMax);
+        enemy.setVelocityX((Math.random() < 0.5 ? -1 : 1) * speed);
         // El spritesheet base parece mirar a la izquierda; invertimos al moverse a la derecha.
         enemy.flipX = enemy.body.velocity.x > 0;
         enemy.play('opossum-walk');
     }
 
-    handleEnemyHit() {
+    handleEnemyHit(enemy) {
         if (this.hitLock) {
             return;
         }
+
+        const now = this.time?.now ?? Date.now();
+        if (now < (this.invincibleUntil || 0)) {
+            this.feedbackText.setText(this.t('feedback.blocked'));
+            this.playSuccessSound();
+            return;
+        }
+
+        if ((this.shieldCharges || 0) > 0) {
+            this.shieldCharges -= 1;
+            this.updateComboUi();
+            this.feedbackText.setText(this.t('feedback.blocked'));
+            this.playSuccessSound();
+            this.resetCombo();
+            // Evita que el overlap consuma escudo y, en el siguiente frame,
+            // quite vida por seguir tocando al enemigo.
+            this.hitLock = true;
+
+            // En vez de reiniciar al inicio, aplicamos un pequeño knockback
+            // para separar al jugador del enemigo y permitir continuar.
+            const enemyX = (enemy && typeof enemy.x === 'number') ? enemy.x : this.player.x;
+            const pushDir = this.player.x < enemyX ? -1 : 1;
+            this.player.setVelocity(pushDir * 240, -220);
+
+            this.tweens.add({
+                targets: this.player,
+                alpha: 0,
+                duration: 70,
+                yoyo: true,
+                repeat: 3,
+                onComplete: () => {
+                    this.player.alpha = 1;
+                    this.hitLock = false;
+                }
+            });
+            return;
+        }
+
         this.hitLock = true;
+
+        this.resetCombo();
 
         this.lives -= 1;
         this.livesText.setText(this.t('hud.lives', { lives: this.lives }));
@@ -1242,6 +1817,19 @@ class EduMarioScene extends Phaser.Scene {
         if (this.isGameOver) {
             return;
         }
+
+        const now = this.time?.now ?? Date.now();
+        const invActive = now < (this.invincibleUntil || 0);
+        if (invActive && !this.invincibleTintActive) {
+            this.player?.setTint(0xfbbf24);
+            this.invincibleTintActive = true;
+        } else if (!invActive && this.invincibleTintActive) {
+            this.player?.clearTint();
+            this.invincibleTintActive = false;
+        }
+
+        // Mantén la flecha de pista en su sitio si cambia la escala.
+        this.positionHintArrow();
 
         // Reducimos escrituras por frame en equipos lentos.
         this.parallaxTick += 1;

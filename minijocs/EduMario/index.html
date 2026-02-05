@@ -13,7 +13,16 @@
             <section data-scoreboard data-game="edumario" data-rank-key="edumario" data-period="all-time" data-heading="EduMario"></section>
             <section data-scoreboard data-game="edumario" data-rank-key="edumario" data-period="weekly" data-heading="EduMario"></section>
         </div>
-        <script src="../../js/score-service.js?v=2"></script>
+        <script src="./score-service.js?v=2" onerror="console.warn('ScoreService no disponible (modo portable)')"></script>
+        <script>
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('scoreDebug') === '1' && window.ScoreService && typeof window.ScoreService.setDebug === 'function') {
+                    window.ScoreService.setDebug(true);
+                    console.log('[EduMario] ScoreService debug ON');
+                }
+            } catch (_) {}
+        </script>
         <script src="./game.js"></script>
     </body>
 </html>
