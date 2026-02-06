@@ -264,6 +264,7 @@ class EduMarioScene extends Phaser.Scene {
         this.resetRunState();
 
         this.setupI18n();
+        this.setupResponsive();
 
         // Fondo con parallax (en low-perf reducimos capas).
         this.bgBack = this.add.tileSprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 'bg-back');
@@ -290,6 +291,30 @@ class EduMarioScene extends Phaser.Scene {
         this.syncRemoteRankingsInBackground();
         this.createGameOverUi();
         this.pickNewTarget();
+    }
+
+    setupResponsive() {
+        const scale = this.scale;
+        const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+
+        if (isTouch && scale && scale.fullscreen && scale.fullscreen.available) {
+            this.input.once('pointerdown', () => {
+                if (!scale.isFullscreen) {
+                    scale.startFullscreen();
+                }
+            });
+        }
+
+        const refreshScale = () => {
+            if (scale && typeof scale.refresh === 'function') {
+                scale.refresh();
+            }
+        };
+
+        window.addEventListener('resize', refreshScale, { passive: true });
+        window.addEventListener('orientationchange', () => {
+            setTimeout(refreshScale, 250);
+        }, { passive: true });
     }
 
     async syncRemoteRankingsInBackground() {
@@ -1936,7 +1961,8 @@ const config = {
     },
     scale: {
         mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        fullscreenTarget: 'game-container'
     },
     scene: [EduMarioScene]
 };
