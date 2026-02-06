@@ -118,7 +118,9 @@ const TRANSLATIONS = {
             score: 'Puntuación: {score}',
             prompt: 'Introduce 3 letras o números (A-Z, 0-9):',
             saveHint: 'ENTER para guardar',
+            saveHintTouch: 'Toca para escribir',
             restartHint: 'Pulsa SPACE para reiniciar',
+            restartHintTouch: 'Toca para reiniciar',
             emptyRanking: 'Ranking vacío'
         }
     },
@@ -158,7 +160,9 @@ const TRANSLATIONS = {
             score: 'Puntuació: {score}',
             prompt: 'Introdueix 3 lletres o números (A-Z, 0-9):',
             saveHint: 'ENTER per desar',
+            saveHintTouch: 'Toca per escriure',
             restartHint: 'Prem ESPAI per reiniciar',
+            restartHintTouch: 'Toca per reiniciar',
             emptyRanking: 'Rànquing buit'
         }
     },
@@ -198,7 +202,9 @@ const TRANSLATIONS = {
             score: 'Score: {score}',
             prompt: 'Enter 3 letters or numbers (A-Z, 0-9):',
             saveHint: 'Press ENTER to save',
+            saveHintTouch: 'Tap to enter',
             restartHint: 'Press SPACE to restart',
+            restartHintTouch: 'Tap to restart',
             emptyRanking: 'No scores yet'
         }
     }
@@ -1053,6 +1059,47 @@ class EduMarioScene extends Phaser.Scene {
         Object.values(this.gameOverUi).forEach((obj) => obj.setVisible(visible));
     }
 
+    isTouchDevice() {
+        return ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+    }
+
+    openInitialsPrompt() {
+        if (this.submittedScore || !this.isGameOver) {
+            return;
+        }
+        if (this.initialsPromptOpen) {
+            return;
+        }
+        this.initialsPromptOpen = true;
+        const current = this.initials || '';
+        let value = '';
+        try {
+            value = window.prompt(this.t('gameOver.prompt'), current) || '';
+        } catch {
+            value = '';
+        }
+        this.initialsPromptOpen = false;
+        const normalized = String(value || '')
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, '')
+            .slice(0, 3);
+        if (!normalized) {
+            return;
+        }
+        this.initials = normalized;
+        const display = (this.initials + '___').slice(0, 3);
+        this.gameOverUi?.initialsText?.setText(display);
+        if (this.initials.length === 3) {
+            this.submittedScore = true;
+            this.saveHighScore(this.initials, this.score);
+            this.loadHighScores();
+            this.gameOverUi?.ranking?.setText(this.formatHighScores());
+            this.gameOverUi?.hint?.setText('');
+            const restartKey = this.isTouchDevice() ? 'gameOver.restartHintTouch' : 'gameOver.restartHint';
+            this.gameOverUi?.restartHint?.setText(this.t(restartKey));
+        }
+    }
+
     loadHighScores() {
         const legacyKey = 'edu-mario-highscores';
 
@@ -1216,9 +1263,24 @@ class EduMarioScene extends Phaser.Scene {
         this.setGameOverUiVisible(true);
         this.gameOverUi.scoreLine.setText(this.t('gameOver.score', { score: this.score }));
         this.gameOverUi.initialsText.setText('___');
-        this.gameOverUi.hint.setText(this.t('gameOver.saveHint'));
+        const isTouch = this.isTouchDevice();
+        const saveHintKey = isTouch ? 'gameOver.saveHintTouch' : 'gameOver.saveHint';
+        this.gameOverUi.hint.setText(this.t(saveHintKey));
         this.gameOverUi.ranking.setText('');
         this.gameOverUi.restartHint.setText('');
+
+        if (isTouch) {
+            this.gameOverUi.initialsText.setInteractive({ useHandCursor: true });
+            this.gameOverUi.prompt.setInteractive({ useHandCursor: true });
+            this.gameOverUi.initialsText.on('pointerdown', () => this.openInitialsPrompt());
+            this.gameOverUi.prompt.on('pointerdown', () => this.openInitialsPrompt());
+            this.gameOverUi.overlay.setInteractive();
+            this.gameOverUi.overlay.on('pointerdown', () => {
+                if (this.submittedScore) {
+                    this.scene.restart();
+                }
+            });
+        }
 
         if (this.gameOverKeyHandler && this.input?.keyboard) {
             this.input.keyboard.off('keydown', this.gameOverKeyHandler);
@@ -1241,7 +1303,8 @@ class EduMarioScene extends Phaser.Scene {
                         this.loadHighScores();
                         this.gameOverUi.ranking.setText(this.formatHighScores());
                         this.gameOverUi.hint.setText('');
-                        this.gameOverUi.restartHint.setText(this.t('gameOver.restartHint'));
+                        const restartKey = this.isTouchDevice() ? 'gameOver.restartHintTouch' : 'gameOver.restartHint';
+                        this.gameOverUi.restartHint.setText(this.t(restartKey));
                     }
                 } else if (/^[A-Z0-9]$/.test(key)) {
                     if (this.initials.length < 3) {
@@ -1450,23 +1513,25 @@ class EduMarioScene extends Phaser.Scene {
         this.jumpKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.input.addPointer(2);
 
-        // Controles táctiles: mantener el ancho cómodo y reducir altura para tapar menos.
-        const buttonHeight = 38;
-        const lrWidth = 70;
-        const jumpWidth = 90;
+    // Controles táctiles: botones más separados y alargados para mejorar la precisión.
+    const buttonHeight = 44;
+    const lrWidth = 92;
+    const jumpWidth = 110;
+    const lrGap = 26;
+    const sidePadding = 18;
         const buttonAlpha = 0.6;
 
-        const leftX = 70;
-        const rightX = 140;
-        const jumpX = GAME_WIDTH - 70;
+    const leftX = (lrWidth / 2) + sidePadding;
+    const rightX = leftX + lrWidth + lrGap;
+    const jumpX = GAME_WIDTH - (jumpWidth / 2) - sidePadding;
 
         const leftButton = this.add.rectangle(leftX, 0, lrWidth, buttonHeight, 0x0f172a, buttonAlpha).setInteractive();
         const rightButton = this.add.rectangle(rightX, 0, lrWidth, buttonHeight, 0x0f172a, buttonAlpha).setInteractive();
         const jumpButton = this.add.rectangle(jumpX, 0, jumpWidth, buttonHeight, 0x0f172a, buttonAlpha).setInteractive();
 
-        const leftText = this.add.text(leftX, 0, '<', { fontSize: '20px', color: '#f8fafc' }).setOrigin(0.5);
-        const rightText = this.add.text(rightX, 0, '>', { fontSize: '20px', color: '#f8fafc' }).setOrigin(0.5);
-        const jumpText = this.add.text(jumpX, 0, this.t('controls.jump'), { fontSize: '15px', color: '#f8fafc' }).setOrigin(0.5);
+    const leftText = this.add.text(leftX, 0, '<', { fontSize: '22px', color: '#f8fafc' }).setOrigin(0.5);
+    const rightText = this.add.text(rightX, 0, '>', { fontSize: '22px', color: '#f8fafc' }).setOrigin(0.5);
+    const jumpText = this.add.text(jumpX, 0, this.t('controls.jump'), { fontSize: '16px', color: '#f8fafc' }).setOrigin(0.5);
 
         this.touchUi = {
             buttonHeight,
