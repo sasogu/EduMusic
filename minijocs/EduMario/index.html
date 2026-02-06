@@ -9,12 +9,6 @@
     </head>
     <body>
         <div id="game-container"></div>
-        <div id="edumario-orientation" class="edumario-orientation" aria-live="polite" hidden>
-            <div class="edumario-orientation__card">
-                <span class="edumario-orientation__icon">🔄</span>
-                <p class="edumario-orientation__text">Gira el dispositivo para jugar en horizontal.</p>
-            </div>
-        </div>
         <div id="edumario-help" class="edumario-help" aria-live="polite">
             <button id="edumario-help-toggle" type="button" class="edumario-help__toggle" aria-expanded="false">ⓘ</button>
             <div id="edumario-help-panel" class="edumario-help__panel" hidden>
@@ -39,48 +33,6 @@
                     console.log('[EduMario] ScoreService debug ON');
                 }
             } catch (_) {}
-        </script>
-        <script>
-            (function() {
-                const overlay = document.getElementById('edumario-orientation');
-
-                function isMobileDevice() {
-                    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
-                    return isTouch && window.matchMedia('(max-width: 1024px)').matches;
-                }
-
-                function isPortraitMode() {
-                    return window.matchMedia('(orientation: portrait)').matches || window.innerHeight >= window.innerWidth;
-                }
-
-                function updateOverlay() {
-                    if (!overlay) return;
-                    const showOverlay = isMobileDevice() && isPortraitMode();
-                    overlay.hidden = !showOverlay;
-                }
-
-                async function tryLockLandscape() {
-                    if (!isMobileDevice()) return;
-                    try {
-                        if (screen.orientation && screen.orientation.lock) {
-                            await screen.orientation.lock('landscape');
-                        }
-                    } catch (_) {
-                        // ignore lock errors
-                    }
-                }
-
-                window.addEventListener('resize', updateOverlay, { passive: true });
-                window.addEventListener('orientationchange', () => {
-                    setTimeout(updateOverlay, 200);
-                }, { passive: true });
-
-                document.addEventListener('click', () => {
-                    tryLockLandscape();
-                }, { once: true });
-
-                updateOverlay();
-            })();
         </script>
         <script src="./game.js"></script>
     </body>
