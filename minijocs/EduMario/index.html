@@ -43,16 +43,24 @@
         <script>
             (function() {
                 const overlay = document.getElementById('edumario-orientation');
-                const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+
+                function isMobileDevice() {
+                    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+                    return isTouch && window.matchMedia('(max-width: 1024px)').matches;
+                }
+
+                function isPortraitMode() {
+                    return window.matchMedia('(orientation: portrait)').matches || window.innerHeight >= window.innerWidth;
+                }
 
                 function updateOverlay() {
                     if (!overlay) return;
-                    const isPortrait = window.matchMedia('(orientation: portrait)').matches;
-                    overlay.hidden = !(isMobile && isPortrait);
+                    const showOverlay = isMobileDevice() && isPortraitMode();
+                    overlay.hidden = !showOverlay;
                 }
 
                 async function tryLockLandscape() {
-                    if (!isMobile) return;
+                    if (!isMobileDevice()) return;
                     try {
                         if (screen.orientation && screen.orientation.lock) {
                             await screen.orientation.lock('landscape');
