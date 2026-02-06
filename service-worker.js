@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.4.2';
+const SW_VERSION = 'v1.4.3';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 const SCOPE_URL = new URL(self.registration.scope);
