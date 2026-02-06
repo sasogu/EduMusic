@@ -95,6 +95,11 @@ const TRANSLATIONS = {
             perfOn: 'ON',
             perfOff: 'OFF'
         },
+        help: {
+            toggle: 'ⓘ',
+            title: '¿Cómo se puntúa?',
+            body: 'x1/x2/x3/x4: multiplica los puntos al acertar varias seguidas.\nIntentos: fallos al pulsar una nota incorrecta.\nVidas: golpes de enemigos.\nEscudo: bloquea un golpe.'
+        },
         controls: {
             jump: 'Saltar'
         },
@@ -130,6 +135,11 @@ const TRANSLATIONS = {
             perfOn: 'ON',
             perfOff: 'OFF'
         },
+        help: {
+            toggle: 'ⓘ',
+            title: 'Com es puntua?',
+            body: 'x1/x2/x3/x4: multiplica els punts en encadenar encerts.\nIntents: fallades en tocar una nota incorrecta.\nVides: colps d\'enemics.\nEscut: bloqueja un colp.'
+        },
         controls: {
             jump: 'Saltar'
         },
@@ -164,6 +174,11 @@ const TRANSLATIONS = {
             perf: 'Performance: {state}',
             perfOn: 'ON',
             perfOff: 'OFF'
+        },
+        help: {
+            toggle: 'ⓘ',
+            title: 'How scoring works',
+            body: 'x1/x2/x3/x4: multiplies points for consecutive correct hits.\nAttempts: mistakes when pressing the wrong note.\nLives: enemy hits.\nShield: blocks one hit.'
         },
         controls: {
             jump: 'Jump'
@@ -308,6 +323,38 @@ class EduMarioScene extends Phaser.Scene {
         const refreshScale = () => {
             if (scale && typeof scale.refresh === 'function') {
                 scale.refresh();
+        
+        this.helpToggle = this.add.text(GAME_WIDTH - 20, 64, this.t('help.toggle'), {
+            fontSize: '18px',
+            color: '#0f172a',
+            backgroundColor: 'rgba(255,255,255,0.85)',
+            padding: { left: 8, right: 8, top: 4, bottom: 4 }
+        }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
+        this.helpToggle.setDepth(12).setScrollFactor(0);
+        
+        const helpWidth = 300;
+        const helpHeight = 120;
+        const helpX = GAME_WIDTH - helpWidth - 20;
+        const helpY = 92;
+        const helpBg = this.add.rectangle(helpX, helpY, helpWidth, helpHeight, 0xffffff, 0.95)
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, 0x94a3b8, 0.9)
+            .setScrollFactor(0);
+        const helpText = `${this.t('help.title')}\n${this.t('help.body')}`;
+        const helpLabel = this.add.text(helpX + 10, helpY + 8, helpText, {
+            fontSize: '12px',
+            color: '#0f172a',
+            wordWrap: { width: helpWidth - 20 }
+        }).setScrollFactor(0);
+        this.helpPanel = this.add.container(0, 0, [helpBg, helpLabel]);
+        this.helpPanel.setDepth(11).setScrollFactor(0);
+        this.helpPanel.setVisible(false);
+        
+        this.helpToggle.on('pointerdown', () => {
+            if (this.helpPanel) {
+                this.helpPanel.setVisible(!this.helpPanel.visible);
+            }
+        });
             }
         };
 
@@ -428,6 +475,33 @@ class EduMarioScene extends Phaser.Scene {
         this.locale = locale;
         this.t = this.createTranslator(locale);
         this.notes = NOTE_LABELS[locale] || NOTE_LABELS.es;
+        this.syncHelpOverlay();
+    }
+
+    syncHelpOverlay() {
+        const toggle = document.getElementById('edumario-help-toggle');
+        const panel = document.getElementById('edumario-help-panel');
+        const title = document.getElementById('edumario-help-title');
+        const body = document.getElementById('edumario-help-body');
+        if (!toggle || !panel || !title || !body) return;
+
+        toggle.textContent = this.t('help.toggle');
+        title.textContent = this.t('help.title');
+        body.textContent = this.t('help.body');
+
+        if (!toggle.dataset.bound) {
+            toggle.dataset.bound = 'true';
+            toggle.addEventListener('click', () => {
+                const isHidden = panel.hasAttribute('hidden');
+                if (isHidden) {
+                    panel.removeAttribute('hidden');
+                    toggle.setAttribute('aria-expanded', 'true');
+                } else {
+                    panel.setAttribute('hidden', '');
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
     }
 
     getInitialLocale() {

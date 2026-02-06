@@ -9,6 +9,23 @@
     </head>
     <body>
         <div id="game-container"></div>
+        <div id="edumario-orientation" class="edumario-orientation" aria-live="polite" hidden>
+            <div class="edumario-orientation__card">
+                <span class="edumario-orientation__icon">🔄</span>
+                <p class="edumario-orientation__text">Gira el dispositivo para jugar en horizontal.</p>
+            </div>
+        </div>
+        <div id="edumario-help" class="edumario-help" aria-live="polite">
+            <button id="edumario-help-toggle" type="button" class="edumario-help__toggle" aria-expanded="false">ⓘ</button>
+            <div id="edumario-help-panel" class="edumario-help__panel" hidden>
+                <h2 id="edumario-help-title" class="edumario-help__title">¿Cómo se puntúa?</h2>
+                <p id="edumario-help-body" class="edumario-help__body">
+                    x1/x2/x3/x4: multiplica los puntos al acertar varias seguidas.
+                    Intentos: fallos al pulsar una nota incorrecta.
+                    Vidas: golpes de enemigos. Escudo: bloquea un golpe.
+                </p>
+            </div>
+        </div>
         <div id="edumario-scoreboards" style="display:none;" aria-hidden="true">
             <section data-scoreboard data-game="edumario" data-rank-key="edumario" data-period="all-time" data-heading="EduMario"></section>
             <section data-scoreboard data-game="edumario" data-rank-key="edumario" data-period="weekly" data-heading="EduMario"></section>
@@ -22,6 +39,40 @@
                     console.log('[EduMario] ScoreService debug ON');
                 }
             } catch (_) {}
+        </script>
+        <script>
+            (function() {
+                const overlay = document.getElementById('edumario-orientation');
+                const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+
+                function updateOverlay() {
+                    if (!overlay) return;
+                    const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+                    overlay.hidden = !(isMobile && isPortrait);
+                }
+
+                async function tryLockLandscape() {
+                    if (!isMobile) return;
+                    try {
+                        if (screen.orientation && screen.orientation.lock) {
+                            await screen.orientation.lock('landscape');
+                        }
+                    } catch (_) {
+                        // ignore lock errors
+                    }
+                }
+
+                window.addEventListener('resize', updateOverlay, { passive: true });
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(updateOverlay, 200);
+                }, { passive: true });
+
+                document.addEventListener('click', () => {
+                    tryLockLandscape();
+                }, { once: true });
+
+                updateOverlay();
+            })();
         </script>
         <script src="./game.js"></script>
     </body>

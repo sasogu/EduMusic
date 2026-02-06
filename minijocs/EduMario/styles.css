@@ -30,6 +30,85 @@ canvas {
     height: 100%;
 }
 
+.edumario-help {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    font-family: "Verdana", "Tahoma", sans-serif;
+}
+
+.edumario-help__toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #94a3b8;
+    background: rgba(255, 255, 255, 0.9);
+    color: #0f172a;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+}
+
+.edumario-help__panel {
+    width: min(320px, 90vw);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #94a3b8;
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: #0f172a;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+}
+
+.edumario-help__title {
+    margin: 0 0 6px;
+    font-size: 14px;
+}
+
+.edumario-help__body {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.35;
+    white-space: pre-line;
+}
+
+.edumario-orientation {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.8);
+    color: #fff;
+    z-index: 10000;
+}
+
+.edumario-orientation__card {
+    background: rgba(255, 255, 255, 0.95);
+    color: #0f172a;
+    padding: 18px 20px;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 280px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.3);
+}
+
+.edumario-orientation__icon {
+    display: block;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.edumario-orientation__text {
+    margin: 0;
+    font-size: 14px;
+}
+
 @media (max-width: 768px) {
     #game-container {
         width: 100vw;
