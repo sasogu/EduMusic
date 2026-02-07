@@ -19,18 +19,37 @@
   <div data-lang-switch></div>
       <!-- <p data-i18n="index.choose">Selecciona una actividad para empezar:</p>
    -->
-  <section class="tag-filter" data-tag-filter>
+
+  <section class="level-switch" data-level-switch>
+    <header class="level-switch__header">
+      <h2 data-i18n="level.title">Nivel</h2>
+    </header>
+    <div class="level-switch__buttons" role="group" aria-label="Nivel">
+      <button type="button" class="level-switch__btn" data-level-switch-btn data-level="inicial" data-i18n="level.beginner">Inicial</button>
+      <button type="button" class="level-switch__btn" data-level-switch-btn data-level="intermedio" data-i18n="level.intermediate">Intermedio</button>
+      <button type="button" class="level-switch__btn" data-level-switch-btn data-level="avanzado" data-i18n="level.advanced">Avanzado</button>
+      <button type="button" class="level-switch__btn" data-level-switch-btn data-level="all" data-i18n="level.all">Todas</button>
+    </div>
+    <p class="level-switch__hint" data-i18n="level.hint">Selecciona un nivel para ver menos actividades.</p>
+  </section>
+
+  <section class="tag-filter is-collapsed" data-tag-filter>
     <header class="tag-filter__header">
       <h2 data-i18n="tags.filter.title">Filtrar por etiquetas</h2>
+      <button type="button" class="tag-filter__toggle" data-tag-filter-toggle aria-expanded="false" aria-controls="tag-filter-body">
+        <span data-i18n="tags.filter.show">Mostrar etiquetas</span>
+      </button>
       <button type="button" class="tag-filter__clear" data-tag-filter-clear data-i18n="tags.filter.clear">Limpiar filtros</button>
     </header>
-    <p class="tag-filter__hint" data-i18n="tags.filter.hint">Selecciona etiquetas para ver actividades relacionadas.</p>
-    <div class="tag-filter__list" data-tag-filter-list></div>
-    <p class="tag-filter__empty" data-tag-filter-empty data-i18n="tags.filter.noResults" hidden>No hay actividades con esas etiquetas.</p>
+    <div class="tag-filter__body" id="tag-filter-body">
+      <p class="tag-filter__hint" data-i18n="tags.filter.hint">Selecciona etiquetas para ver actividades relacionadas.</p>
+      <div class="tag-filter__list" data-tag-filter-list></div>
+      <p class="tag-filter__empty" data-tag-filter-empty data-i18n="tags.filter.noResults" hidden>No hay actividades con esas etiquetas.</p>
+    </div>
   </section>
 
   <div class="activity-grid">
-    <a href="html/game.html" class="activity-card" data-tags="juego,melodia" data-theme="catch" data-emoji="🎯">
+    <a href="html/game.html" class="activity-card" data-tags="juego,melodia,inicial,intermedio,avanzado" data-theme="catch" data-emoji="🎯">
       <h2 data-i18n="index.card.title">Atrapa Notas</h2>
       <p data-i18n="index.card.desc">Elige un reto para atrapar notas en el pentagrama.</p>
       <small data-i18n="index.card.small">Disponibles: Sol &amp; Mi · Sol, Mi y La · Sol, Mi, La y Do</small>
@@ -45,7 +64,7 @@
       <p data-i18n="index.wordguess.desc">Adivina términos musicales antes de que se acaben tus notas.</p>
       <small data-i18n="index.wordguess.small">Categorías temáticas · Pistas opcionales · Letras desde teclado</small>
     </a>
-    <a href="html/quiz.html" class="activity-card" data-tags="quiz,audicion,intermedio" data-theme="quiz" data-emoji="❓">
+    <a href="html/quiz.html" class="activity-card" data-tags="audicion,intermedio,juego,ranking" data-theme="quiz" data-emoji="❓">
       <h2 data-i18n="index.quiz.title">Quiz Musical</h2>
       <p data-i18n="index.quiz.desc">Responde preguntas musicales solo o en pareja y suma puntos para el ranking.</p>
       <small data-i18n="index.quiz.small">Selecciona 10, 20 o 30 preguntas · Tres niveles de dificultad</small>
@@ -65,12 +84,12 @@
       <p data-i18n="index.melody.desc">Escucha, memoriza y repite las notas en el teclado virtual.</p>
       <small data-i18n="index.melody.small">Estilo “Simon dice” · Teclado interactivo · Pentagrama</small>
     </a>
-    <a href="html/piano-hero.html" class="activity-card" data-tags="piano,ritmo,juego,intermedio" data-theme="pianohero" data-emoji="🎮">
+    <a href="html/piano-hero.html" class="activity-card" data-tags="piano,teclado,ritmo,juego,ranking,intermedio" data-theme="pianohero" data-emoji="🎮">
       <h2 data-i18n="index.pianohero.title">Arcade Piano Hero</h2>
       <p data-i18n="index.pianohero.desc">Toca las notas que caen, encadena combos y escala posiciones en el ranking.</p>
       <small data-i18n="index.pianohero.small">Modos relax, clásico y turbo · Ranking integrado</small>
     </a>
-    <a href="html/minijocs.html" class="activity-card" data-tags="juego,intermedio" data-theme="minijocs" data-emoji="🕹️">
+    <a href="html/minijocs.html" class="activity-card" data-tags="juego,minijocs,ranking,intermedio" data-theme="minijocs" data-emoji="🕹️">
       <h2 data-i18n="index.minijocs.title">Minijocs EduMúsic</h2>
       <p data-i18n="index.minijocs.desc">Accede a los minijuegos musicales y a sus rankings en una sección única.</p>
       <small data-i18n="index.minijocs.small">Flappy, Snake, Zop, Beatrix y Melody</small>
@@ -118,7 +137,7 @@
       <p data-i18n="index.melorhythm.desc">Escucha un compás con notas y ritmos y selecciona el patrón correcto.</p>
       <small data-i18n="index.melorhythm.small">Progresión de notas y figuras · Audio interactivo</small>
     </a>
-    <a href="html/piano.html" class="activity-card" data-tags="piano,melodia,exploracion" data-theme="piano" data-emoji="🎹">
+    <a href="html/piano.html" class="activity-card" data-tags="piano,teclado,melodia,exploracion,inicial,intermedio,avanzado" data-theme="piano" data-emoji="🎹">
       <h2 data-i18n="index.piano.title">Teclado y Partituras</h2>
       <p data-i18n="index.piano.desc">Explora un teclado de dos octavas y visualiza partituras seleccionables.</p>
       <small data-i18n="index.piano.small">Selector de partituras · Piano interactivo</small>
@@ -128,12 +147,12 @@
       <p data-i18n="index.instruments.desc">Aprende a clasificar los instrumentos de la orquesta mediante un juego rápido.</p>
       <small data-i18n="index.instruments.small">Memoria auditiva · Estadísticas de racha</small>
     </a>
-    <a href="html/rankings.html" class="activity-card" data-tags="ranking,docentes" data-theme="rankings" data-emoji="🏆">
+    <a href="html/rankings.html" class="activity-card" data-tags="ranking,docentes,inicial,intermedio,avanzado" data-theme="rankings" data-emoji="🏆">
       <h2 data-i18n="index.rankings.title">Rankings de juegos</h2>
       <p data-i18n="index.rankings.desc">Consulta los marcadores globales y comparte los resultados con tu alumnado.</p>
       <small data-i18n="index.rankings.small">Incluye todos los juegos con Top-10</small>
     </a>
-    <a href="html/recursos.html" class="activity-card" data-tags="recursos,docentes" data-theme="resources" data-emoji="🔗">
+    <a href="html/recursos.html" class="activity-card" data-tags="recursos,docentes,inicial,intermedio,avanzado" data-theme="resources" data-emoji="🔗">
       <h2 data-i18n="index.resources.title">Recursos de Juegos Musicales</h2>
       <p data-i18n="index.resources.desc">Explora enlaces a actividades musicales externas seleccionadas.</p>
       <small data-i18n="index.resources.small">Incluye aprendomusica.com y otras propuestas educativas</small>

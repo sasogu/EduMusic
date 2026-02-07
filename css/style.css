@@ -438,6 +438,66 @@ select {
   display: none !important;
 }
 
+.level-switch {
+  max-width: 900px;
+  margin: 14px auto 10px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+  text-align: center;
+}
+
+.level-switch__header {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.level-switch__header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #1f2a48;
+}
+
+.level-switch__buttons {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.level-switch__btn {
+  margin: 0;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: rgba(226, 232, 240, 0.75);
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.level-switch__btn:hover,
+.level-switch__btn:focus-visible {
+  border-color: rgba(37, 99, 235, 0.75);
+  background: rgba(219, 234, 254, 0.85);
+}
+
+.level-switch__btn.is-active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.level-switch__hint {
+  margin: 10px 0 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
 /* Botones globales básicos (otros botones no relacionados seguirán estilos neutros) */
 button {
   margin: 0.6em;
@@ -642,6 +702,27 @@ button {
   font-size: 0.95rem;
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.tag-filter__toggle {
+  margin: 0;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: rgba(226, 232, 240, 0.65);
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tag-filter__toggle:hover,
+.tag-filter__toggle:focus-visible {
+  border-color: rgba(37, 99, 235, 0.75);
+  background: rgba(219, 234, 254, 0.85);
+}
+
+.tag-filter.is-collapsed .tag-filter__body {
+  display: none;
 }
 
 .tag-filter__option:hover {
