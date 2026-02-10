@@ -14,7 +14,7 @@
   ];
 
   const LEVEL_TAGS = ['inicial', 'intermedio', 'avanzado'];
-  const DEFAULT_LEVEL = 'inicial';
+  const DEFAULT_LEVEL = 'all';
 
   const FALLBACK_LABELS = {
     ritmo: 'Ritmo',
