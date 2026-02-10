@@ -425,6 +425,7 @@
         return null;
       }
       const limit = (board && board.options && board.options.maxEntries) || DEFAULT_MAX_ENTRIES;
+  const expandedFetchLimit = Math.min(200, Math.max(limit * 5, limit + 40));
 
       const processWeeklyEntries = (entries) => {
         if (!weekStart) return entries;
@@ -481,20 +482,20 @@
         attempts.push({ label, fn });
       };
       if (period === 'weekly') {
-        const weeklyFetchLimit = Math.min(200, Math.max(limit * 5, limit + 40));
+        const weeklyFetchLimit = expandedFetchLimit;
         if (coll && weekKey) {
           debugLog('Weekly scoped collection query', weekKey, 'limit', limit);
           enqueueAttempt(
             'weekly-scoped-score+created',
             () => runQuery(
-              coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
+              coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(weeklyFetchLimit),
               { label: 'weekly-scoped-score+created' },
             ),
           );
           enqueueAttempt(
             'weekly-scoped-score',
             () => runQuery(
-              coll.orderBy('score', 'desc').limit(limit),
+              coll.orderBy('score', 'desc').limit(weeklyFetchLimit),
               { label: 'weekly-scoped-score' },
             ),
           );
@@ -512,7 +513,7 @@
                   .where('weekKey', '==', weekKey)
                   .orderBy('score', 'desc')
                   .orderBy('createdAt', 'asc')
-                  .limit(limit),
+                  .limit(weeklyFetchLimit),
                 { label: 'legacy-weekKey-score+created' },
               ),
             );
@@ -522,7 +523,7 @@
                 legacyColl
                   .where('weekKey', '==', weekKey)
                   .orderBy('score', 'desc')
-                  .limit(limit),
+                  .limit(weeklyFetchLimit),
                 { label: 'legacy-weekKey-score' },
               ),
             );
@@ -556,14 +557,14 @@
         enqueueAttempt(
           'all-time-score+created',
           () => runQuery(
-            coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
+            coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(expandedFetchLimit),
             { label: 'all-time-score+created' },
           ),
         );
         enqueueAttempt(
           'all-time-score',
           () => runQuery(
-            coll.orderBy('score', 'desc').limit(limit),
+            coll.orderBy('score', 'desc').limit(expandedFetchLimit),
             { label: 'all-time-score' },
           ),
         );
