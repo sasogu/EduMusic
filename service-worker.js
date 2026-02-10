@@ -76,7 +76,6 @@ const ASSETS = [
   'html/piano.html',
   'html/piano-hero.html',
   'html/recursos.html',
-  'html/jclic-carnaval.html',
   'html/palabras-musicales.html',
   'html/quiz.html',
   'html/minijocs.html',
