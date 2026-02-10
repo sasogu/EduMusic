@@ -20,33 +20,35 @@
       <!-- <p data-i18n="index.choose">Selecciona una actividad para empezar:</p>
    -->
 
-  <section class="level-switch" data-level-switch>
-    <header class="level-switch__header">
-      <h2 data-i18n="level.title">Nivel</h2>
-    </header>
-    <div class="level-switch__buttons" role="group" aria-label="Nivel">
-      <button type="button" class="level-switch__btn" data-level-switch-btn data-level="inicial" data-i18n="level.beginner">Inicial</button>
-      <button type="button" class="level-switch__btn" data-level-switch-btn data-level="intermedio" data-i18n="level.intermediate">Intermedio</button>
-      <button type="button" class="level-switch__btn" data-level-switch-btn data-level="avanzado" data-i18n="level.advanced">Avanzado</button>
-      <button type="button" class="level-switch__btn" data-level-switch-btn data-level="all" data-i18n="level.all">Todas</button>
-    </div>
-    <p class="level-switch__hint" data-i18n="level.hint">Selecciona un nivel para ver menos actividades.</p>
-  </section>
+  <div class="filters-panel">
+    <section class="level-switch" data-level-switch>
+      <header class="level-switch__header">
+        <h2 data-i18n="level.title">Nivel</h2>
+      </header>
+      <div class="level-switch__buttons" role="group" aria-label="Nivel">
+        <button type="button" class="level-switch__btn" data-level-switch-btn data-level="inicial" data-i18n="level.beginner">Inicial</button>
+        <button type="button" class="level-switch__btn" data-level-switch-btn data-level="intermedio" data-i18n="level.intermediate">Intermedio</button>
+        <button type="button" class="level-switch__btn" data-level-switch-btn data-level="avanzado" data-i18n="level.advanced">Avanzado</button>
+        <button type="button" class="level-switch__btn" data-level-switch-btn data-level="all" data-i18n="level.all">Todas</button>
+      </div>
+      <p class="level-switch__hint" data-i18n="level.hint">Selecciona un nivel para ver menos actividades.</p>
+    </section>
 
-  <section class="tag-filter is-collapsed" data-tag-filter>
-    <header class="tag-filter__header">
-      <h2 data-i18n="tags.filter.title">Filtrar por etiquetas</h2>
-      <button type="button" class="tag-filter__toggle" data-tag-filter-toggle aria-expanded="false" aria-controls="tag-filter-body">
-        <span data-i18n="tags.filter.show">Mostrar etiquetas</span>
-      </button>
-      <button type="button" class="tag-filter__clear" data-tag-filter-clear data-i18n="tags.filter.clear">Limpiar filtros</button>
-    </header>
-    <div class="tag-filter__body" id="tag-filter-body">
-      <p class="tag-filter__hint" data-i18n="tags.filter.hint">Selecciona etiquetas para ver actividades relacionadas.</p>
-      <div class="tag-filter__list" data-tag-filter-list></div>
-      <p class="tag-filter__empty" data-tag-filter-empty data-i18n="tags.filter.noResults" hidden>No hay actividades con esas etiquetas.</p>
-    </div>
-  </section>
+    <section class="tag-filter is-collapsed" data-tag-filter>
+      <header class="tag-filter__header">
+        <h2 data-i18n="tags.filter.title">Filtrar por etiquetas</h2>
+        <button type="button" class="tag-filter__toggle" data-tag-filter-toggle aria-expanded="false" aria-controls="tag-filter-body">
+          <span data-i18n="tags.filter.show">Mostrar etiquetas</span>
+        </button>
+        <button type="button" class="tag-filter__clear" data-tag-filter-clear data-i18n="tags.filter.clear">Limpiar filtros</button>
+      </header>
+      <div class="tag-filter__body" id="tag-filter-body">
+        <p class="tag-filter__hint" data-i18n="tags.filter.hint">Selecciona etiquetas para ver actividades relacionadas.</p>
+        <div class="tag-filter__list" data-tag-filter-list></div>
+        <p class="tag-filter__empty" data-i18n="tags.filter.noResults" hidden>No hay actividades con esas etiquetas.</p>
+      </div>
+    </section>
+  </div>
 
   <div class="activity-grid">
     <a href="html/game.html" class="activity-card" data-tags="juego,melodia,inicial,intermedio,avanzado" data-theme="catch" data-emoji="🎯">
