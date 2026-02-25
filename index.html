@@ -35,13 +35,15 @@
     </section>
 
     <section class="tag-filter is-collapsed" data-tag-filter>
-      <header class="tag-filter__header">
+      <div class="filters-panel__tag-actions">
         <h2 data-i18n="tags.filter.title">Filtrar por etiquetas</h2>
-        <button type="button" class="tag-filter__toggle" data-tag-filter-toggle aria-expanded="false" aria-controls="tag-filter-body">
-          <span data-i18n="tags.filter.show">Mostrar etiquetas</span>
-        </button>
-        <button type="button" class="tag-filter__clear" data-tag-filter-clear data-i18n="tags.filter.clear">Limpiar filtros</button>
-      </header>
+        <div class="filters-panel__tag-buttons">
+          <button type="button" class="tag-filter__toggle filters-panel__tag-toggle" data-tag-filter-toggle aria-expanded="false" aria-controls="tag-filter-body">
+            <span data-i18n="tags.filter.show">Mostrar etiquetas</span>
+          </button>
+          <button type="button" class="tag-filter__clear filters-panel__tag-clear" data-tag-filter-clear data-i18n="tags.filter.clear">Limpiar filtros</button>
+        </div>
+      </div>
       <div class="tag-filter__body" id="tag-filter-body">
         <p class="tag-filter__hint" data-i18n="tags.filter.hint">Selecciona etiquetas para ver actividades relacionadas.</p>
         <div class="tag-filter__list" data-tag-filter-list></div>
