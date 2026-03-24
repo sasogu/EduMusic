@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.5.3';
+const SW_VERSION = 'v1.5.4';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 const SCOPE_URL = new URL(self.registration.scope);
@@ -17,6 +17,7 @@ const ASSETS = [
   'css/piano.css',
   'css/rhythm-dictation.css',
   'css/melody-dictation.css',
+  'css/timbre-dictation.css',
   'css/melo-rhythm-dictation.css',
   'css/pitch-direction.css',
   'css/pitch-height.css',
@@ -43,6 +44,7 @@ const ASSETS = [
   'js/i18n/offline.js',
   'js/i18n/piano.js',
   'js/i18n/melody-dictation.js',
+  'js/i18n/timbre-dictation.js',
   'js/i18n/melo-rhythm-dictation.js',
   'js/i18n/pitch-direction.js',
   'js/i18n/pitch-height.js',
@@ -68,6 +70,7 @@ const ASSETS = [
   'html/rhythm.html',
   'html/rhythm-dictation.html',
   'html/melody-dictation.html',
+  'html/timbre-dictation.html',
   'html/melo-rhythm-dictation.html',
   'html/pitch-direction.html',
   'html/pitch-height.html',
@@ -87,6 +90,7 @@ const ASSETS = [
   'js/rhythm.js',
   'js/rhythm-dictation.js',
   'js/melody-dictation.js',
+  'js/timbre-dictation.js',
   'js/melo-rhythm-dictation.js',
   'js/score-service.js',
   'js/pitch-direction.js',
@@ -108,6 +112,18 @@ const ASSETS = [
   'assets/audio/error.mp3',
   'assets/audio/winner.mp3',
   'assets/audio/caja.mp3',
+  'assets/audio/arpa.mp3',
+  'assets/audio/cello.mp3',
+  'assets/audio/clarinet.mp3',
+  'assets/audio/contrabajo.mp3',
+  'assets/audio/fagot.mp3',
+  'assets/audio/oboe.mp3',
+  'assets/audio/saxo.mp3',
+  'assets/audio/trombone.mp3',
+  'assets/audio/trompa.mp3',
+  'assets/audio/viola.mp3',
+  'assets/audio/violonchelo.mp3',
+  'assets/audio/tuba.mp3',
   'assets/piano/key01.ogg',
   'assets/piano/key02.ogg',
   'assets/piano/key03.ogg',
