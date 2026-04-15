@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.5.6';
+const SW_VERSION = 'v1.5.7';
 const CACHE = 'EduMúsic-' + SW_VERSION;
 const META_CACHE = 'EduMúsic-meta';
 const SCOPE_URL = new URL(self.registration.scope);
@@ -54,7 +54,6 @@ const ASSETS = [
   'js/i18n/rankings.js',
   'js/i18n/piano-hero.js',
   'js/i18n/minijocs.js',
-  'js/i18n/educraft.js',
   'js/i18n/cajaritmos.js',
   'manifest.json',
   'html/game.html',
@@ -82,7 +81,6 @@ const ASSETS = [
   'html/palabras-musicales.html',
   'html/quiz.html',
   'html/minijocs.html',
-  'html/educraft.html',
   'html/rankings.html',
   'js/game.js',
   'js/memory.js',
