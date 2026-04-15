@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="educraft.title">EduCraft</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="icon" href="../assets/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="../assets/icon-192.png">
+</head>
+<body>
+  <img src="../assets/icon-512.png" alt="Logo EduMúsic" style="display:block;width:96px;height:96px;margin:0 auto 16px;">
+
+  <h1 data-i18n="educraft.title">EduCraft</h1>
+  <p class="embed-intro" data-i18n="educraft.intro">
+    Juego embebido desde educraft.edutictac.es. Si el navegador bloquea la carga, puedes abrirlo fuera de EduMúsic.
+  </p>
+
+  <div class="embed-actions">
+    <a href="minijocs.html" class="home-link btn-secondary">
+      <span class="home-icon" aria-hidden="true">⌂</span>
+      <span data-i18n="educraft.back">Volver a minijocs</span>
+    </a>
+    <a href="../index.html" class="home-link btn-secondary">
+      <span class="home-icon" aria-hidden="true">⌂</span>
+      <span data-i18n="educraft.backHome">Volver al inicio</span>
+    </a>
+    <a
+      class="home-link"
+      href="https://educraft.edutictac.es/"
+      target="_blank"
+      rel="noopener noreferrer"
+      data-i18n="educraft.open"
+    >Abrir en nueva pestaña</a>
+  </div>
+
+  <p class="embed-note" data-i18n="educraft.note">
+    Si no aparece dentro de esta página, es una limitación del sitio externo o del navegador.
+  </p>
+
+  <div class="embed-frame-wrap" role="region" aria-label="EduCraft">
+    <iframe
+      class="embed-frame"
+      title="EduCraft"
+      src="https://educraft.edutictac.es/"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+      allow="fullscreen; autoplay"
+      allowfullscreen
+    ></iframe>
+  </div>
+
+  <footer class="page-footer" data-sw-status></footer>
+
+  <script src="../js/app.js" defer></script>
+  <script src="../js/audio-settings.js" defer></script>
+  <script src="../js/i18n/educraft.js" defer></script>
+</body>
+</html>

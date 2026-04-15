@@ -872,6 +872,10 @@ button {
   background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(59, 130, 246, 0.08)), #fff;
 }
 
+.activity-card[data-theme="educraft"] {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(59, 130, 246, 0.08)), #fff;
+}
+
 .activity-card--placeholder {
   background: #f1f5f9;
   box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.4);
