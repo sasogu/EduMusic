@@ -2,19 +2,7 @@
   const DEFAULT_MAX_ENTRIES = 10;
   const DEFAULT_INITIALS = 'AAA';
   const GENERIC_ANON_INITIALS = new Set(['ANO']);
-  const CURRENT_SCRIPT = (typeof document !== 'undefined') ? document.currentScript : null;
-  const DEFAULT_CONFIG_URL = (() => {
-    if (!CURRENT_SCRIPT || !CURRENT_SCRIPT.src) return null;
-    try {
-      return new URL('firebase-config.js', CURRENT_SCRIPT.src).href;
-    } catch (_) {
-      return null;
-    }
-  })();
-  const FIREBASE_SDK_URLS = [
-    'https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js',
-    'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js',
-  ];
+  const DEFAULT_API_BASE = (typeof window !== 'undefined' && window.EDUMUSIC_API_BASE) || '/api';
 
   let DEBUG = false;
   function debugLog(...args) {
@@ -24,573 +12,71 @@
     } catch (_) {}
   }
 
-  const FirebaseBackend = {
-    sdkUrls: FIREBASE_SDK_URLS,
-    scriptPromises: Object.create(null),
-    initPromise: null,
-    config: undefined,
-    app: null,
-    db: null,
-    firebaseNamespace: null,
-    configScriptUrl: DEFAULT_CONFIG_URL,
-    configScriptPromise: null,
-
-    overrideConfig(value) {
-      if (value && typeof value === 'object') {
-        this.config = value;
-        debugLog('Firebase config overridden', Object.keys(value));
-      } else if (value === null) {
-        this.config = null;
-        debugLog('Firebase explicitly disabled');
-      } else {
-        this.config = undefined;
-        debugLog('Firebase config reset to undefined');
-      }
-      this.reset();
-    },
-
-    reset() {
-      this.initPromise = null;
-      this.app = null;
-      this.db = null;
-      this.firebaseNamespace = null;
-      this.configScriptPromise = null;
-      debugLog('Firebase backend reset');
-    },
-
-    readConfig() {
-      if (typeof window !== 'undefined') {
-        const globalConfig = window.EDUMUSIC_FIREBASE_CONFIG
-          || window.EduMusicFirebaseConfig
-          || window.firebaseConfig
-          || null;
-        if (globalConfig && typeof globalConfig === 'object') return globalConfig;
-      }
-      if (typeof document !== 'undefined') {
-        const script = document.querySelector('script[type="application/json"][data-firebase-config]');
-        if (script && script.textContent) {
-          try {
-            const parsed = JSON.parse(script.textContent);
-            if (parsed && typeof parsed === 'object') return parsed;
-          } catch (_) {}
-        }
-        const meta = document.querySelector('meta[name="edumusic:firebase-config"]');
-        if (meta && typeof meta.content === 'string' && meta.content.trim()) {
-          try {
-            const parsed = JSON.parse(meta.content);
-            if (parsed && typeof parsed === 'object') return parsed;
-          } catch (_) {}
-        }
-      }
-      return null;
-    },
-
-    async ensureConfigLoaded() {
-      if (this.config !== undefined && this.config !== null) return this.config;
-      if (typeof window !== 'undefined' && window.EDUMUSIC_FIREBASE_CONFIG !== undefined) {
-        this.config = this.readConfig() || null;
-        debugLog('Firebase config read from window', !!this.config);
-        return this.config;
-      }
-      if (!this.configScriptUrl || typeof document === 'undefined') {
-        if (this.config === undefined) this.config = null;
-        debugLog('No firebase config script available, remote disabled');
-        return this.config;
-      }
-      if (!this.configScriptPromise) {
-        debugLog('Loading firebase config script', this.configScriptUrl);
-        this.configScriptPromise = this.loadScript(this.configScriptUrl).catch((err) => {
-          console.warn('[ScoreService] Firebase config script failed to load', err);
-        });
-      }
-      try {
-        await this.configScriptPromise;
-        debugLog('Firebase config script loaded');
-      } catch (_) {}
-      if (this.config === undefined) {
-        this.config = this.readConfig() || null;
-        debugLog('Firebase config after script load', !!this.config);
-      }
-      return this.config;
-    },
-
-    ensureConfig() {
-      if (this.config === undefined) {
-        this.config = this.readConfig() || null;
-      }
-      return this.config;
-    },
+  const RestBackend = {
+    apiBase: DEFAULT_API_BASE,
 
     isConfigured() {
-      const cfg = this.ensureConfig();
-      const ready = cfg && typeof cfg === 'object' && typeof cfg.apiKey === 'string';
-      debugLog('isConfigured?', ready, cfg && cfg.projectId);
-      return ready;
+      return true;
     },
 
-    loadScript(src, options = {}) {
-      if (this.scriptPromises[src]) return this.scriptPromises[src];
-      if (typeof document === 'undefined') {
-        this.scriptPromises[src] = Promise.reject(new Error('Firebase SDK requires a DOM environment'));
-        return this.scriptPromises[src];
-      }
-      this.scriptPromises[src] = new Promise((resolve, reject) => {
-        let restoreAmd = null;
-        if (options.disableAmd && typeof window !== 'undefined' && window.define) {
-          // IMPORTANT: Do not delete/undefine `window.define` on pages using RequireJS.
-          // Firebase compat uses UMD and will prefer AMD if `define.amd` is truthy.
-          // We temporarily disable ONLY the AMD marker so Firebase attaches to `window.firebase`.
-          let prevAmd;
-          try {
-            prevAmd = window.define.amd;
-          } catch (_) {
-            prevAmd = undefined;
-          }
-          restoreAmd = () => {
-            try {
-              window.define.amd = prevAmd;
-            } catch (_) {}
-          };
-          try {
-            window.define.amd = undefined;
-          } catch (_) {}
-        }
-        const existing = document.querySelector(`script[src="${src}"]`);
-        if (existing) {
-          if (existing.dataset && existing.dataset.loaded === 'true') {
-            debugLog('Script already loaded', src);
-            if (restoreAmd) restoreAmd();
-            resolve();
-            return;
-          }
-          existing.addEventListener('load', () => {
-            debugLog('Script load event (existing)', src);
-            if (restoreAmd) restoreAmd();
-            resolve();
-          });
-          existing.addEventListener('error', () => {
-            if (restoreAmd) restoreAmd();
-            reject(new Error(`Failed loading ${src}`));
-          });
-          return;
-        }
-        const el = document.createElement('script');
-        el.src = src;
-        el.async = false;
-        el.defer = false;
-        el.crossOrigin = 'anonymous';
-        el.addEventListener('load', () => {
-          if (el.dataset) el.dataset.loaded = 'true';
-          debugLog('Script load event', src);
-          if (restoreAmd) restoreAmd();
-          resolve();
-        });
-        el.addEventListener('error', () => {
-          if (restoreAmd) restoreAmd();
-          reject(new Error(`Failed loading ${src}`));
-        });
-        document.head.appendChild(el);
-        debugLog('Script appended', src);
-      });
-      return this.scriptPromises[src];
-    },
-
-    async ensureScripts() {
-      if (this.firebaseNamespace && typeof this.firebaseNamespace.initializeApp === 'function') {
-        return;
-      }
-
-      // If Firebase is already present (e.g. preloaded before RequireJS), just reuse it.
-      if (typeof window !== 'undefined' && window.firebase && typeof window.firebase.initializeApp === 'function') {
-        this.firebaseNamespace = window.firebase;
-        debugLog('Firebase SDK already present on window');
-        return;
-      }
-
-      // RequireJS/AMD pages are sensitive: toggling AMD markers can break UMD libs (Kinetic/buzz).
-      // In that case, require an explicit preload of Firebase (see EduSnake) instead of dynamic load.
-      if (typeof window !== 'undefined' && window.requirejs && window.define && window.define.amd) {
-        console.warn('[ScoreService] RequireJS detected: Firebase must be preloaded (skipping dynamic SDK load)');
-        return;
-      }
-      debugLog('Ensuring Firebase SDK scripts');
-      for (const src of this.sdkUrls) {
-        await this.loadScript(src, { disableAmd: true });
-      }
-      this.firebaseNamespace = (typeof window !== 'undefined') ? (window.firebase || null) : null;
-      debugLog('Firebase SDK scripts ready');
-    },
-
-    async ensureInit() {
-      if (this.db) return this.db;
-      await this.ensureConfigLoaded();
-      const config = this.ensureConfig();
-      if (!config || typeof config !== 'object' || !config.apiKey) {
-        debugLog('Firebase config missing apiKey, skipping init');
-        return null;
-      }
-      if (!this.initPromise) {
-        debugLog('Initialising Firebase');
-        this.initPromise = (async () => {
-          await this.ensureScripts();
-          const firebase = this.firebaseNamespace || (typeof window !== 'undefined' ? window.firebase : null);
-          if (!firebase || typeof firebase.initializeApp !== 'function') {
-            throw new Error('Firebase SDK not available on window');
-          }
-          let app;
-          try {
-            if (firebase.apps && firebase.apps.length) {
-              app = firebase.apps.find((candidate) => {
-                try {
-                  return candidate && candidate.options && candidate.options.projectId === config.projectId;
-                } catch (_) {
-                  return false;
-                }
-              }) || firebase.app();
-            } else {
-              app = firebase.initializeApp(config);
-            }
-          } catch (err) {
-            if (err && err.code === 'app/duplicate-app') {
-              app = firebase.app();
-            } else {
-              throw err;
-            }
-          }
-          const db = firebase.firestore(app);
-          try {
-            db.settings({ ignoreUndefinedProperties: true, merge: true });
-          } catch (_) {}
-          this.app = app;
-          this.db = db;
-          debugLog('Firebase initialised for project', config.projectId || config.project_id || 'unknown');
-          return db;
-        })().catch((err) => {
-          console.warn('[ScoreService] Firebase initialisation failed', err);
-          this.reset();
-          return null;
-        });
-      }
-      return this.initPromise;
-    },
-
-    collectionRef(board, period = 'all-time', options = {}) {
-      const db = this.db;
-      if (!db) return null;
-      const { weekKey, useLegacyWeekly = false } = options || {};
+    buildKey(board) {
       const rawKey = (board && board.options && (board.options.rankKey || board.options.gameId)) || 'default';
-      const key = sanitizeKey(rawKey) || 'default';
-      const docRef = db.collection('leaderboards').doc(key);
-      let reference = null;
-      if (period === 'weekly') {
-        if (useLegacyWeekly) {
-          reference = docRef.collection('entries-weekly');
-        } else {
-          const resolvedWeekKey = weekKey || getWeekKey();
-          if (!resolvedWeekKey) return null;
-          reference = docRef.collection('weekly').doc(resolvedWeekKey).collection('entries');
-        }
-      } else {
-        reference = docRef.collection('entries');
-      }
-      const refPath = getRefPath(reference);
-      debugLog('collectionRef resolved', {
-        period,
-        key,
-        weekKey: options.weekKey || null,
-        legacy: !!useLegacyWeekly,
-        path: refPath,
-      });
-      return reference;
-    },
-
-    normaliseEntryPayload(board, entry) {
-      const firebase = window.firebase;
-      const nowDate = new Date();
-      let createdAtLocal = nowDate;
-      const weekKey = getWeekKey(nowDate);
-      if (firebase && firebase.firestore && firebase.firestore.Timestamp) {
-        createdAtLocal = firebase.firestore.Timestamp.fromDate(nowDate);
-      }
-      debugLog('normaliseEntryPayload', {
-        gameId: board && board.options && board.options.gameId,
-        weekKey,
-        timestamp: nowDate.toISOString(),
-      });
-      const payload = {
-        name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
-        score: Number(entry && entry.score != null ? entry.score : 0) || 0,
-        createdAt: firebase && firebase.firestore && firebase.firestore.FieldValue
-          ? firebase.firestore.FieldValue.serverTimestamp()
-          : null,
-        createdAtLocal,
-        tsString: entry && entry.ts ? entry.ts : nowDate.toISOString(),
-        gameId: (board && board.options && board.options.gameId) || null,
-        weekKey,
-        version: 2,
-      };
-      debugLog('normaliseEntryPayload payload keys', Object.keys(payload));
-      return payload;
+      return sanitizeKey(rawKey) || 'default';
     },
 
     async addEntry(board, entry) {
-      const db = await this.ensureInit();
-      if (!db) return false;
+      const gameId = this.buildKey(board);
+      const payload = {
+        game_id: gameId,
+        name: normalizeInitials(entry && entry.name != null ? entry.name : '') || DEFAULT_INITIALS,
+        score: Number(entry && entry.score != null ? entry.score : 0) || 0,
+      };
       try {
-        // Prepare payload and collection references
-        const payload = this.normaliseEntryPayload(board, entry);
-        const currentWeekKey = payload && payload.weekKey ? payload.weekKey : getWeekKey();
-        const payloadAllTime = { ...payload };
-        delete payloadAllTime.weekKey;
-        const collAllTime = this.collectionRef(board, 'all-time');
-        const collWeekly = this.collectionRef(board, 'weekly', { weekKey: currentWeekKey });
-        const collWeeklyLegacy = this.collectionRef(board, 'weekly', { weekKey: currentWeekKey, useLegacyWeekly: true });
-
-        if (collAllTime) await collAllTime.add(payloadAllTime);
-        debugLog('addEntry remote save complete', {
-          gameId: board && board.options && board.options.gameId,
-          period: 'all-time',
-          path: getRefPath(collAllTime),
+        const res = await fetch(`${this.apiBase}/scores`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
         });
-        if (collWeekly) {
-          await collWeekly.add(payload);
-          debugLog('addEntry remote save complete', {
-            gameId: board && board.options && board.options.gameId,
-            period: 'weekly',
-            weekKey: currentWeekKey,
-            path: getRefPath(collWeekly),
-          });
+        if (!res.ok) {
+          debugLog('addEntry REST failed', res.status, gameId);
+          return false;
         }
-        if (collWeeklyLegacy) {
-          await collWeeklyLegacy.add(payload);
-          debugLog('addEntry remote save complete', {
-            gameId: board && board.options && board.options.gameId,
-            period: 'weekly-legacy',
-            weekKey: currentWeekKey,
-            path: getRefPath(collWeeklyLegacy),
-          });
-        }
-        
         return true;
       } catch (err) {
-        console.warn('[ScoreService] Firebase addEntry failed', {
-          gameId: board && board.options && board.options.gameId,
-          payloadKeys: payload ? Object.keys(payload) : [],
-          weekKey: currentWeekKey,
-        }, err);
+        console.warn('[ScoreService] REST addEntry failed', gameId, err);
         return false;
       }
     },
 
-    parseSnapshot(doc) {
-      if (!doc) return null;
-      const data = doc.data && typeof doc.data === 'function' ? doc.data() : doc;
-      if (!data || typeof data !== 'object') return null;
-      let ts = null;
-      try {
-        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
-          ts = data.createdAt.toDate();
-        } else if (data.createdAtLocal && typeof data.createdAtLocal.toDate === 'function') {
-          ts = data.createdAtLocal.toDate();
-        } else if (data.tsString) {
-          ts = new Date(data.tsString);
-        }
-      } catch (_) {
-        ts = null;
-      }
-      if (!(ts instanceof Date) || Number.isNaN(ts.getTime())) ts = new Date();
-      return {
-        name: normalizeInitials(data.name != null ? data.name : '') || DEFAULT_INITIALS,
-        score: Number(data.score != null ? data.score : 0) || 0,
-        ts: ts.toISOString(),
-      };
-    },
-
     async fetchEntries(board, period = 'all-time') {
-      const db = await this.ensureInit();
-      if (!db) {
-        debugLog('fetchEntries: Firestore unavailable, using local', board && board.options && board.options.gameId);
-        return null;
-      }
-      const weekReference = period === 'weekly' ? new Date() : null;
-      const weekStart = weekReference ? getWeekStart(weekReference) : null;
-      const weekKey = weekReference ? getWeekKey(weekReference) : null;
-      const coll = this.collectionRef(
-        board,
-        period,
-        weekKey ? { weekKey } : undefined,
-      );
-      if (!coll) {
-        debugLog('fetchEntries: collectionRef missing', board && board.options && board.options.gameId);
-        return null;
-      }
+      const gameId = this.buildKey(board);
       const limit = (board && board.options && board.options.maxEntries) || DEFAULT_MAX_ENTRIES;
-
-      const processWeeklyEntries = (entries) => {
-        if (!weekStart) return entries;
-        const filtered = entries.filter((entry) => {
-          const ts = new Date(entry.ts);
-          return ts >= weekStart;
-        });
-        filtered.sort(sortByScoreThenTs);
-        const unique = dedupeByInitialsSorted(filtered);
-        const top = unique.slice(0, limit);
-        debugLog('fetchEntries: weekly post-process', filtered.length, '->', top.length);
-        return top;
-      };
-
-      const runQuery = async (query, { weeklyFilter = false, label = 'unnamed' } = {}) => {
-        debugLog('fetchEntries: runQuery start', {
-          label,
-          period,
-          gameId: board && board.options && board.options.gameId,
-          weeklyFilter,
-          path: getRefPath(query),
-        });
-        const snap = await query.get();
-        const entries = [];
-        if (snap && typeof snap.forEach === 'function') {
-          snap.forEach((doc) => {
-            const parsed = this.parseSnapshot(doc);
-            if (parsed) entries.push(parsed);
-          });
+      const expandedFetchLimit = Math.min(200, Math.max(limit * 5, limit + 40));
+      const url = `${this.apiBase}/scores?game_id=${encodeURIComponent(gameId)}&period=${period}&limit=${expandedFetchLimit}`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          debugLog('fetchEntries REST failed', res.status, gameId, period);
+          return null;
         }
-        debugLog('fetchEntries: runQuery done', {
-          label,
-          rawEntries: entries.length,
-          weeklyFilter,
-        });
-        // Para all-time, aunque la query venga ordenada/limitada, normalizamos el orden y
-        // aplicamos deduplicación por iniciales para cumplir la regla global.
-        let result;
-        if (weeklyFilter) {
-          result = processWeeklyEntries(entries);
-        } else {
-          entries.sort(sortByScoreThenTs);
-          result = dedupeByInitialsSorted(entries).slice(0, limit);
+        const data = await res.json();
+        const entries = (Array.isArray(data) ? data : []).map((item) => ({
+          name: normalizeInitials(item && item.name != null ? item.name : '') || DEFAULT_INITIALS,
+          score: Number(item && item.score != null ? item.score : 0) || 0,
+          ts: item && item.ts ? item.ts : new Date().toISOString(),
+        }));
+        if (period === 'weekly') {
+          const weekStart = getWeekStart(new Date());
+          const filtered = entries.filter((entry) => new Date(entry.ts) >= weekStart);
+          filtered.sort(sortByScoreThenTs);
+          return dedupeByInitialsSorted(filtered).slice(0, limit);
         }
-        debugLog('fetchEntries: runQuery result size', {
-          label,
-          returned: Array.isArray(result) ? result.length : 0,
-        });
-        return result;
-      };
-
-      const attempts = [];
-      const enqueueAttempt = (label, fn) => {
-        attempts.push({ label, fn });
-      };
-      if (period === 'weekly') {
-        const weeklyFetchLimit = Math.min(200, Math.max(limit * 5, limit + 40));
-        if (coll && weekKey) {
-          debugLog('Weekly scoped collection query', weekKey, 'limit', limit);
-          enqueueAttempt(
-            'weekly-scoped-score+created',
-            () => runQuery(
-              coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
-              { label: 'weekly-scoped-score+created' },
-            ),
-          );
-          enqueueAttempt(
-            'weekly-scoped-score',
-            () => runQuery(
-              coll.orderBy('score', 'desc').limit(limit),
-              { label: 'weekly-scoped-score' },
-            ),
-          );
-        }
-
-        // Legacy structure fallback (single collection)
-        const legacyColl = this.collectionRef(board, 'weekly', { useLegacyWeekly: true });
-        if (legacyColl) {
-          if (weekKey) {
-            debugLog('Legacy weekKey query', weekKey, 'limit', limit);
-            enqueueAttempt(
-              'legacy-weekKey-score+created',
-              () => runQuery(
-                legacyColl
-                  .where('weekKey', '==', weekKey)
-                  .orderBy('score', 'desc')
-                  .orderBy('createdAt', 'asc')
-                  .limit(limit),
-                { label: 'legacy-weekKey-score+created' },
-              ),
-            );
-            enqueueAttempt(
-              'legacy-weekKey-score',
-              () => runQuery(
-                legacyColl
-                  .where('weekKey', '==', weekKey)
-                  .orderBy('score', 'desc')
-                  .limit(limit),
-                { label: 'legacy-weekKey-score' },
-              ),
-            );
-          }
-          const firebase = window.firebase;
-          if (firebase && firebase.firestore && firebase.firestore.Timestamp && weekStart) {
-            const weekTimestamp = firebase.firestore.Timestamp.fromDate(weekStart);
-            debugLog('Legacy createdAt filter: from', weekStart.toISOString(), 'limit', weeklyFetchLimit);
-            enqueueAttempt(
-              'legacy-createdAt-range',
-              () => runQuery(
-                legacyColl
-                  .where('createdAtLocal', '>=', weekTimestamp)
-                  .orderBy('createdAtLocal', 'asc')
-                  .limit(weeklyFetchLimit),
-                { weeklyFilter: true, label: 'legacy-createdAt-range' },
-              ),
-            );
-          }
-          enqueueAttempt(
-            'legacy-createdAt-desc',
-            () => runQuery(
-              legacyColl
-                .orderBy('createdAtLocal', 'desc')
-                .limit(weeklyFetchLimit),
-              { weeklyFilter: true, label: 'legacy-createdAt-desc' },
-            ),
-          );
-        }
-      } else {
-        enqueueAttempt(
-          'all-time-score+created',
-          () => runQuery(
-            coll.orderBy('score', 'desc').orderBy('createdAt', 'asc').limit(limit),
-            { label: 'all-time-score+created' },
-          ),
-        );
-        enqueueAttempt(
-          'all-time-score',
-          () => runQuery(
-            coll.orderBy('score', 'desc').limit(limit),
-            { label: 'all-time-score' },
-          ),
-        );
+        entries.sort(sortByScoreThenTs);
+        return dedupeByInitialsSorted(entries).slice(0, limit);
+      } catch (err) {
+        console.warn('[ScoreService] REST fetchEntries failed', gameId, period, err);
+        return null;
       }
-
-      for (let i = 0; i < attempts.length; i += 1) {
-        try {
-          const { label, fn } = attempts[i];
-          debugLog('fetchEntries: attempt start', {
-            label,
-            index: i,
-            period,
-            gameId: board && board.options && board.options.gameId,
-          });
-          const entries = await fn();
-          if (Array.isArray(entries)) return entries;
-        } catch (err) {
-          const label = attempts[i] && attempts[i].label ? attempts[i].label : `attempt-${i}`;
-          if (i === attempts.length - 1) {
-            console.warn('[ScoreService] Firebase fetchEntries failed', label, err);
-            return null;
-          }
-          console.warn('[ScoreService] Firebase fetchEntries retrying with reduced query', label, err);
-          debugLog('fetchEntries: retrying with fallback query', { label, nextAttempt: i + 1 });
-        }
-      }
-      return null;
     },
   };
 
@@ -944,37 +430,9 @@
     listenerAttached: false,
 
     configure(opts = {}) {
-      if (Object.prototype.hasOwnProperty.call(opts, 'firebase')) {
-        if (opts.firebase && typeof opts.firebase === 'object') {
-          if (Array.isArray(opts.firebase.sdkUrls) && opts.firebase.sdkUrls.length) {
-            FirebaseBackend.sdkUrls = opts.firebase.sdkUrls.slice();
-            FirebaseBackend.scriptPromises = Object.create(null);
-            debugLog('configure: sdkUrls override', FirebaseBackend.sdkUrls);
-          }
-          if (isNonEmptyString(opts.firebase.configUrl)) {
-            const baseHref = (CURRENT_SCRIPT && CURRENT_SCRIPT.src)
-              || (typeof window !== 'undefined' ? window.location.href : undefined)
-              || undefined;
-            try {
-              FirebaseBackend.configScriptUrl = baseHref
-                ? new URL(opts.firebase.configUrl, baseHref).href
-                : opts.firebase.configUrl;
-            } catch (_) {
-              FirebaseBackend.configScriptUrl = opts.firebase.configUrl;
-            }
-            FirebaseBackend.configScriptPromise = null;
-            debugLog('configure: configUrl override', FirebaseBackend.configScriptUrl);
-          }
-          if (opts.firebase.config) {
-            FirebaseBackend.overrideConfig(opts.firebase.config);
-            debugLog('configure: direct firebase config provided');
-          }
-        } else if (opts.firebase === null || opts.firebase === false) {
-          FirebaseBackend.overrideConfig(null);
-        }
-      }
-      if (Object.prototype.hasOwnProperty.call(opts, 'firebaseConfig')) {
-        FirebaseBackend.overrideConfig(opts.firebaseConfig);
+      if (Object.prototype.hasOwnProperty.call(opts, 'apiBase') && isNonEmptyString(opts.apiBase)) {
+        RestBackend.apiBase = opts.apiBase.replace(/\/+$/, '');
+        debugLog('configure: apiBase override', RestBackend.apiBase);
       }
       if (Object.prototype.hasOwnProperty.call(opts, 'debug')) {
         DEBUG = !!opts.debug;
@@ -1213,13 +671,13 @@
         debugLog('addEntry local save', gameId, period, score, included ? 'top-entry' : 'discarded');
       }
       
-      // Save to Firebase (general leaderboard plus weekly scopes/legacy fallback)
-      await FirebaseBackend.addEntry(board, entry);
+      // Save to the self-hosted leaderboard (all-time + weekly, server-side)
+      await RestBackend.addEntry(board, entry);
     },
 
     async loadEntries(board, period = 'all-time') {
       debugLog('loadEntries start', board.options.gameId, period);
-      const remote = await FirebaseBackend.fetchEntries(board, period);
+      const remote = await RestBackend.fetchEntries(board, period);
       if (Array.isArray(remote)) {
         this.persistLocal(board, remote, period);
         debugLog('loadEntries from remote', board.options.gameId, remote.length);
@@ -1268,11 +726,11 @@
 
   ScoreService.normalizeInitials = normalizeInitials;
   ScoreService.defaultInitials = DEFAULT_INITIALS;
-  ScoreService.setFirebaseConfig = (config) => {
-    FirebaseBackend.overrideConfig(config);
-    debugLog('setFirebaseConfig called');
+  ScoreService.setApiBase = (base) => {
+    if (isNonEmptyString(base)) RestBackend.apiBase = base.replace(/\/+$/, '');
+    debugLog('setApiBase called', RestBackend.apiBase);
   };
-  ScoreService.isRemoteEnabled = () => FirebaseBackend.isConfigured();
+  ScoreService.isRemoteEnabled = () => RestBackend.isConfigured();
   ScoreService.setDebug = (value) => {
     DEBUG = !!value;
     debugLog('Debug mode set via setDebug()', DEBUG);

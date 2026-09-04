@@ -98,7 +98,7 @@ define([ 'backbone', 'settings' ],
                     database._sortAndTrim();
                     database._saveLocalScores();
 
-                    // Sincronizar con el ranking global (Firebase) usando ScoreService.
+                    // Sincronizar con el ranking global (servidor autoalojado) usando ScoreService.
                     // IMPORTANT: no usamos el formulario de ScoreService porque EduSnake ya tiene
                     // un input propio (Kinetic EditableText) y compiten por el foco.
                     try {
