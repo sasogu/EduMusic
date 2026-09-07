@@ -28,6 +28,7 @@ function ensureSwFooter() {
     </div>
     <div class="page-footer__links">
       <a class="page-footer__link" data-about-link data-i18n="footer.about" href="#">Sobre EduMúsic</a>
+      <a class="page-footer__link" href="https://edutictac.es/privacitat.html">Privacitat</a>
     </div>
   `;
   const aboutLink = host.querySelector('[data-about-link]');
